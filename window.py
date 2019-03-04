@@ -119,6 +119,8 @@ class Window(Gtk.ApplicationWindow):
         # hbox.pack_start(set_combo, False, False, 0)
         self.add(box)
 
+        self.notebook = Gtk.Notebook()
+
         stack = Gtk.Stack()
         self.stack = stack
         main_model.connect('type-changed', self.on_model_view_changed, stack)
@@ -233,7 +235,7 @@ class Window(Gtk.ApplicationWindow):
         paned.set_property('border-width', 0)
         # paned.set_wide_handle(True)
         paned.pack1(tag_paned, False, True)
-        paned.pack2(stack, True, True)
+        paned.pack2(self.notebook, True, True)
         box.pack_start(paned, True, True, 0)
 
 
@@ -299,23 +301,24 @@ class Window(Gtk.ApplicationWindow):
                 stack.set_visible_child_full('fileedit', 0)
 
     def on_model_type_changed(self, obj):
-        if obj.query_type < QueryType.TAGREAD:
-            if obj.query_type == QueryType.TAGALL:
-                sq = Query.get_all_files(obj.query_media, obj.query_page, obj.query_sort, obj.query_order, filter=obj.query_fn_filter)
-            elif obj.query_type == QueryType.TAG0:
-                sq = Query.get_notag_files(obj.query_media, obj.query_page, obj.query_sort, obj.query_order, filter=obj.query_fn_filter)
-            elif obj.query_type == QueryType.TAG1:
-                sq = Query.get_1tag_files(obj.query_media, obj.query_page, obj.query_sort, obj.query_order, filter=obj.query_fn_filter)
-            elif obj.query_type == QueryType.TAG:
-                tag = obj.query_int
-                sq = Query.get_files(obj.query_media, obj.query_sort, obj.query_order, int(tag), filter=obj.query_fn_filter)
-                #Fill Tag Group Combo
-                sg = Query.get_tags_by_group(int(tag))
-                tag_group_store.clear()
-                for g in sg:
-                    tag_group_store.append(g)
+        # if obj.query_type < QueryType.TAGREAD:
+        #     if obj.query_type == QueryType.TAGALL:
+            # sq = Query.get_all_files(obj.query_media, obj.query_page, obj.query_sort, obj.query_order, filter=obj.query_fn_filter)
+        #     elif obj.query_type == QueryType.TAG0:
+        #         sq = Query.get_notag_files(obj.query_media, obj.query_page, obj.query_sort, obj.query_order, filter=obj.query_fn_filter)
+        #     elif obj.query_type == QueryType.TAG1:
+        #         sq = Query.get_1tag_files(obj.query_media, obj.query_page, obj.query_sort, obj.query_order, filter=obj.query_fn_filter)
+        #     elif obj.query_type == QueryType.TAG:
+            tag = obj.query_int
+            sq = Query.get_files(obj.query_media, obj.query_sort, obj.query_order, int(tag), filter=obj.query_fn_filter)
+            #Fill Tag Group Combo
+            sg = Query.get_tags_by_group(int(tag))
+            tag_group_store.clear()
+            for g in sg:
+                tag_group_store.append(g)
 
-            viewstore.clear()
+            viewstore = ViewStore()
+            # viewstore.clear()
             for q in sq:
                 try:
                     # pb = Pixbuf.new_from_file(f'/media/soni/1001/persistent/1001/thumbs/{q[8]}.jpg')
@@ -324,6 +327,39 @@ class Window(Gtk.ApplicationWindow):
                 except GLib.Error:
                     pb = None
                 viewstore.append((*q[:-1], pb,))
+
+            closebutton = Gtk.Button.new_from_icon_name('gtk-close', 2)
+            closebutton.set_relief(2)
+            label = Gtk.Label('obj.query_str')
+            box = Gtk.Box.new(orientation=0, spacing=0)
+            box.pack_start(label, True, True, 0)
+            box.pack_start(closebutton, False, True, 0)
+            box.show_all()
+
+
+
+            sub_stack = Gtk.Stack()
+            scroll = Gtk.ScrolledWindow()
+            scroll.set_property('shadow-type', 0)
+            grid_view = IconView()
+            grid_view.set_model(viewstore)
+            # grid_view.connect('file-read', self.on_grid_file_read, stack)
+            scroll.add(grid_view)
+            sub_stack.add_named(scroll, 'gridview')
+            #LISTVIEW
+            scroll = Gtk.ScrolledWindow()
+            scroll.set_property('shadow-type', 0)
+            listview=ListView()
+            listview.set_model(viewstore)
+            # listview.connect('file-update', self.on_list_file_update, file_edit)
+            scroll.add(listview)
+            sub_stack.add_named(scroll, 'listview')
+            sub_stack.show_all()
+            sub_stack.set_visible_child_full('listview', 0)
+
+
+            num = self.notebook.append_page(sub_stack, box)
+            self.notebook.set_current_page(num)
 
     def on_tag_edit_list_tag(self, widget, tag_id):
         main_model.set_type(QueryType.TAG, tag_id, None)
