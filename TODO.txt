@@ -1,0 +1,57 @@
+ ===TODO
+
+ - [x] col read signal
+ - [ ] menu widget plan for different tagview
+ - [x] all edit functions working
+ - [ ]   infobar notifications
+ - [x] 1tag Notag 
+ - [ ] media
+ - [ ] tag groups widget planning
+ - [ ] infobar error str, transition, correct class plan
+ - [ ] main model history re class design
+ - [x] sure dialog
+ - [ ] tag menu copy name  copy file names size
+ - [x] rethumb
+ - [x] add entry auto completion
+ - [x]      string drag source
+ - [ ] tag bulamadigi zaman full liste gonderiyor recommend
+
+
+
+
+
+[ViewStack|view:str|
+view-changed|
+on_view_changed()
+set_view()
+set_query()]
+[QueryModel|page:int
+sort
+order
+media
+filter
+type
+str
+int|
+set_query()
+get_query()
+|
+query-changed]
+[ListStore|Query|
+on_query_changed()]
+[ViewStack]1+-1[QueryModel]
+[ViewStack]+-[GridView]
+[ViewStack]+-[ListStore]
+[ViewStack]+-[ListView]
+
+
+[Window] +- [ViewStack]
+[Window] +- [SpinButton]
+[Window] +- [HistoryButton]
+[Window] +- [ViewButton]
+[Window] +- [SortRadio]
+
+[ViewButton|view:str|
+on_view_changed()]
+
+
