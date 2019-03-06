@@ -1,8 +1,8 @@
 
-#delbutton{
-opacity: .2;
-}
-.imageon {
-opacity: 1.0;
-}
 
+.small-button{
+opacity:.1;
+}
+.small-button:hover{
+opacity:1;
+}

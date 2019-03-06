@@ -819,7 +819,12 @@ class MediaSwitcher(Gtk.Button):
 
 
 class ViewSwitcher(Gtk.Box):
+    __gsignals__ = {
+      'switched': (GObject.SIGNAL_RUN_FIRST, None, ()),
+    }
+
     view = GObject.Property(type=str, default="listview")
+
     def __init__(self):
         Gtk.Box.__init__(self, orientation = 0 ,spacing=0)
         self.get_style_context().add_class("linked")
@@ -857,6 +862,7 @@ class ViewSwitcher(Gtk.Box):
     def on_stack_toggled(self, widget, view):
         if widget.get_active():
             self.set_property('view', view)
+            self.emit('switched')
         else:pass
 
 
@@ -1388,7 +1394,7 @@ class TagsView2(Gtk.FlowBox):
 
     def on_row_deleted(self, tree_model, path):
         child = self.get_child_at_index(int(path.to_string()))
-        self.remove(child)
+        # self.remove(child)
 
     def on_child_activated(self, flow_box, child):
         # label = child.get_child().id
@@ -1409,16 +1415,17 @@ class TagLabel(Gtk.FlowBoxChild):
         link_event.connect('button-release-event', self.on_link_clicked)
         box.pack_start(link_event, False, True, 0)
 
-        del_event = Gtk.EventBox()
-        img = Gtk.Image.new_from_stock('gtk-delete', 2)
-        # self.set_css_name('delbutton')
-        img.set_name('delbutton')
+        # del_but = Gtk.Button()
+        # img = Gtk.Image.new_from_stock('gtk-delete', 2)
+        del_but = Gtk.Button.new_from_icon_name('window-close-symbolic', 2)
+        del_but.set_css_name('small-button')
+        # img.set_name('delbutton')
 
-        del_event.connect('button-release-event', self.on_del_clicked)
-        del_event.connect('enter-notify-event', self.on_del_entered, img)
-        del_event.connect('leave-notify-event', self.on_del_leaved, img)
-        del_event.add(img)
-        box.pack_start(del_event, False, True, 0)
+        # del_event.connect('button-release-event', self.on_del_clicked)
+        # del_event.connect('enter-notify-event', self.on_del_entered, img)
+        # del_event.connect('leave-notify-event', self.on_del_leaved, img)
+        # del_but.add(img)
+        box.pack_start(del_but, False, True, 0)
 
         self.id = id
         self.add(box)
@@ -1427,14 +1434,14 @@ class TagLabel(Gtk.FlowBoxChild):
     def on_link_clicked(self, widget, event):
         self.emit('clicked', self.id)
 
-    def on_del_clicked(self, widget, event):
-        self.emit('deleted')
+    # def on_del_clicked(self, widget, event):
+    #     self.emit('deleted')
 
-    def on_del_entered(self, widget, event, img):
-        sc = img.get_style_context()
-        sc.add_class("imgon")
+    # def on_del_entered(self, widget, event, img):
+    #     sc = img.get_style_context()
+    #     sc.add_class("imgon")
 
-    def on_del_leaved(self, widget, event, img):
-        sc = img.get_style_context()
-        sc.remove_class("imgon")
+    # def on_del_leaved(self, widget, event, img):
+    #     sc = img.get_style_context()
+    #     sc.remove_class("imgon")
 

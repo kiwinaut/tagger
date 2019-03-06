@@ -48,6 +48,8 @@ class ViewStore(Gtk.ListStore):
         for q in query:
             self.append(q)
 
+            
+
 class ListView(Gtk.TreeView):
     __gsignals__ = {
       'file-update': (GObject.SIGNAL_RUN_FIRST, None, (int,)),
@@ -59,6 +61,8 @@ class ListView(Gtk.TreeView):
         self.set_rules_hint(True)
         self.get_selection().set_mode(3)
         self.set_rubber_banding(True)
+        self.set_search_column(2)
+        # entry = self.get_search_entry()
         self.set_enable_search(False)
 
         # self.connect('query-tooltip', self.on_tooltip_queried)
@@ -219,7 +223,9 @@ class ListView(Gtk.TreeView):
         # update.connect('activate', self.on_menu_update_activate)
         # menu.append(update)
         menu.show_all()
-        self.dirmenu = menu
+        # self.dirmenu = menu
+        # self.add_events(Gdk.EventMask.BUTTON_PRESS_MASK)
+        self.connect('button-press-event', self.show_menu, menu)
 
         self.connect('row-activated', self.on_menu_read_activate)
 
@@ -237,6 +243,23 @@ class ListView(Gtk.TreeView):
         # self.icon_menu.del_entry.connect('activate', self.on_menu_del_entry_activated)
         # self.icon_menu.del_both.connect('activate', self.on_menu_del_both_activated)
         # self.show_all()
+    def build_menu(self):
+        self.menu = Gtk.Menu()
+        copy = Gtk.MenuItem('Copy')
+        # copy.connect('activate', self.copy)
+        paste = Gtk.MenuItem('Paste')
+        # paste.connect('activate', self.paste)
+        self.menu.append(copy)
+        self.menu.append(paste)
+
+    def show_menu(self, widget, event, menu):
+        """show_menu
+        Shows the right click menu of the current item.
+        """
+        button = event.button
+        if button == Gdk.BUTTON_SECONDARY:
+            menu.popup(None, None, None, None, 0, Gtk.get_current_event_time())
+        return None
 
     def on_menu_read_activate(self, widget, *args):
         selection = self.get_selection()
@@ -363,26 +386,26 @@ class ListView(Gtk.TreeView):
         popover.popup()
 
 
-    def do_button_press_event(self, event):
-        if event.button == Gdk.BUTTON_SECONDARY:
-            selection = self.get_selection()
-            pos = self.get_path_at_pos(event.x, event.y)# path, column, cell_x, cell_y
-            if pos:
-                #clicked any content
-                path, column, cell_x, cell_y = pos
-                if selection.path_is_selected(path):
-                    #clicked in selection
-                    self.dirmenu.popup(None, None, None, None, event.button, event.time)
-                else:
-                    #clicked outside of selection
-                    Gtk.TreeView.do_button_press_event(self, event)
-                    self.dirmenu.popup(None, None, None, None, event.button, event.time)
-            else:
-                #clicked empty area
-                selection.unselect_all()
-                return False
-        else:
-            Gtk.TreeView.do_button_press_event(self, event)
+    # def do_button_press_event(self, event):
+    #     if event.button == Gdk.BUTTON_SECONDARY:
+    #         selection = self.get_selection()
+    #         pos = self.get_path_at_pos(event.x, event.y)# path, column, cell_x, cell_y
+    #         if pos:
+    #             #clicked any content
+    #             path, column, cell_x, cell_y = pos
+    #             if selection.path_is_selected(path):
+    #                 #clicked in selection
+    #                 self.dirmenu.popup(None, None, None, None, event.button, event.time)
+    #             else:
+    #                 #clicked outside of selection
+    #                 Gtk.TreeView.do_button_press_event(self, event)
+    #                 self.dirmenu.popup(None, None, None, None, event.button, event.time)
+    #         else:
+    #             #clicked empty area
+    #             selection.unselect_all()
+    #             return False
+    #     else:
+    #         Gtk.TreeView.do_button_press_event(self, event)
 
 
 class IconView(Gtk.IconView):
