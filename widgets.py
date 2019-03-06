@@ -4,7 +4,7 @@ from humanfriendly import format_size
 from shell_commands import open_file, trash_file
 from clip import rethumb
 from data_models import fe_model, ta_model, main_model, QueryType, col_model, col_store, tag_store
-from humanfriendly import format_size
+# from humanfriendly import format_size
 
 def size_cell_data_func(tree_column, cell, tree_model, iter, data):
     cell.set_property('text', format_size(tree_model[iter][2]))
@@ -14,14 +14,12 @@ target3 = Gtk.TargetEntry.new('text/plain', Gtk.TargetFlags.SAME_APP, 0)
 target4 = Gtk.TargetEntry.new('TAG', Gtk.TargetFlags.SAME_APP, 0)
 
 
-class Test(Gtk.Container):
+class MainSignals(GObject.GObject):
+    __gsignals__ = {
+        'file-update': (GObject.SIGNAL_RUN_FIRST, None, (int, str,)),
+    }
     def __init__(self):
-        Gtk.Container.__init__(self)
-        a = Gtk.Button('A')
-        self.add(a)
-        b = Gtk.Button('B')
-        self.add(b)
-
+        GObject.GObject.__init__(self)
 
 
 class ThumbTile(Gtk.Overlay):
@@ -1350,98 +1348,63 @@ class TagEdit(Gtk.Grid):
         dialog.destroy()
 
 
-class TagsView2(Gtk.FlowBox):
+class TagFlowBox(Gtk.FlowBox):
     __gsignals__ = {
-        'backed': (GObject.SIGNAL_RUN_FIRST, None, ()),
-        'list-tag': (GObject.SIGNAL_RUN_FIRST, None, (int,)),
+        "child-deleted": (GObject.SignalFlags.RUN_FIRST, None, (GObject.GObject,)),
+        "child-clicked": (GObject.SignalFlags.RUN_FIRST, None, (GObject.GObject,))
     }
     def __init__(self):
         Gtk.FlowBox.__init__(self)
         self.set_selection_mode(0)
         self.set_row_spacing(0)
         self.set_column_spacing(0)
-        self.set_orientation(1)
-        self.set_activate_on_single_click(False)
+        self.set_orientation(0)
+        self.set_activate_on_single_click(True)
+        # c = self.get_style_context()
+        # c.add_class('aliases')
+        # self.connect('child-activated', self.on_child_activated)
 
-        self.connect('child-activated', self.on_child_activated)
+    def add_tagchild(self, id, label):
+        child = Gtk.FlowBoxChild()
+        child.id = id
+        child.label = label
+        # child.set_halign(1)
+        # child.set_valign(1)
 
-    def set_model(self, model):
-        model.connect('row-inserted', self.on_row_inserted)
-        model.connect('row-deleted', self.on_row_deleted)
-        # self.model = model
-        # def TreeModelForeachFunc(model, path, iter, data):
-        #     #create sub widget(tag_id, tag_name)
-        #     print(model[iter][1])
-        #     return False
-        # model.foreach(TreeModelForeachFunc)
+        box = Gtk.Box.new(orientation=0, spacing=0)
+        c = box.get_style_context()
+        c.add_class('alias')
 
-    def on_row_inserted(self, tree_model, path, iter):
-        # label = tree_model[iter][1]
-        # print(label, int(path.to_string()))
-        widget = TagLabel(tree_model[iter][0], tree_model[iter][1])
-        widget.connect('deleted', self.on_child_deleted)
-        widget.connect('clicked', self.on_child_clicked)
-        # widget = Gtk.Label(label.title())
-        # widget.id = tree_model[iter][0]
-        # widget.show()
-        self.insert(widget, -1)
-        # self.add(widget)
-
-    def on_child_deleted(self, widget):
-        self.remove(widget)
-
-    def on_child_clicked(self, widget, tag_id):pass
-
-    def on_row_deleted(self, tree_model, path):
-        child = self.get_child_at_index(int(path.to_string()))
-        # self.remove(child)
-
-    def on_child_activated(self, flow_box, child):
-        # label = child.get_child().id
-        print(child.id)
-
-
-class TagLabel(Gtk.FlowBoxChild):
-    __gsignals__ = {
-        "deleted": (GObject.SignalFlags.RUN_FIRST, None, ()),
-        "clicked": (GObject.SignalFlags.RUN_FIRST, None, (int,))
-    }
-    def __init__(self, id, label):
-        Gtk.FlowBoxChild.__init__(self)
-        box = Gtk.Box.new(orientation=0, spacing=4)
         link_event = Gtk.EventBox()
-        label = Gtk.Label(label.title())
-        link_event.add(label)
-        link_event.connect('button-release-event', self.on_link_clicked)
-        box.pack_start(link_event, False, True, 0)
+        labelw = Gtk.Label(label.title())
+        link_event.add(labelw)
+        link_event.connect('button-release-event', self.on_link_clicked, child)
+        box.pack_start(link_event, True, True, 0)
 
-        # del_but = Gtk.Button()
-        # img = Gtk.Image.new_from_stock('gtk-delete', 2)
         del_but = Gtk.Button.new_from_icon_name('window-close-symbolic', 2)
-        del_but.set_css_name('small-button')
-        # img.set_name('delbutton')
+        del_but.connect('clicked', self.on_del_clicked, child)
+        del_but.set_relief(2)
+        del_but.set_can_focus(False)
+        del_but.set_halign(3)
+        del_but.set_valign(3)
+        c = del_but.get_style_context()
+        c.add_class('delbut')
+        box.pack_start(del_but, False, False, 0)
 
-        # del_event.connect('button-release-event', self.on_del_clicked)
-        # del_event.connect('enter-notify-event', self.on_del_entered, img)
-        # del_event.connect('leave-notify-event', self.on_del_leaved, img)
-        # del_but.add(img)
-        box.pack_start(del_but, False, True, 0)
+        child.add(box)
+        child.show_all()
 
-        self.id = id
-        self.add(box)
-        self.show_all()
+        self.add(child)
 
-    def on_link_clicked(self, widget, event):
-        self.emit('clicked', self.id)
+    def on_link_clicked(self, widget, event, child):
+        self.emit('child-clicked', child)
 
-    # def on_del_clicked(self, widget, event):
-    #     self.emit('deleted')
+    def on_del_clicked(self, widget, child):
+        self.emit('child-deleted', child)
 
-    # def on_del_entered(self, widget, event, img):
-    #     sc = img.get_style_context()
-    #     sc.add_class("imgon")
+    # def on_child_activated(self, flow_box, child):
+    #     # label = child.get_child().id
+    #     print(child.id)
 
-    # def on_del_leaved(self, widget, event, img):
-    #     sc = img.get_style_context()
-    #     sc.remove_class("imgon")
+
 

@@ -1,7 +1,7 @@
 from gi.repository import Gtk, GObject, Gdk
 from print_pretty.pretty_size import psize
 from stores import ViewStore
-
+# from widgets import MainSignals
 
 def ctime_cell_data_func(tree_column, cell, tree_model, iter, data):
     date = tree_model[iter][4]
@@ -14,11 +14,11 @@ def size_cell_data_func(tree_column, cell, tree_model, iter, data):
 
 
 class ListView(Gtk.TreeView):
-    __gsignals__ = {
-      'file-update': (GObject.SIGNAL_RUN_FIRST, None, (int,)),
-      # 'edit': (GObject.SIGNAL_RUN_FIRST, None, (object, object,)),
-    }
-    def __init__(self, accel=None):
+    # __gsignals__ = {
+    #   'file-update': (GObject.SIGNAL_RUN_FIRST, None, (int,)),
+    #   # 'edit': (GObject.SIGNAL_RUN_FIRST, None, (object, object,)),
+    # }
+    def __init__(self):
         Gtk.TreeView.__init__(self, has_tooltip=True)
         # self.set_property('headers-visible', True)
         self.set_rules_hint(True)
@@ -112,7 +112,7 @@ class ListView(Gtk.TreeView):
             path = paths[0]
             iter = model.get_iter(path)
             fileview = self.get_parent().get_parent().get_parent()
-            fileview.emit('file-update', model[iter][0])
+            fileview.emit('file-update', model[iter][0], fileview.alias)
 
     def on_menu_edit_activated(self, widget, *args):
         selection = self.get_selection()
@@ -214,16 +214,16 @@ class FileView(Gtk.Box):
     # tag_query = GObject.Property(type=int)
 
     __gsignals__ = {
-        'file-update': (GObject.SIGNAL_RUN_FIRST, None, (int,)),
+        'file-update': (GObject.SIGNAL_RUN_FIRST, None, (int,str,)),
         'tag-update': (GObject.SIGNAL_RUN_FIRST, None, (int,)),
     }
     '''
     Tagged File View
     '''
 
-    def __init__(self, tag_id):
+    def __init__(self, tag_id, alias_name):
         Gtk.Box.__init__(self, orientation=1, spacing=0)
-
+        self.alias = alias_name
 
         search_bar = Gtk.SearchBar()
         searchentry = Gtk.SearchEntry()

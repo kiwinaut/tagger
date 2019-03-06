@@ -1,6 +1,6 @@
 from gi.repository import Gtk, Gdk, GLib
 from config import CONFIG
-from widgets import ViewSwitcher, IconView, TagEdit, TagView, HistorySwitcher, MediaSwitcher, IconTagView, DetailView, TagTreeView
+from widgets import ViewSwitcher, IconView, TagView, HistorySwitcher, MediaSwitcher, IconTagView, DetailView, TagTreeView
 from dirview import TagStore, CollectionView, ColStore
 from icon_list_view import ViewStore, ListView
 from models import Collections, Tags, Aliases, TagCollections, Query
@@ -11,6 +11,7 @@ import shell_commands
 from notebook import Notebook
 from fileview import FileView
 from fileedit import FileEdit
+from tagedit import TagEdit
 
 viewstore = ViewStore()
 
@@ -34,6 +35,7 @@ class Window(Gtk.ApplicationWindow):
         #HEADER BAR
         header = Gtk.HeaderBar()
         header.set_title("Tagger")
+        header.set_subtitle(CONFIG['database.version'])
         header.set_show_close_button(True)
         # main_model.bind_property('query_media', header, 'title', 1)
         self.set_titlebar(header)
@@ -151,9 +153,9 @@ class Window(Gtk.ApplicationWindow):
         scroll.add(grid_view)
         sub_stack.add_named(scroll, 'gridview')
 
-        tag_edit = TagEdit()
-        tag_edit.connect('list-tag', self.on_tag_edit_list_tag)
-        stack.add_named(tag_edit, 'tagedit')
+        # tag_edit = TagEdit()
+        # tag_edit.connect('list-tag', self.on_tag_edit_list_tag)
+        # stack.add_named(tag_edit, 'tagedit')
 
         icon_tag = IconTagView()
         icon_tag.connect('item-activated', self.on_icon_tag_item_activated)
@@ -389,12 +391,12 @@ class Window(Gtk.ApplicationWindow):
     def on_view_notified(self, obj, gparamstring, stack):
         stack.set_visible_child_full(obj.view, 0)
 
-    def on_list_file_update(self, widget, file_id):
+    def on_list_file_update(self, widget, file_id, alias):
         print(file_id)
-        f_edit = FileEdit(file_id)
+        f_edit = FileEdit(file_id, alias)
         f_edit.show_all()
         # tag_edit.connect('list-tag', self.on_tag_edit_list_tag)
-        num = self.notebook.append_buttom(f_edit, 'file')
+        num = self.notebook.append_buttom(f_edit, alias)
         self.notebook.set_current_page(num)
 
     def on_tag_filter_changed(self, widget):
@@ -421,16 +423,16 @@ class Window(Gtk.ApplicationWindow):
     def on_tag_read(self, widget, *args):
         selection = widget.get_selection()
         model, iter = selection.get_selected()
-        fw = FileView(model[iter][0])
+        fw = FileView(model[iter][0], model[iter][1])
         fw.connect('file-update', self.on_list_file_update)
-        num = self.notebook.append_buttom(fw, 'obj.query_str')
+        num = self.notebook.append_buttom(fw, model[iter][1])
         self.notebook.set_current_page(num)
 
 
     def on_tag_update(self, widget):
         selection = widget.get_selection()
         model, iter = selection.get_selected()
-        tag_edit = TagEdit()
+        tag_edit = TagEdit(model[iter][0], model[iter][1])
         tag_edit.show_all()
         # tag_edit.connect('list-tag', self.on_tag_edit_list_tag)
         num = self.notebook.append_buttom(tag_edit, model[iter][1])

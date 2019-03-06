@@ -21,12 +21,13 @@ class FileEdit(Gtk.Grid):
     # __gsignals__ = {
     #     'backed': (GObject.SIGNAL_RUN_FIRST, None, ()),
     # }
-    def __init__(self, file_id):
+    def __init__(self, file_id, alias):
         Gtk.Grid.__init__(self, row_spacing=5, column_spacing=5)
         self.set_property('margin-right', 5)
         self.set_property('margin-left', 5)
         # main_model.connect('type-changed', self.on_model_type_changed)
         # fe_model = FileEditModel()
+        self.alias = alias
         self.t_model = Gtk.ListStore(int, str)
         self.r_model = Gtk.ListStore(int, str)
         # self.fe_model = fe_model

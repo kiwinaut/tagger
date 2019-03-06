@@ -6,3 +6,37 @@ opacity:.1;
 .small-button:hover{
 opacity:1;
 }
+.delbut{
+/*border: 1px solid red;*/
+padding:0px;
+margin:0px;
+margin-left:5px;
+/*border-radius:0px;*/
+opacity:.4;
+}
+.delbut:hover{
+opacity:1;
+}
+
+.delbut box image{
+/*border: 1px solid red;*/
+/*padding:0px;
+margin:0px;
+*/}
+
+.editpage>box{
+padding:20px 100px;
+background:gainsboro;
+}
+
+.alias{
+
+background:silver;
+border-radius:3px;
+font-weight:bold;
+padding:0px 0px 0px 5px;
+}
+
+.aliases{
+	min-height:100px; 
+}
