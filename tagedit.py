@@ -12,25 +12,31 @@ class TagEdit(Gtk.Overlay):
     thumb = GObject.Property(type=str)
     thumbpath = GObject.Property(type=str)
 
-    # __gsignals__ = {
-    #     'backed': (GObject.SIGNAL_RUN_FIRST, None, ()),
-    #     'list-tag': (GObject.SIGNAL_RUN_FIRST, None, (int,)),
-    # }
+    __gsignals__ = {
+        'file-list': (GObject.SIGNAL_RUN_FIRST, None, (int, str,)),
+    }
     def __init__(self, tag_id, alias):
         Gtk.Overlay.__init__(self)
         c = self.get_style_context()
         c.add_class('editpage')
 
         rev = Gtk.Revealer()
-        rev.set_reveal_child(False)
+        rev.set_halign(3)
+        rev.set_valign(1)
         self.rev = rev
-        rev.add(Gtk.Label('none'))
-        self.add_overlay(rev)
+        box = Gtk.Box.new(orientation=0, spacing=4)
+        c = box.get_style_context()
+        c.add_class('app-notification')
+        label = Gtk.Label('mmessage')
+        self.msglabel = label
+        box.pack_start(label, False, True, 0)
+        rev.add(box)
 
         #FILE INFOS
         info_box = Gtk.Box.new(orientation=1, spacing=4)
         info_box.set_hexpand(True)
         self.add(info_box)
+        self.add_overlay(rev)
 
         button = Gtk.Button()
         # button.set_halign(1)
@@ -74,7 +80,7 @@ class TagEdit(Gtk.Overlay):
 
         self.aliases = TagFlowBox()
         self.aliases.connect("child-deleted", self.on_alias_delete)
-        self.aliases.connect("child-clicked", self.on_alias_delete)
+        self.aliases.connect("child-clicked", self.on_alias_clicked)
         info_box.pack_start(self.aliases, False, True, 0)
 
         hbox = Gtk.Box.new(orientation=0, spacing=0)
@@ -83,13 +89,14 @@ class TagEdit(Gtk.Overlay):
         entry = Gtk.Entry()
         comp = Gtk.EntryCompletion()
         comp.set_text_column(1)
-        # comp.set_model(col_store)
+        # comp.set_model(col_store) #TODO
         entry.set_completion(comp)
         hbox.pack_start(entry, True, True, 0)
 
         button = Gtk.Button()
         img = Gtk.Image.new_from_icon_name("list-add-symbolic", Gtk.IconSize.MENU)
         button.set_image(img)
+        entry.connect('activate', self.on_add_alias_entry_activated, button)
         button.connect('clicked', self.on_add_alias_clicked, entry)
         hbox.pack_start(button, False, True, 0)
         info_box.pack_start(hbox, False, True, 0)
@@ -110,25 +117,26 @@ class TagEdit(Gtk.Overlay):
 
 
         self.set_tag_id(tag_id)
+        self.show_all()
 
     def on_rethumb(self, widget):
         self.thumbpath = f'/media/soni/1001/persistent/1001/thumbs/{self.thumb}.jpg'
 
-
-
-    def on_info_response(self, info_bar, response_id, label):
-        print(response_id)
-        info_bar.set_revealed(True)
-        if response_id == 1:
-            label.set_label('Done')
-            def close(*args):
-                info_bar.set_revealed(False)
-            GLib.timeout_add(2400, close, None)
-        elif response_id == 2:
-            label.set_label('Error')
+    def show_message(self, message, r):
+        self.msglabel.set_label(message)
+        box = self.msglabel.get_parent()
+        sc = box.get_style_context()
+        if r > 0:
+            sc.add_class('app-notification-ok')
         else:
-            info_bar.set_revealed(False)
+            sc.add_class('app-notification-error')
 
+        self.rev.set_reveal_child(True)
+        def close(*args):
+            self.rev.set_reveal_child(False)
+            sc.remove_class('app-notification-ok')
+            sc.remove_class('app-notification-error')
+        GLib.timeout_add(2400, close, None)
 
     def set_tag_id(self, id):
         file = Query.get_tag(id)
@@ -142,10 +150,8 @@ class TagEdit(Gtk.Overlay):
         for q in Query.get_tag_aliases(self.id):
             self.aliases.add_tagchild(q[0],q[1])
 
-    def on_alias_read(self, widget, *args):pass
-        # selection = widget.get_selection()
-        # model, iter = selection.get_selected()
-        # main_model.view = "listview"
+    def on_alias_clicked(self, widget, child):
+        self.emit('file-list', self.id, self.name)
 
     def on_alias_delete(self, widget, child):
         #DIALOG
@@ -153,11 +159,18 @@ class TagEdit(Gtk.Overlay):
         response = dialog.run()
 
         if response == Gtk.ResponseType.YES:
-            if Query.remove_tag_alias(child.id):
+            r = Query.remove_tag_alias(child.id)
+            if r > 0:
                 widget.remove(child)
-                self.rev.set_reveal_child(True)
+                self.show_message('Done', r)
+            else:
+                self.show_message('Error', r)
+                
         elif response == Gtk.ResponseType.NO:pass
         dialog.destroy()
+
+    def on_add_alias_entry_activated(self, widget, button):
+        button.clicked()
 
     def on_add_alias_clicked(self, widget, entry):
         text = entry.get_text()
@@ -166,20 +179,20 @@ class TagEdit(Gtk.Overlay):
         if is_created:
             pass
         self.aliases.add_tagchild(alias_id,alias)
+        self.show_message('Done', 1)
         entry.set_text("")
 
 
     def on_update(self, widget):
-        r = Query.update_tag(self.id, self.name, self.note, self.rating, self.thumb)
-        if r > 0: 
-            self.info.set_message_type(0)
-            self.info.response(1)
-        else:
-            self.info.set_message_type(3)
-            self.info.response(2)
+        try:
+            r = Query.update_tag(self.id, self.name, self.note, self.rating, self.thumb)
+            self.show_message('Done', r)
+        except:
+            self.show_message('Error', 0)
+            
 
     def on_list_clicked(self, widget):
-        self.emit('list-tag', self.id)
+        self.emit('file-list', self.id, self.name)
 
     def on_del_clicked(self,widget):
         tag_id = self.id

@@ -206,7 +206,7 @@ class Window(Gtk.ApplicationWindow):
         tag_view.set_model(tag_store)
         tag_view.connect('tag-read', self.on_tag_read)
         tag_view.connect('row-activated', self.on_tag_read)
-        tag_view.connect('tag-update', self.on_tag_update)
+        tag_view.connect('tag-update', self.on_tag_edit)
         tag_view.connect('filenames', self.on_tag_filenames, clipboard)
         tag_scroll.add(tag_view)
         fbox.pack_start(tag_scroll, True, True, 0)
@@ -391,8 +391,7 @@ class Window(Gtk.ApplicationWindow):
     def on_view_notified(self, obj, gparamstring, stack):
         stack.set_visible_child_full(obj.view, 0)
 
-    def on_list_file_update(self, widget, file_id, alias):
-        print(file_id)
+    def on_file_edit(self, widget, file_id, alias):
         f_edit = FileEdit(file_id, alias)
         f_edit.show_all()
         # tag_edit.connect('list-tag', self.on_tag_edit_list_tag)
@@ -423,18 +422,21 @@ class Window(Gtk.ApplicationWindow):
     def on_tag_read(self, widget, *args):
         selection = widget.get_selection()
         model, iter = selection.get_selected()
-        fw = FileView(model[iter][0], model[iter][1])
-        fw.connect('file-update', self.on_list_file_update)
-        num = self.notebook.append_buttom(fw, model[iter][1])
+        self.on_file_list(widget, model[iter][0], model[iter][1])
+
+    def on_file_list(self, widget, tag_id, tag_name):
+        fw = FileView(tag_id, tag_name)
+        fw.connect('file-edit', self.on_file_edit)
+        num = self.notebook.append_buttom(fw, tag_name)
         self.notebook.set_current_page(num)
 
 
-    def on_tag_update(self, widget):
+    def on_tag_edit(self, widget):
         selection = widget.get_selection()
         model, iter = selection.get_selected()
         tag_edit = TagEdit(model[iter][0], model[iter][1])
         tag_edit.show_all()
-        # tag_edit.connect('list-tag', self.on_tag_edit_list_tag)
+        tag_edit.connect('file-list', self.on_file_list)
         num = self.notebook.append_buttom(tag_edit, model[iter][1])
         self.notebook.set_current_page(num)
 

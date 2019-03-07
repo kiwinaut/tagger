@@ -1396,6 +1396,28 @@ class TagFlowBox(Gtk.FlowBox):
 
         self.add(child)
 
+    def add_sggstchild(self, id, label):
+        child = Gtk.FlowBoxChild()
+        child.id = id
+        child.label = label
+        # child.set_halign(1)
+        # child.set_valign(1)
+
+        box = Gtk.Box.new(orientation=0, spacing=0)
+        c = box.get_style_context()
+        c.add_class('sggst')
+
+        link_event = Gtk.EventBox()
+        labelw = Gtk.Label(label.title())
+        link_event.add(labelw)
+        link_event.connect('button-release-event', self.on_link_clicked, child)
+        box.pack_start(link_event, True, True, 0)
+
+        child.add(box)
+        child.show_all()
+
+        self.add(child)
+
     def on_link_clicked(self, widget, event, child):
         self.emit('child-clicked', child)
 

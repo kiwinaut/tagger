@@ -112,7 +112,7 @@ class ListView(Gtk.TreeView):
             path = paths[0]
             iter = model.get_iter(path)
             fileview = self.get_parent().get_parent().get_parent()
-            fileview.emit('file-update', model[iter][0], fileview.alias)
+            fileview.emit('file-edit', model[iter][0], fileview.alias)
 
     def on_menu_edit_activated(self, widget, *args):
         selection = self.get_selection()
@@ -121,7 +121,7 @@ class ListView(Gtk.TreeView):
             if not len(paths) >= 2:
                 iter = model.get_iter(paths[0])
                 fileview = self.get_parent().get_parent().get_parent()
-                fileview.emit('file-update', model[iter][0])
+                fileview.emit('file-edit', model[iter][0])
 
     # def on_tooltip_queried(self, widget, x, y, keyboard_mode, tooltip):
     #     values = self.get_path_at_pos(x,y-24)
@@ -206,7 +206,7 @@ class IconView(Gtk.IconView):
         model = self.get_model()
         if not len(paths) >= 2:
             iter = model.get_iter(paths[0])
-            self.emit('file-update', model[iter][0])
+            self.emit('file-edit', model[iter][0], model[iter][1])
 
 
 class FileView(Gtk.Box):
@@ -214,8 +214,8 @@ class FileView(Gtk.Box):
     # tag_query = GObject.Property(type=int)
 
     __gsignals__ = {
-        'file-update': (GObject.SIGNAL_RUN_FIRST, None, (int,str,)),
-        'tag-update': (GObject.SIGNAL_RUN_FIRST, None, (int,)),
+        'file-edit': (GObject.SIGNAL_RUN_FIRST, None, (int,str,)),
+        'tag-edit': (GObject.SIGNAL_RUN_FIRST, None, (int,str,)),
     }
     '''
     Tagged File View

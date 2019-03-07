@@ -40,8 +40,7 @@ class Query:
         return item.alias, item.id, iscreated
 
     def remove_tag_alias(alias_id):
-        a = Aliases.get(Aliases.id==alias_id)
-        r = a.delete_instance()
+        r = Aliases.delete().where(Aliases.id==alias_id).execute()
         return r
 
     def add_tag_collection(tid, col):
