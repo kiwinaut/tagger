@@ -105,120 +105,120 @@ class DetailView(Gtk.TreeView):
         # self.dirmenu = menu
 
 
-class TagView(Gtk.TreeView):
-    __gsignals__ = {
-        'tag-read': (GObject.SIGNAL_RUN_FIRST, None, ()),
-        'tag-update': (GObject.SIGNAL_RUN_FIRST, None, ()),
-        'tag-delete': (GObject.SIGNAL_RUN_FIRST, None, ()),
-        'filenames': (GObject.SIGNAL_RUN_FIRST, None, (int,)),
-    }
-    def __init__(self):
-        Gtk.TreeView.__init__(self)
-        self.set_enable_search(False)
-        self.set_property('headers-visible', False)
+# class TagView(Gtk.TreeView):
+#     __gsignals__ = {
+#         'tag-read': (GObject.SIGNAL_RUN_FIRST, None, ()),
+#         'tag-update': (GObject.SIGNAL_RUN_FIRST, None, ()),
+#         'tag-delete': (GObject.SIGNAL_RUN_FIRST, None, ()),
+#         'filenames': (GObject.SIGNAL_RUN_FIRST, None, (int,)),
+#     }
+#     def __init__(self):
+#         Gtk.TreeView.__init__(self)
+#         self.set_enable_search(False)
+#         self.set_property('headers-visible', False)
 
-        column = Gtk.TreeViewColumn('name')
+#         column = Gtk.TreeViewColumn('name')
 
-        alias = Gtk.CellRendererText()
-        column.pack_start(alias, True)
-        column.add_attribute(alias, 'text', 1)
+#         alias = Gtk.CellRendererText()
+#         column.pack_start(alias, True)
+#         column.add_attribute(alias, 'text', 1)
 
-        # renderer = Gtk.CellRendererText()
-        # column.pack_start(renderer, False)
-        # column.add_attribute(renderer, 'text', 2)
-        self.append_column(column)
+#         # renderer = Gtk.CellRendererText()
+#         # column.pack_start(renderer, False)
+#         # column.add_attribute(renderer, 'text', 2)
+#         self.append_column(column)
 
-        menu = Gtk.Menu()
-        delete = Gtk.MenuItem.new_with_label('Delete')
-        delete.connect('activate', self.on_menu_delete_activate)
-        menu.append(delete)
-        delete = Gtk.MenuItem.new_with_label('Read')
-        delete.connect('activate', self.on_menu_read_activate)
-        menu.append(delete)
-        delete = Gtk.MenuItem.new_with_label('Update')
-        delete.connect('activate', self.on_menu_update_activate)
-        menu.append(delete)
+#         menu = Gtk.Menu()
+#         delete = Gtk.MenuItem.new_with_label('Delete')
+#         delete.connect('activate', self.on_menu_delete_activate)
+#         menu.append(delete)
+#         delete = Gtk.MenuItem.new_with_label('Read')
+#         delete.connect('activate', self.on_menu_read_activate)
+#         menu.append(delete)
+#         delete = Gtk.MenuItem.new_with_label('Update')
+#         delete.connect('activate', self.on_menu_update_activate)
+#         menu.append(delete)
 
-        delete = Gtk.MenuItem.new_with_label('Filenames')
-        delete.connect('activate', self.on_menu_filenames_activate)
-        menu.append(delete)
+#         delete = Gtk.MenuItem.new_with_label('Filenames')
+#         delete.connect('activate', self.on_menu_filenames_activate)
+#         menu.append(delete)
 
-        menu.show_all()
-        # self.connect('row-activated', self.on_menu_read_activate)
-        self.dirmenu = menu
+#         menu.show_all()
+#         # self.connect('row-activated', self.on_menu_read_activate)
+#         self.dirmenu = menu
 
-        self.enable_model_drag_source(
-            Gdk.ModifierType.BUTTON1_MASK|Gdk.ModifierType.CONTROL_MASK,
-            [target3, target4],
-            Gdk.DragAction.COPY
-        )
-        self.connect("drag-data-get", self.on_drag_data_get)
+#         self.enable_model_drag_source(
+#             Gdk.ModifierType.BUTTON1_MASK|Gdk.ModifierType.CONTROL_MASK,
+#             [target3, target4],
+#             Gdk.DragAction.COPY
+#         )
+#         self.connect("drag-data-get", self.on_drag_data_get)
 
-    def on_drag_data_get(self, widget, drag_context, data, info, time):
-        selection = widget.get_selection()
-        model, iter = selection.get_selected()
-        # path = model.get_path(iter)
-        # value = '{}\n{}'.format(*model.get(iter, 0, 1))
-        # value = path.to_string()
-        if str(data.get_target()) == 'TAG':
-            value = str(model[iter][0])
-            data.set(data.get_target(), 8, bytes(value, "utf-8"))
-        elif str(data.get_target()) == 'text/plain':
-            string = model[iter][1]
-            data.set(data.get_target(), 8, bytes(string, "utf-8"))
+#     def on_drag_data_get(self, widget, drag_context, data, info, time):
+#         selection = widget.get_selection()
+#         model, iter = selection.get_selected()
+#         # path = model.get_path(iter)
+#         # value = '{}\n{}'.format(*model.get(iter, 0, 1))
+#         # value = path.to_string()
+#         if str(data.get_target()) == 'TAG':
+#             value = str(model[iter][0])
+#             data.set(data.get_target(), 8, bytes(value, "utf-8"))
+#         elif str(data.get_target()) == 'text/plain':
+#             string = model[iter][1]
+#             data.set(data.get_target(), 8, bytes(string, "utf-8"))
 
 
-    def on_menu_filenames_activate(self, widget, *args):
-        selection = self.get_selection()
-        model, iter = selection.get_selected()
-        # self.emit('tag-read', model[iter][0], model[iter][1])
-        self.emit('filenames', model[iter][0])
+#     def on_menu_filenames_activate(self, widget, *args):
+#         selection = self.get_selection()
+#         model, iter = selection.get_selected()
+#         # self.emit('tag-read', model[iter][0], model[iter][1])
+#         self.emit('filenames', model[iter][0])
 
-    def on_menu_read_activate(self, widget, *args):
-        # selection = self.get_selection()
-        # model, iter = selection.get_selected()
-        # self.emit('tag-read', model[iter][0], model[iter][1])
-        self.emit('tag-read')
+#     def on_menu_read_activate(self, widget, *args):
+#         # selection = self.get_selection()
+#         # model, iter = selection.get_selected()
+#         # self.emit('tag-read', model[iter][0], model[iter][1])
+#         self.emit('tag-read')
 
-    def on_menu_update_activate(self, widget, *args):
-        # selection = self.get_selection()
-        # model, iter = selection.get_selected()
-        # self.emit('tag-update', model[iter][0], model[iter][1])
+#     def on_menu_update_activate(self, widget, *args):
+#         # selection = self.get_selection()
+#         # model, iter = selection.get_selected()
+#         # self.emit('tag-update', model[iter][0], model[iter][1])
 
-        self.emit('tag-update')#tag_id
-        # somewhere updated
-        # update model in here or there?
+#         self.emit('tag-update')#tag_id
+#         # somewhere updated
+#         # update model in here or there?
 
-    def on_menu_delete_activate(self, widget, *args):
-        # sure
-        # db del
-        # self del
+#     def on_menu_delete_activate(self, widget, *args):
+#         # sure
+#         # db del
+#         # self del
 
-        # selection = self.get_selection()
-        # model, iter = selection.get_selected()
-        # self.emit('tag-delete', model[iter][0], model[iter][1])
-        self.emit('tag-delete')
+#         # selection = self.get_selection()
+#         # model, iter = selection.get_selected()
+#         # self.emit('tag-delete', model[iter][0], model[iter][1])
+#         self.emit('tag-delete')
 
-    def do_button_press_event(self, event):
-        if event.button == Gdk.BUTTON_SECONDARY:
-            selection = self.get_selection()
-            pos = self.get_path_at_pos(event.x, event.y)# path, column, cell_x, cell_y
-            if pos:
-                #clicked any content
-                path, column, cell_x, cell_y = pos
-                if selection.path_is_selected(path):
-                    #clicked in selection
-                    self.dirmenu.popup(None, None, None, None, event.button, event.time)
-                else:
-                    #clicked outside of selection
-                    Gtk.TreeView.do_button_press_event(self, event)
-                    self.dirmenu.popup(None, None, None, None, event.button, event.time)
-            else:
-                #clicked empty area
-                selection.unselect_all()
-                return False
-        else:
-            Gtk.TreeView.do_button_press_event(self, event)
+#     def do_button_press_event(self, event):
+#         if event.button == Gdk.BUTTON_SECONDARY:
+#             selection = self.get_selection()
+#             pos = self.get_path_at_pos(event.x, event.y)# path, column, cell_x, cell_y
+#             if pos:
+#                 #clicked any content
+#                 path, column, cell_x, cell_y = pos
+#                 if selection.path_is_selected(path):
+#                     #clicked in selection
+#                     self.dirmenu.popup(None, None, None, None, event.button, event.time)
+#                 else:
+#                     #clicked outside of selection
+#                     Gtk.TreeView.do_button_press_event(self, event)
+#                     self.dirmenu.popup(None, None, None, None, event.button, event.time)
+#             else:
+#                 #clicked empty area
+#                 selection.unselect_all()
+#                 return False
+#         else:
+#             Gtk.TreeView.do_button_press_event(self, event)
 
 
 class TagTreeView(Gtk.TreeView):

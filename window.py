@@ -1,6 +1,6 @@
 from gi.repository import Gtk, Gdk, GLib
 from config import CONFIG
-from widgets.widgets import ViewSwitcher, IconView, TagView, HistorySwitcher, MediaSwitcher, DetailView, TagTreeView
+from widgets.widgets import ViewSwitcher, IconView, HistorySwitcher, MediaSwitcher, DetailView, TagTreeView
 from dirview import TagStore, CollectionView, ColStore
 from icon_list_view import ViewStore, ListView
 from models import Collections, Tags, Aliases, TagCollections, Query
@@ -260,9 +260,10 @@ class Window(Gtk.ApplicationWindow):
         self.set_icon_from_file(CONFIG['icon'])
         # alias_entry.grab_focus()
 
-        f_edit = AliasesDirView()
-        # tag_edit.connect('list-tag', self.on_tag_edit_list_tag)
-        num = self.notebook.append_buttom(f_edit,'Search')
+        adv = AliasesDirView()
+        adv.connect('file-list', self.on_file_list)
+        adv.connect('tag-edit', self.on_tag_edit)
+        num = self.notebook.append_buttom(adv,'Search')
         self.notebook.set_current_page(num)
 
     def on_sstack_key_pressed(self, widget, event, science):
@@ -437,14 +438,13 @@ class Window(Gtk.ApplicationWindow):
         num = self.notebook.append_buttom(fw, '🔍\t'+tag_name)
         self.notebook.set_current_page(num)
 
-
-    def on_tag_edit(self, widget):
-        selection = widget.get_selection()
-        model, iter = selection.get_selected()
-        tag_edit = TagEdit(model[iter][0], model[iter][1])
+    def on_tag_edit(self, widget, tag_id, tag_name):
+        # selection = widget.get_selection()
+        # model, iter = selection.get_selected()
+        tag_edit = TagEdit(tag_id, tag_name)
         tag_edit.show_all()
         tag_edit.connect('file-list', self.on_file_list)
-        num = self.notebook.append_buttom(tag_edit, '🔖\t'+ model[iter][1])
+        num = self.notebook.append_buttom(tag_edit, '🔖\t'+ tag_name)
         self.notebook.set_current_page(num)
 
     def init_sets(self):

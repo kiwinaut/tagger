@@ -1,5 +1,5 @@
-from gi.repository import Gtk, Gdk
-from widgets.widgets import TagView, TagTreeView
+from gi.repository import Gtk, Gdk, GObject
+from widgets.widgets import TagTreeView
 from data_models import col_store
 from models import Query
 from stores import TagStore
@@ -18,11 +18,70 @@ class IconTagView(Gtk.IconView):
         self.add_attribute(renderer,'pixbuf', 4)
 
         srenderer = Gtk.CellRendererText()
+        srenderer.set_property('width', 128)
+        srenderer.set_property('xalign', .5)
+
         self.pack_start(srenderer, False)
         srenderer.set_property('font','Ubuntu 9')
         srenderer.set_property('ellipsize', 2)
         srenderer.set_property('max-width-chars', 10)
         self.add_attribute(srenderer,'text', 1)
+
+        menu = Gtk.Menu()
+        delete = Gtk.MenuItem.new_with_label('File List')
+        delete.connect('activate', self.on_menu_read_activate)
+        menu.append(delete)
+        delete = Gtk.MenuItem.new_with_label('Tag Edit')
+        delete.connect('activate', self.on_menu_update_activate)
+        menu.append(delete)
+        menu.show_all()
+        self.menu = menu
+        # self.connect('button-press-event', self.show_menu, menu)
+        self.connect('item-activated', self.on_menu_read_activate)
+
+    def do_button_press_event(self, event):
+        if event.button == Gdk.BUTTON_SECONDARY:
+            selection = self.get_selected_items()
+            path = self.get_path_at_pos(event.x, event.y)
+            # selection = self.get_selection()
+            # pos = self.get_path_at_pos(event.x, event.y)# path, column, cell_x, cell_y
+            if path:
+                #clicked any content
+                if path in selection:
+                    #clicked in selection
+                    self.menu.popup(None, None, None, None, event.button, event.time)
+                else:
+                    #clicked outside of selection
+                    # Gtk.IconView.do_button_press_event(self, event)
+                    self.unselect_all()
+                    self.select_path(path)
+
+                    self.menu.popup(None, None, None, None, event.button, event.time)
+            else:
+                #clicked empty area
+                self.unselect_all()
+                return False
+        else:
+            Gtk.IconView.do_button_press_event(self, event)
+
+    def on_menu_read_activate(self, widget, *args):
+        paths = self.get_selected_items()
+        model = self.get_model()
+        if paths:
+            path = paths[0]
+            iter = model.get_iter(path)
+            parent = self.get_parent().get_parent().get_parent()
+            parent.emit('file-list', model[iter][0], model[iter][1])
+
+    def on_menu_update_activate(self, widget, *args):
+        paths = self.get_selected_items()
+        model = self.get_model()
+        if paths:
+            path = paths[0]
+            iter = model.get_iter(path)
+            parent = self.get_parent().get_parent().get_parent()
+            parent.emit('tag-edit', model[iter][0], model[iter][1])
+
 
 class TagViewTest(Gtk.TreeView):
     # __gsignals__ = {
@@ -56,12 +115,12 @@ class TagViewTest(Gtk.TreeView):
         # delete = Gtk.MenuItem.new_with_label('Delete')
         # delete.connect('activate', self.on_menu_delete_activate)
         # menu.append(delete)
-        # delete = Gtk.MenuItem.new_with_label('Read')
-        # delete.connect('activate', self.on_menu_read_activate)
-        # menu.append(delete)
-        # delete = Gtk.MenuItem.new_with_label('Update')
-        # delete.connect('activate', self.on_menu_update_activate)
-        # menu.append(delete)
+        delete = Gtk.MenuItem.new_with_label('File List')
+        delete.connect('activate', self.on_menu_read_activate)
+        menu.append(delete)
+        delete = Gtk.MenuItem.new_with_label('Tag Edit')
+        delete.connect('activate', self.on_menu_update_activate)
+        menu.append(delete)
         # delete = Gtk.MenuItem.new_with_label('Filenames')
         # delete.connect('activate', self.on_menu_filenames_activate)
         # menu.append(delete)
@@ -100,7 +159,8 @@ class TagViewTest(Gtk.TreeView):
         # selection = self.get_selection()
         # model, iter = selection.get_selected()
         # self.emit('tag-read', model[iter][0], model[iter][1])
-        self.emit('tag-read')
+        parent = widget.get_parent()
+        parent.emit('tag-read')
 
     def on_menu_update_activate(self, widget, *args):
         # selection = self.get_selection()
@@ -127,11 +187,15 @@ class TagViewTest(Gtk.TreeView):
         return None
 
 class AliasesDirView(Gtk.Box):
+    __gsignals__ = {
+        'file-list': (GObject.SIGNAL_RUN_FIRST, None, (int, str,)),
+        'tag-edit': (GObject.SIGNAL_RUN_FIRST, None, (int, str,)),
+    }
     def __init__(self):
         Gtk.Box.__init__(self, orientation=0, spacing=0)
 
-        fbox = Gtk.Box.new(orientation=1, spacing=3)
-        fbox.set_property('margin',3)
+        fbox = Gtk.Box.new(orientation=1, spacing=0)
+        # fbox.set_property('margin',3)
         alias_entry = Gtk.SearchEntry()
         alias_entry.set_valign(3)
         fbox.pack_start(alias_entry, False, True, 0)
@@ -158,17 +222,18 @@ class AliasesDirView(Gtk.Box):
 
         #COLLECTION VIEW
         col_scroll = Gtk.ScrolledWindow()
-        col_scroll.set_property('margin-left',3)
-        col_scroll.set_property('margin-right',3)
+        # col_scroll.set_property('margin-left',3)
+        # col_scroll.set_property('margin-right',3)
         # col_scroll.set_property('shadow-type', 1)
-        col_view = TagTreeView()
-        # col_view.connect('tag-read', self.on_col_read_activated)
-        # col_view.connect('row-activated', self.on_col_read_activated)
+        tree_view = TagTreeView()
+        tree_view.connect('tag-read', self.on_col_read_activated)
+        tree_view.connect('row-activated', self.on_col_read_activated, tag_store)
 
         # col_store = ColStore()
-        col_view.set_model(col_store)
-        col_view.expand_all()
-        col_scroll.add(col_view)
+        tree_view.set_model(col_store)
+        tree_view.expand_all()
+        col_scroll.add(tree_view)
+        col_scroll.set_size_request(240, -1)
 
         self.pack_end(col_scroll, False, True, 0)
 
@@ -176,4 +241,10 @@ class AliasesDirView(Gtk.Box):
 
     def on_tag_filter_changed(self, widget, store):
         text = widget.get_text()
-        store.set_query_like_text_pb(text)
+        store.set_query_like_text(text)
+
+    def on_col_read_activated(self, widget,path, column, store):
+        selection = widget.get_selection()
+        model, iter = selection.get_selected()
+        store.set_query_from_folder(model[iter][0])
+
