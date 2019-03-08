@@ -1,4 +1,4 @@
-from gi.repository import Gtk, GObject, Gdk, GLib
+from gi.repository import Gtk, GObject, GLib
 from models import Query
 from humanfriendly import format_size
 from clip import rethumb
@@ -24,6 +24,8 @@ class FileEdit(Gtk.Overlay):
     }
     def __init__(self, file_id, alias):
         Gtk.Overlay.__init__(self)
+        self.alias = alias
+
         c = self.get_style_context()
         c.add_class('editpage')
 
@@ -52,7 +54,7 @@ class FileEdit(Gtk.Overlay):
         img = Gtk.Image.new_from_file('')
         self.bind_property('imgfile', img, 'file', 0)
         button.set_image(img)
-        button.connect('clicked', self.on_rethumb)
+        button.connect('clicked', self.on_rethumb_button_clicked)
         info_box.pack_start(button, False, True, 0)
 
         #COMMANDS
@@ -61,27 +63,27 @@ class FileEdit(Gtk.Overlay):
 
         button = Gtk.Button.new_from_icon_name('applications-system', 2)
         button.set_tooltip_text('Open')
-        button.connect('clicked', self.on_open_clicked)
+        button.connect('clicked', self.on_open_button_clicked)
         command_box.pack_start(button, False, True, 0)
 
         button = Gtk.Button('🐵')
         button.set_tooltip_text('Mcomix')
-        button.connect('clicked', self.on_mcomix_clicked)
+        button.connect('clicked', self.on_mcomix_button_clicked)
         command_box.pack_start(button, False, True, 0)
 
         button = Gtk.Button.new_from_icon_name('folder', 2)
         button.set_tooltip_text('Open Folder')
-        button.connect('clicked', self.on_openf_clicked)
+        button.connect('clicked', self.on_openf_button_clicked)
         command_box.pack_start(button, False, True, 0)
 
         button = Gtk.Button.new_from_icon_name('emblem-unreadable', 2)
         button.set_tooltip_text('Delete Entry')
-        button.connect('clicked', self.on_del_entry_clicked)
+        button.connect('clicked', self.on_del_entry_button_clicked)
         command_box.pack_start(button, False, True, 0)
 
         button = Gtk.Button.new_from_icon_name('user-trash', 2)
         button.set_tooltip_text('Trash File & Entry')
-        button.connect('clicked', self.on_del_file_entry_clicked)
+        button.connect('clicked', self.on_del_file_entry_button_clicked)
         command_box.pack_start(button, False, True, 0)
 
         button = Gtk.Button.new_from_icon_name('system-search', 2)
@@ -146,14 +148,14 @@ class FileEdit(Gtk.Overlay):
 
         button = Gtk.Button('Update')
         button.set_halign(1)
-        button.connect('clicked', self.on_update)
+        button.connect('clicked', self.on_update_button_clicked)
         info_box.pack_start(button, False, True, 0)
 
         #TAGS
-        self.tags = TagFlowBox()
-        self.tags.connect("child-deleted", self.on_tag_delete)
-        self.tags.connect("child-clicked", self.on_tag_clicked)
-        info_box.pack_start(self.tags, False, True, 0)
+        self.tags_container = TagFlowBox()
+        self.tags_container.connect("child-deleted", self.on_tag_container_child_deleted)
+        self.tags_container.connect("child-clicked", self.on_tag_container_child_clicked)
+        info_box.pack_start(self.tags_container, False, True, 0)
 
         hbox = Gtk.Box.new(orientation=0, spacing=0)
         hbox.get_style_context().add_class("linked")
@@ -169,14 +171,14 @@ class FileEdit(Gtk.Overlay):
         img = Gtk.Image.new_from_icon_name("list-add-symbolic", Gtk.IconSize.MENU)
         button.set_image(img)
         entry.connect('activate', self.on_add_tag_entry_activated, button)
-        button.connect('clicked', self.on_add_tag_clicked, entry)
+        button.connect('clicked', self.on_add_tag_button_clicked, entry)
         hbox.pack_start(button, False, True, 0)
         info_box.pack_start(hbox, False, True, 0)
 
         #RECOMMENDS
-        self.rcmmnds = TagFlowBox()
-        self.rcmmnds.connect("child-clicked", self.on_rcmmnds_clicked)
-        info_box.pack_start(self.rcmmnds, False, True, 0)
+        self.rcmmnds_container = TagFlowBox()
+        self.rcmmnds_container.connect("child-clicked", self.on_rcmmnds_child_clicked)
+        info_box.pack_start(self.rcmmnds_container, False, True, 0)
 
 
         self.set_file_id(file_id)
@@ -203,73 +205,57 @@ class FileEdit(Gtk.Overlay):
         for q in Query.tag_findall(file.filename):
             self.rcmmnds.add_sggstchild(q[0],q[1])
 
-    def on_tag_read(self, widget):
-        selection = widget.get_selection()
-        model, iter = selection.get_selected()
-        main_model.set_type(QueryType.TAG, model[iter][0], None)
 
-    # def on_tag_update(self, widget):
-    #     selection = widget.get_selection()
-    #     model, iter = selection.get_selected()
-    #     main_model.set_type(QueryType.TAGUPDATE, model[iter][0], None)
-
-    # def on_tag_delete(self, widget):
-    #     selection = widget.get_selection()
-    #     model, iter = selection.get_selected()
-    #     # model.remove_tag(iter)
-    #     r = Query.delete_file_tag('archives', self.id, model[iter][0])
-    #     if r:
-    #         model.remove(iter)
-
-    # def on_back_button_clicked(self, widget):
-    #     self.emit('backed')
-
-    def on_rethumb(self,widget):
+    def on_rethumb_button_clicked(self,widget):
         img = widget.get_image()
         item = Query.get_file(self.id)
         dest = rethumb(item, 'archives')
         print(dest)
         img.set_from_file(dest)
 
-    def on_update(self, widget):
-        r = Query.update_file(
-            media='archives',
-            index=self.id,
-            thumb=self.thumbpath,
-            set=self.set,
-            note=self.note,
-            rating=self.rating,
-            )
-        if r > 0: 
-            self.info.set_message_type(0)
-            self.info.response(1)
+    def on_update_button_clicked(self, widget):
+        try:
+            r = Query.update_file(
+                media='archives',
+                index=self.id,
+                thumb=self.thumbpath,
+                set=self.set,
+                note=self.note,
+                rating=self.rating,
+                )
+            self.show_message('Done', r)
+        except:
+            self.show_message('Error', 0)
+
+
+    #REVELAER
+    def show_message(self, message, r):
+        self.msglabel.set_label(message)
+        box = self.msglabel.get_parent()
+        sc = box.get_style_context()
+        if r > 0:
+            sc.add_class('app-notification-ok')
         else:
-            self.info.set_message_type(3)
-            self.info.response(2)
+            sc.add_class('app-notification-error')
 
-    def on_recommend_activated(self, widget, path, column):
-        selection = widget.get_selection()
-        model, iter = selection.get_selected()
-        alias, tag_id, is_created = Query.add_file_tag('archives', self.id, tagname=model[iter][1])
-        self.t_model.append((tag_id, alias,))
+        self.rev.set_reveal_child(True)
+        def close(*args):
+            self.rev.set_reveal_child(False)
+            sc.remove_class('app-notification-ok')
+            sc.remove_class('app-notification-error')
+        GLib.timeout_add(2400, close, None)
 
-    # def on_add_tag_clicked(self,widget, entry):
-    #     text = entry.get_text()
-    #     alias, tag_id, is_created = Query.add_file_tag('archives', self.id, tagname=text)
-    #     self.t_model.append((tag_id, alias,))
-    #     # fe_model.t_model.add_tag('archives', fe_model.id, text)
-    #     entry.set_text("")
-
-    def on_open_clicked(self,widget):
+    #COMMANDS
+    def on_open_button_clicked(self,widget):
         open_file(self.filepath, 'default')
 
-    def on_openf_clicked(self,widget):
+    def on_openf_button_clicked(self,widget):
         open_file(self.filepath, 'folder')
 
-    def on_mcomix_clicked(self,widget):
+    def on_mcomix_button_clicked(self,widget):
         open_file(self.filepath, 'mcomix')
 
-    def on_del_entry_clicked(self,widget):
+    def on_del_entry_button_clicked(self,widget):
         #DIALOG
         dialog = QuestionDialog(self, f"file_id: \'{self.id}\'")
         response = dialog.run()
@@ -281,7 +267,7 @@ class FileEdit(Gtk.Overlay):
         elif response == Gtk.ResponseType.NO:pass
         dialog.destroy()
 
-    def on_del_file_entry_clicked(self,widget):
+    def on_del_file_entry_button_clicked(self,widget):
         #DIALOG
         dialog = QuestionDialog(self, f"file_id: \'{self.id}\', \'{self.filepath}\'")
         response = dialog.run()
@@ -295,17 +281,17 @@ class FileEdit(Gtk.Overlay):
         elif response == Gtk.ResponseType.NO:pass
         dialog.destroy()
 
-    #TAGS
-    def on_tag_clicked(self, widget, child):
-        self.emit('file-list', self.id, self.name)
+    #TAGS CONTAINER
+    def on_tag_container_child_clicked(self, widget, child):
+        self.emit('file-list', child.id, child.label)
 
-    def on_tag_delete(self, widget, child):
+    def on_tag_container_child_deleted(self, widget, child):
         #DIALOG
         dialog = QuestionDialog(self, f"alias_name: \'{child.label}\', alias_id: \'{child.id}\'")
         response = dialog.run()
 
         if response == Gtk.ResponseType.YES:
-            r = Query.remove_tag_alias(child.id)
+            r = Query.delete_file_tag('archives', self.id, child.id)
             if r > 0:
                 widget.remove(child)
                 self.show_message('Done', r)
@@ -318,16 +304,18 @@ class FileEdit(Gtk.Overlay):
     def on_add_tag_entry_activated(self, widget, button):
         button.clicked()
 
-    def on_add_tag_clicked(self, widget, entry):
+    def on_add_tag_button_clicked(self, widget, entry):
         text = entry.get_text()
-        tag_id = self.id
-        alias, alias_id, is_created = Query.add_tag_alias(tag_id, text)
+        file_id = self.id
+        alias, tag_id, is_created = Query.add_file_tag('archives', file_id, tagname=text)
         if is_created:
             pass
-        self.aliases.add_tagchild(alias_id,alias)
+        self.tags_container.add_tagchild(tag_id, alias)
         self.show_message('Done', 1)
         entry.set_text("")
 
     #RECOMMENDS
-    def on_rcmmnds_clicked(self, widget, child):
-        self.emit('file-list', self.id, self.name)
+    def on_rcmmnds_child_clicked(self, widget, child):
+        alias, tag_id, is_created = Query.add_file_tag('archives', self.id, tagname=child.label)
+        self.tags_container.add_tagchild(tag_id, alias)
+        self.show_message('Done', 1)
