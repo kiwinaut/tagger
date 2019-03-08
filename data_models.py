@@ -7,7 +7,7 @@ avatar = Pixbuf.new_from_file_at_size('/usr/share/icons/Adwaita/256x256/status/a
 
 det_store = Gtk.ListStore(str, int, GObject.TYPE_UINT64)
 
-tag_store = Gtk.ListStore(int, str, str, str)
+
 tag_icon_store = Gtk.ListStore(int, str, Pixbuf)
 tag_group_store = Gtk.ListStore(int, str, int)
 

@@ -5,7 +5,8 @@ from clip import rethumb
 from shell_commands import open_file, trash_file
 # from widgets import TagView
 # from data_models import tag_store
-from widgets import TagFlowBox, QuestionDialog
+from .widgets import QuestionDialog
+from .tagflowbox import TagFlowBox
 
 
 class FileEdit(Gtk.Overlay):
@@ -201,9 +202,9 @@ class FileEdit(Gtk.Overlay):
         self.rating = file.rating
         #
         for q in Query.file_tags(id):
-            self.tags.add_tagchild(q[0],q[1])
+            self.tags_container.add_tagchild(q[0],q[1])
         for q in Query.tag_findall(file.filename):
-            self.rcmmnds.add_sggstchild(q[0],q[1])
+            self.rcmmnds_container.add_sggstchild(q[0],q[1])
 
 
     def on_rethumb_button_clicked(self,widget):

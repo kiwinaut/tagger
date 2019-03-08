@@ -1,7 +1,8 @@
 from gi.repository import Gtk, GObject, Gdk, GLib
 from models import Query
-from widgets import TagFlowBox, QuestionDialog
-from data_models import tag_store
+from .widgets import QuestionDialog
+from .tagflowbox import TagFlowBox
+# from data_models import tag_store
 
 
 class TagEdit(Gtk.Overlay):

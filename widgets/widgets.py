@@ -1,9 +1,9 @@
 from gi.repository import Gtk, Gdk, GObject, GLib
 from models import Query
 from humanfriendly import format_size
-from shell_commands import open_file, trash_file
-from clip import rethumb
-from data_models import fe_model, ta_model, main_model, QueryType, col_model, col_store, tag_store
+# from shell_commands import open_file, trash_file
+# from clip import rethumb
+from data_models import  main_model
 # from humanfriendly import format_size
 
 def size_cell_data_func(tree_column, cell, tree_model, iter, data):
@@ -454,314 +454,314 @@ class TagTreeView(Gtk.TreeView):
 
 
 
-class FileEdit(Gtk.Grid):
-    # __gsignals__ = {
-    #     'backed': (GObject.SIGNAL_RUN_FIRST, None, ()),
-    # }
-    def __init__(self):
-        Gtk.Grid.__init__(self, row_spacing=5, column_spacing=5)
-        self.set_property('margin-right', 5)
-        self.set_property('margin-left', 5)
-        main_model.connect('type-changed', self.on_model_type_changed)
+# class FileEdit(Gtk.Grid):
+#     # __gsignals__ = {
+#     #     'backed': (GObject.SIGNAL_RUN_FIRST, None, ()),
+#     # }
+#     def __init__(self):
+#         Gtk.Grid.__init__(self, row_spacing=5, column_spacing=5)
+#         self.set_property('margin-right', 5)
+#         self.set_property('margin-left', 5)
+#         main_model.connect('type-changed', self.on_model_type_changed)
 
-        # COMMANDS
-        command_box = Gtk.Box.new(orientation=1, spacing=0)
-        command_box.get_style_context().add_class("linked")
-        self.attach(command_box, 0, 0, 1, 1)
+#         # COMMANDS
+#         command_box = Gtk.Box.new(orientation=1, spacing=0)
+#         command_box.get_style_context().add_class("linked")
+#         self.attach(command_box, 0, 0, 1, 1)
 
-        button = Gtk.Button('Open')
-        button.connect('clicked', self.on_open_clicked)
-        command_box.pack_start(button, False, True, 0)
+#         button = Gtk.Button('Open')
+#         button.connect('clicked', self.on_open_clicked)
+#         command_box.pack_start(button, False, True, 0)
 
-        button = Gtk.Button('Mcomix')
-        button.connect('clicked', self.on_mcomix_clicked)
-        command_box.pack_start(button, False, True, 0)
+#         button = Gtk.Button('Mcomix')
+#         button.connect('clicked', self.on_mcomix_clicked)
+#         command_box.pack_start(button, False, True, 0)
 
-        button = Gtk.Button('Open Folder')
-        button.connect('clicked', self.on_openf_clicked)
-        command_box.pack_start(button, False, True, 0)
+#         button = Gtk.Button('Open Folder')
+#         button.connect('clicked', self.on_openf_clicked)
+#         command_box.pack_start(button, False, True, 0)
 
-        button = Gtk.Button('Delete Entry')
-        button.connect('clicked', self.on_del_entry_clicked)
-        command_box.pack_start(button, False, True, 0)
+#         button = Gtk.Button('Delete Entry')
+#         button.connect('clicked', self.on_del_entry_clicked)
+#         command_box.pack_start(button, False, True, 0)
 
-        button = Gtk.Button('Trash File & Entry')
-        button.connect('clicked', self.on_del_file_entry_clicked)
-        command_box.pack_start(button, False, True, 0)
+#         button = Gtk.Button('Trash File & Entry')
+#         button.connect('clicked', self.on_del_file_entry_clicked)
+#         command_box.pack_start(button, False, True, 0)
 
-        button = Gtk.Button('Info List')
-        button.connect('clicked', self.on_info_clicked)
-        command_box.pack_start(button, False, True, 0)
+#         button = Gtk.Button('Info List')
+#         button.connect('clicked', self.on_info_clicked)
+#         command_box.pack_start(button, False, True, 0)
 
-        #FILE INFOS
-        info_box = Gtk.Box.new(orientation=1, spacing=4)
-        info_box.set_hexpand(True)
-        self.attach(info_box, 1, 0, 1, 1)
+#         #FILE INFOS
+#         info_box = Gtk.Box.new(orientation=1, spacing=4)
+#         info_box.set_hexpand(True)
+#         self.attach(info_box, 1, 0, 1, 1)
 
-        button = Gtk.Button()
-        # button.set_halign(1)
-        button.set_relief(2)
-        img = Gtk.Image.new_from_file('')
-        fe_model.bind_property('imgfile', img, 'file', 0)
-        button.set_image(img)
-        button.connect('clicked', self.on_rethumb)
-        info_box.pack_start(button, False, True, 0)
+#         button = Gtk.Button()
+#         # button.set_halign(1)
+#         button.set_relief(2)
+#         img = Gtk.Image.new_from_file('')
+#         fe_model.bind_property('imgfile', img, 'file', 0)
+#         button.set_image(img)
+#         button.connect('clicked', self.on_rethumb)
+#         info_box.pack_start(button, False, True, 0)
 
-        label = Gtk.Label()
-        fe_model.bind_property('id', label, 'label', 0)
-        label.set_halign(1)
-        info_box.pack_start(label, False, True, 0)
+#         label = Gtk.Label()
+#         fe_model.bind_property('id', label, 'label', 0)
+#         label.set_halign(1)
+#         info_box.pack_start(label, False, True, 0)
 
-        label = Gtk.Label()
-        fe_model.bind_property('filename', label, 'label', 0)
-        label.set_halign(1)
-        label.set_line_wrap(True)
-        label.set_alignment(0,.5)
-        label.set_selectable(True)
-        info_box.pack_start(label, False, True, 0)
+#         label = Gtk.Label()
+#         fe_model.bind_property('filename', label, 'label', 0)
+#         label.set_halign(1)
+#         label.set_line_wrap(True)
+#         label.set_alignment(0,.5)
+#         label.set_selectable(True)
+#         info_box.pack_start(label, False, True, 0)
 
-        label = Gtk.Label()
-        fe_model.bind_property('filepath', label, 'label', 0)
-        label.set_line_wrap(True)
-        label.set_halign(1)
-        label.set_alignment(0,.5)
-        label.set_selectable(True)
-        info_box.pack_start(label, False, True, 0)
+#         label = Gtk.Label()
+#         fe_model.bind_property('filepath', label, 'label', 0)
+#         label.set_line_wrap(True)
+#         label.set_halign(1)
+#         label.set_alignment(0,.5)
+#         label.set_selectable(True)
+#         info_box.pack_start(label, False, True, 0)
 
-        label = Gtk.Label('size')
-        fe_model.bind_property('size', label, 'label', 0)
-        label.set_halign(1)
-        info_box.pack_start(label, False, True, 0)
+#         label = Gtk.Label('size')
+#         fe_model.bind_property('size', label, 'label', 0)
+#         label.set_halign(1)
+#         info_box.pack_start(label, False, True, 0)
 
-        label = Gtk.Label('mtime')
-        fe_model.bind_property('mtime', label, 'label', 0)
-        label.set_halign(1)
-        info_box.pack_start(label, False, True, 0)
+#         label = Gtk.Label('mtime')
+#         fe_model.bind_property('mtime', label, 'label', 0)
+#         label.set_halign(1)
+#         info_box.pack_start(label, False, True, 0)
 
-        entry = Gtk.Entry()
-        fe_model.bind_property('thumbpath', entry, 'text', 1)
-        entry.set_placeholder_text('thumbpath')
-        info_box.pack_start(entry, False, True, 0)
+#         entry = Gtk.Entry()
+#         fe_model.bind_property('thumbpath', entry, 'text', 1)
+#         entry.set_placeholder_text('thumbpath')
+#         info_box.pack_start(entry, False, True, 0)
 
-        entry = Gtk.Entry()
-        entry.set_placeholder_text('set')
-        fe_model.bind_property('set', entry, 'text', 1)
-        info_box.pack_start(entry, False, True, 0)
+#         entry = Gtk.Entry()
+#         entry.set_placeholder_text('set')
+#         fe_model.bind_property('set', entry, 'text', 1)
+#         info_box.pack_start(entry, False, True, 0)
 
-        entry = Gtk.Entry()
-        entry.set_placeholder_text('note')
-        fe_model.bind_property('note', entry, 'text', 1)
-        info_box.pack_start(entry, False, True, 0)
+#         entry = Gtk.Entry()
+#         entry.set_placeholder_text('note')
+#         fe_model.bind_property('note', entry, 'text', 1)
+#         info_box.pack_start(entry, False, True, 0)
 
-        entry = Gtk.SpinButton.new_with_range(0,100,1)
-        entry.set_placeholder_text('rating')
-        fe_model.bind_property('rating', entry, 'value', 1)
-        info_box.pack_start(entry, False, True, 0)
+#         entry = Gtk.SpinButton.new_with_range(0,100,1)
+#         entry.set_placeholder_text('rating')
+#         fe_model.bind_property('rating', entry, 'value', 1)
+#         info_box.pack_start(entry, False, True, 0)
 
-        button = Gtk.Button('Update')
-        button.set_halign(1)
-        button.connect('clicked', self.on_update)
-        info_box.pack_start(button, False, True, 0)
+#         button = Gtk.Button('Update')
+#         button.set_halign(1)
+#         button.connect('clicked', self.on_update)
+#         info_box.pack_start(button, False, True, 0)
 
-        #TAGS
-        tagbox = Gtk.Box.new(orientation=1, spacing=2)
-        self.attach(tagbox, 2, 0, 1, 1)
+#         #TAGS
+#         tagbox = Gtk.Box.new(orientation=1, spacing=2)
+#         self.attach(tagbox, 2, 0, 1, 1)
 
-        # label = Gtk.Label('Tags:')
-        # tagbox.pack_start(label, False, True, 0)
+#         # label = Gtk.Label('Tags:')
+#         # tagbox.pack_start(label, False, True, 0)
         
-        tagview = TagView()
-        tagview.connect('tag-delete', self.on_tag_delete)
-        tagview.connect('tag-read', self.on_tag_read)
-        tagview.connect('tag-update', self.on_tag_update)
-        tagview.set_model(fe_model.t_model)
-        # tagview.set_vexpand(True)
-        scrolled = Gtk.ScrolledWindow()
-        scrolled.set_vexpand(True)
-        scrolled.set_property('shadow-type', 1)
-        scrolled.add(tagview)
-        tagbox.pack_start(scrolled, True, True, 0)
+#         tagview = TagView()
+#         tagview.connect('tag-delete', self.on_tag_delete)
+#         tagview.connect('tag-read', self.on_tag_read)
+#         tagview.connect('tag-update', self.on_tag_update)
+#         tagview.set_model(fe_model.t_model)
+#         # tagview.set_vexpand(True)
+#         scrolled = Gtk.ScrolledWindow()
+#         scrolled.set_vexpand(True)
+#         scrolled.set_property('shadow-type', 1)
+#         scrolled.add(tagview)
+#         tagbox.pack_start(scrolled, True, True, 0)
 
-        hbox = Gtk.Box.new(orientation=0, spacing=0)
-        hbox.get_style_context().add_class("linked")
+#         hbox = Gtk.Box.new(orientation=0, spacing=0)
+#         hbox.get_style_context().add_class("linked")
 
-        entry = Gtk.Entry()
-        comp = Gtk.EntryCompletion()
-        comp.set_text_column(1)
-        comp.set_model(tag_store)
-        entry.set_completion(comp)
-        hbox.pack_start(entry, True, True, 0)
+#         entry = Gtk.Entry()
+#         comp = Gtk.EntryCompletion()
+#         comp.set_text_column(1)
+#         comp.set_model(tag_store)
+#         entry.set_completion(comp)
+#         hbox.pack_start(entry, True, True, 0)
 
-        button = Gtk.Button()
-        img = Gtk.Image.new_from_icon_name("list-add-symbolic", Gtk.IconSize.MENU)
-        button.set_image(img)
-        button.connect('clicked', self.on_add_tag_clicked, entry)
-        hbox.pack_start(button, False, True, 0)
+#         button = Gtk.Button()
+#         img = Gtk.Image.new_from_icon_name("list-add-symbolic", Gtk.IconSize.MENU)
+#         button.set_image(img)
+#         button.connect('clicked', self.on_add_tag_clicked, entry)
+#         hbox.pack_start(button, False, True, 0)
 
-        tagbox.pack_start(hbox, False, True, 0)
+#         tagbox.pack_start(hbox, False, True, 0)
 
 
-        #RECOMMENDS
-        label = Gtk.Label('Suggestions:')
-        tagbox.pack_start(label, False, True, 0)
+#         #RECOMMENDS
+#         label = Gtk.Label('Suggestions:')
+#         tagbox.pack_start(label, False, True, 0)
       
-        tagview = TagView()
-        tagview.connect('row-activated', self.on_recommend_activated)
-        tagview.set_model(fe_model.r_model)
-        scrolled = Gtk.ScrolledWindow()
-        # scrolled.set_hexpand(True)
-        scrolled.set_vexpand(True)
-        scrolled.set_property('shadow-type', 1)
-        scrolled.add(tagview)
-        tagbox.pack_start(scrolled, True, True, 0)
+#         tagview = TagView()
+#         tagview.connect('row-activated', self.on_recommend_activated)
+#         tagview.set_model(fe_model.r_model)
+#         scrolled = Gtk.ScrolledWindow()
+#         # scrolled.set_hexpand(True)
+#         scrolled.set_vexpand(True)
+#         scrolled.set_property('shadow-type', 1)
+#         scrolled.add(tagview)
+#         tagbox.pack_start(scrolled, True, True, 0)
 
-        #INFOBAR
-        info = Gtk.InfoBar()
-        message_label = Gtk.Label('Done')
-        # info.
-        info.connect('response', self.on_info_response, message_label)
-        info.set_revealed(False)
-        info.set_show_close_button(True)
-        self.info = info
-        c = info.get_content_area()
-        c.add(message_label)
-        self.attach(info, 0, 20, 3, 1)
-        # box.pack_start(info, False, True, 0)
+#         #INFOBAR
+#         info = Gtk.InfoBar()
+#         message_label = Gtk.Label('Done')
+#         # info.
+#         info.connect('response', self.on_info_response, message_label)
+#         info.set_revealed(False)
+#         info.set_show_close_button(True)
+#         self.info = info
+#         c = info.get_content_area()
+#         c.add(message_label)
+#         self.attach(info, 0, 20, 3, 1)
+#         # box.pack_start(info, False, True, 0)
 
-    def on_model_type_changed(self, obj):
-        if obj.query_type == QueryType.FILEUPDATE:
-            self.set_file_id(obj.query_int)
+#     def on_model_type_changed(self, obj):
+#         if obj.query_type == QueryType.FILEUPDATE:
+#             self.set_file_id(obj.query_int)
 
-    def on_info_response(self, info_bar, response_id, label):
-        print(response_id)
-        info_bar.set_revealed(True)
-        if response_id == 1:
-            label.set_label('Done')
-            def close(*args):
-                info_bar.set_revealed(False)
-            GLib.timeout_add(2400, close, None)
-        elif response_id == 2:
-            label.set_label('Error')
-        else:
-            info_bar.set_revealed(False)
+#     def on_info_response(self, info_bar, response_id, label):
+#         print(response_id)
+#         info_bar.set_revealed(True)
+#         if response_id == 1:
+#             label.set_label('Done')
+#             def close(*args):
+#                 info_bar.set_revealed(False)
+#             GLib.timeout_add(2400, close, None)
+#         elif response_id == 2:
+#             label.set_label('Error')
+#         else:
+#             info_bar.set_revealed(False)
 
 
-    def set_file_id(self, id):
-        file = Query.get_file(id)
-        try:
-            fe_model.imgfile = f'/media/soni/1001/persistent/1001/thumbs/{file.id}.jpg'
-        except Exception as e:
-            pass
-        fe_model.id = file.id
-        fe_model.filename = file.filename
-        fe_model.filepath = file.filepath
-        fe_model.size = format_size(file.size)
-        fe_model.mtime = str(file.mtime)
-        fe_model.thumbpath = file.thumb if file.thumb != None else ""
-        fe_model.set = file.set if file.set != None else ""
-        fe_model.note = file.note if file.note != None else ""
-        fe_model.rating = file.rating
-        #
-        fe_model.t_model.clear()
-        for q in Query.file_tags(id):
-            fe_model.t_model.append(q)
-        fe_model.r_model.clear()
-        for q in Query.tag_findall(file.filename):
-            fe_model.r_model.append(q)
+#     def set_file_id(self, id):
+#         file = Query.get_file(id)
+#         try:
+#             fe_model.imgfile = f'/media/soni/1001/persistent/1001/thumbs/{file.id}.jpg'
+#         except Exception as e:
+#             pass
+#         fe_model.id = file.id
+#         fe_model.filename = file.filename
+#         fe_model.filepath = file.filepath
+#         fe_model.size = format_size(file.size)
+#         fe_model.mtime = str(file.mtime)
+#         fe_model.thumbpath = file.thumb if file.thumb != None else ""
+#         fe_model.set = file.set if file.set != None else ""
+#         fe_model.note = file.note if file.note != None else ""
+#         fe_model.rating = file.rating
+#         #
+#         fe_model.t_model.clear()
+#         for q in Query.file_tags(id):
+#             fe_model.t_model.append(q)
+#         fe_model.r_model.clear()
+#         for q in Query.tag_findall(file.filename):
+#             fe_model.r_model.append(q)
 
-    def on_tag_read(self, widget):
-        selection = widget.get_selection()
-        model, iter = selection.get_selected()
-        main_model.set_type(QueryType.TAG, model[iter][0], None)
+#     def on_tag_read(self, widget):
+#         selection = widget.get_selection()
+#         model, iter = selection.get_selected()
+#         main_model.set_type(QueryType.TAG, model[iter][0], None)
 
-    def on_tag_update(self, widget):
-        selection = widget.get_selection()
-        model, iter = selection.get_selected()
-        main_model.set_type(QueryType.TAGUPDATE, model[iter][0], None)
+#     def on_tag_update(self, widget):
+#         selection = widget.get_selection()
+#         model, iter = selection.get_selected()
+#         main_model.set_type(QueryType.TAGUPDATE, model[iter][0], None)
 
-    def on_tag_delete(self, widget):
-        selection = widget.get_selection()
-        model, iter = selection.get_selected()
-        # model.remove_tag(iter)
-        r = Query.delete_file_tag('archives', fe_model.id, model[iter][0])
-        if r:
-            model.remove(iter)
+#     def on_tag_delete(self, widget):
+#         selection = widget.get_selection()
+#         model, iter = selection.get_selected()
+#         # model.remove_tag(iter)
+#         r = Query.delete_file_tag('archives', fe_model.id, model[iter][0])
+#         if r:
+#             model.remove(iter)
 
-    # def on_back_button_clicked(self, widget):
-    #     self.emit('backed')
+#     # def on_back_button_clicked(self, widget):
+#     #     self.emit('backed')
 
-    def on_rethumb(self,widget):
-        img = widget.get_image()
-        item = Query.get_file(fe_model.id)
-        dest = rethumb(item, 'archives')
-        print(dest)
-        img.set_from_file(dest)
+#     def on_rethumb(self,widget):
+#         img = widget.get_image()
+#         item = Query.get_file(fe_model.id)
+#         dest = rethumb(item, 'archives')
+#         print(dest)
+#         img.set_from_file(dest)
 
-    def on_update(self, widget):
-        r = Query.update_file(
-            media='archives',
-            index=fe_model.id,
-            thumb=fe_model.thumbpath,
-            set=fe_model.set,
-            note=fe_model.note,
-            rating=fe_model.rating,
-            )
-        if r > 0: 
-            self.info.set_message_type(0)
-            self.info.response(1)
-        else:
-            self.info.set_message_type(3)
-            self.info.response(2)
+#     def on_update(self, widget):
+#         r = Query.update_file(
+#             media='archives',
+#             index=fe_model.id,
+#             thumb=fe_model.thumbpath,
+#             set=fe_model.set,
+#             note=fe_model.note,
+#             rating=fe_model.rating,
+#             )
+#         if r > 0: 
+#             self.info.set_message_type(0)
+#             self.info.response(1)
+#         else:
+#             self.info.set_message_type(3)
+#             self.info.response(2)
 
-    def on_recommend_activated(self, widget, path, column):
-        selection = widget.get_selection()
-        model, iter = selection.get_selected()
-        alias, tag_id, is_created = Query.add_file_tag('archives', fe_model.id, tagname=model[iter][1])
-        fe_model.t_model.append((tag_id, alias,))
+#     def on_recommend_activated(self, widget, path, column):
+#         selection = widget.get_selection()
+#         model, iter = selection.get_selected()
+#         alias, tag_id, is_created = Query.add_file_tag('archives', fe_model.id, tagname=model[iter][1])
+#         fe_model.t_model.append((tag_id, alias,))
 
-    def on_add_tag_clicked(self,widget, entry):
-        text = entry.get_text()
-        alias, tag_id, is_created = Query.add_file_tag('archives', fe_model.id, tagname=text)
-        fe_model.t_model.append((tag_id, alias,))
-        # fe_model.t_model.add_tag('archives', fe_model.id, text)
-        entry.set_text("")
+#     def on_add_tag_clicked(self,widget, entry):
+#         text = entry.get_text()
+#         alias, tag_id, is_created = Query.add_file_tag('archives', fe_model.id, tagname=text)
+#         fe_model.t_model.append((tag_id, alias,))
+#         # fe_model.t_model.add_tag('archives', fe_model.id, text)
+#         entry.set_text("")
 
-    def on_open_clicked(self,widget):
-        open_file(fe_model.filepath, 'default')
+#     def on_open_clicked(self,widget):
+#         open_file(fe_model.filepath, 'default')
 
-    def on_openf_clicked(self,widget):
-        open_file(fe_model.filepath, 'folder')
+#     def on_openf_clicked(self,widget):
+#         open_file(fe_model.filepath, 'folder')
 
-    def on_mcomix_clicked(self,widget):
-        open_file(fe_model.filepath, 'mcomix')
+#     def on_mcomix_clicked(self,widget):
+#         open_file(fe_model.filepath, 'mcomix')
 
-    def on_del_entry_clicked(self,widget):
-        #DIALOG
-        dialog = QuestionDialog(self, f"file_id: \'{fe_model.id}\'")
-        response = dialog.run()
+#     def on_del_entry_clicked(self,widget):
+#         #DIALOG
+#         dialog = QuestionDialog(self, f"file_id: \'{fe_model.id}\'")
+#         response = dialog.run()
 
-        if response == Gtk.ResponseType.YES:
-            r = Query.delete_file(fe_model.id)
-            if r:
-                main_model.back()
-        elif response == Gtk.ResponseType.NO:pass
-        dialog.destroy()
+#         if response == Gtk.ResponseType.YES:
+#             r = Query.delete_file(fe_model.id)
+#             if r:
+#                 main_model.back()
+#         elif response == Gtk.ResponseType.NO:pass
+#         dialog.destroy()
 
-    def on_del_file_entry_clicked(self,widget):
-        #DIALOG
-        dialog = QuestionDialog(self, f"file_id: \'{fe_model.id}\', \'{fe_model.filepath}\'")
-        response = dialog.run()
+#     def on_del_file_entry_clicked(self,widget):
+#         #DIALOG
+#         dialog = QuestionDialog(self, f"file_id: \'{fe_model.id}\', \'{fe_model.filepath}\'")
+#         response = dialog.run()
 
-        if response == Gtk.ResponseType.YES:
-            r = trash_file(fe_model.filepath)
-            if not r:#0 success
-                r = Query.delete_file(fe_model.id)
-                if r:
-                    main_model.back()
-        elif response == Gtk.ResponseType.NO:pass
-        dialog.destroy()
+#         if response == Gtk.ResponseType.YES:
+#             r = trash_file(fe_model.filepath)
+#             if not r:#0 success
+#                 r = Query.delete_file(fe_model.id)
+#                 if r:
+#                     main_model.back()
+#         elif response == Gtk.ResponseType.NO:pass
+#         dialog.destroy()
 
-    def on_info_clicked(self,widget):pass
+#     def on_info_clicked(self,widget):pass
 
 
 class HistorySwitcher(Gtk.Box):
@@ -905,25 +905,25 @@ class Paginator(Gtk.Box):
         else:pass
 
 
-class IconTagView(Gtk.IconView):
-    def __init__(self):
-        Gtk.IconView.__init__(self, has_tooltip=True)
+# class IconTagView(Gtk.IconView):
+#     def __init__(self):
+#         Gtk.IconView.__init__(self, has_tooltip=True)
 
-        self.set_item_width(0)
-        self.set_row_spacing(0)
-        self.set_column_spacing(0)
+#         self.set_item_width(0)
+#         self.set_row_spacing(0)
+#         self.set_column_spacing(0)
 
-        renderer = Gtk.CellRendererPixbuf()
-        self.pack_start(renderer, False)
-        # renderer.set_alignment(0, 0)
-        self.add_attribute(renderer,'pixbuf', 2)
+#         renderer = Gtk.CellRendererPixbuf()
+#         self.pack_start(renderer, False)
+#         # renderer.set_alignment(0, 0)
+#         self.add_attribute(renderer,'pixbuf', 2)
 
-        srenderer = Gtk.CellRendererText()
-        self.pack_start(srenderer, False)
-        srenderer.set_property('font','Ubuntu 9')
-        srenderer.set_property('ellipsize', 2)
-        srenderer.set_property('max-width-chars', 10)
-        self.add_attribute(srenderer,'text', 1)
+#         srenderer = Gtk.CellRendererText()
+#         self.pack_start(srenderer, False)
+#         srenderer.set_property('font','Ubuntu 9')
+#         srenderer.set_property('ellipsize', 2)
+#         srenderer.set_property('max-width-chars', 10)
+#         self.add_attribute(srenderer,'text', 1)
 
     def do_button_press_event(self, event):
         if event.button == Gdk.BUTTON_SECONDARY:
@@ -1050,383 +1050,303 @@ class IconView(Gtk.IconView):
 
 
 
-class TagEdit(Gtk.Grid):
-    __gsignals__ = {
-        'backed': (GObject.SIGNAL_RUN_FIRST, None, ()),
-        'list-tag': (GObject.SIGNAL_RUN_FIRST, None, (int,)),
-    }
-    def __init__(self):
-        Gtk.Grid.__init__(self, row_spacing=5, column_spacing=5)
-        self.set_property('margin-right', 5)
-        self.set_property('margin-left', 5)
-        main_model.connect('type-changed', self.on_model_type_changed)
+# class TagEdit(Gtk.Grid):
+#     __gsignals__ = {
+#         'backed': (GObject.SIGNAL_RUN_FIRST, None, ()),
+#         'list-tag': (GObject.SIGNAL_RUN_FIRST, None, (int,)),
+#     }
+#     def __init__(self):
+#         Gtk.Grid.__init__(self, row_spacing=5, column_spacing=5)
+#         self.set_property('margin-right', 5)
+#         self.set_property('margin-left', 5)
+#         main_model.connect('type-changed', self.on_model_type_changed)
 
 
-        # COMMANDS
-        command_box = Gtk.Box.new(orientation=1, spacing=0)
-        command_box.get_style_context().add_class("linked")
-        self.attach(command_box, 0, 0, 1, 1)
+#         # COMMANDS
+#         command_box = Gtk.Box.new(orientation=1, spacing=0)
+#         command_box.get_style_context().add_class("linked")
+#         self.attach(command_box, 0, 0, 1, 1)
 
-        # back_button = Gtk.Button('Back')
-        # command_box.pack_start(back_button, False, True, 0)
-        # back_button.connect('clicked', self.on_back_button_clicked)
-
-
-        button = Gtk.Button('List')
-        button.connect('clicked', self.on_list_clicked)
-        command_box.pack_start(button, False, True, 0)
-
-        button = Gtk.Button('Delete')
-        button.connect('clicked', self.on_del_clicked)
-        command_box.pack_start(button, False, True, 0)
+#         # back_button = Gtk.Button('Back')
+#         # command_box.pack_start(back_button, False, True, 0)
+#         # back_button.connect('clicked', self.on_back_button_clicked)
 
 
-        #FILE INFOS
-        info_box = Gtk.Box.new(orientation=1, spacing=4)
-        info_box.set_hexpand(True)
-        self.attach(info_box, 1, 0, 1, 1)
+#         button = Gtk.Button('List')
+#         button.connect('clicked', self.on_list_clicked)
+#         command_box.pack_start(button, False, True, 0)
 
-        button = Gtk.Button()
-        # button.set_halign(1)
-        button.set_relief(2)
-        img = Gtk.Image.new_from_file('')
-        ta_model.bind_property('thumbpath', img, 'file', 0)
-        button.set_image(img)
-        button.connect('clicked', self.on_rethumb)
-        info_box.pack_start(button, False, True, 0)
-
-        label = Gtk.Label()
-        ta_model.bind_property('id', label, 'label', 0)
-        label.set_halign(1)
-        info_box.pack_start(label, False, True, 0)
+#         button = Gtk.Button('Delete')
+#         button.connect('clicked', self.on_del_clicked)
+#         command_box.pack_start(button, False, True, 0)
 
 
-        entry = Gtk.Entry()
-        ta_model.bind_property('name', entry, 'text', 1)
-        entry.set_placeholder_text('consistent tag name')
-        info_box.pack_start(entry, False, True, 0)
+#         #FILE INFOS
+#         info_box = Gtk.Box.new(orientation=1, spacing=4)
+#         info_box.set_hexpand(True)
+#         self.attach(info_box, 1, 0, 1, 1)
 
-        entry = Gtk.Entry()
-        ta_model.bind_property('thumb', entry, 'text', 1)
-        entry.set_placeholder_text('thumb number')
-        info_box.pack_start(entry, False, True, 0)
+#         button = Gtk.Button()
+#         # button.set_halign(1)
+#         button.set_relief(2)
+#         img = Gtk.Image.new_from_file('')
+#         ta_model.bind_property('thumbpath', img, 'file', 0)
+#         button.set_image(img)
+#         button.connect('clicked', self.on_rethumb)
+#         info_box.pack_start(button, False, True, 0)
 
-        entry = Gtk.Entry()
-        entry.set_placeholder_text('note')
-        ta_model.bind_property('note', entry, 'text', 1)
-        info_box.pack_start(entry, False, True, 0)
+#         label = Gtk.Label()
+#         ta_model.bind_property('id', label, 'label', 0)
+#         label.set_halign(1)
+#         info_box.pack_start(label, False, True, 0)
 
-        entry = Gtk.SpinButton.new_with_range(0,100,1)
-        entry.set_placeholder_text('rating')
-        ta_model.bind_property('rating', entry, 'value', 1)
-        info_box.pack_start(entry, False, True, 0)
 
-        tags = TagsView2()
-        tags.set_model(ta_model.al_model)
-        # button.set_halign(1)
-        # button.connect('clicked', self.on_update)
-        info_box.pack_start(tags, False, True, 0)
+#         entry = Gtk.Entry()
+#         ta_model.bind_property('name', entry, 'text', 1)
+#         entry.set_placeholder_text('consistent tag name')
+#         info_box.pack_start(entry, False, True, 0)
 
-        button = Gtk.Button('Update')
-        button.set_halign(1)
-        button.connect('clicked', self.on_update)
-        info_box.pack_start(button, False, True, 0)
+#         entry = Gtk.Entry()
+#         ta_model.bind_property('thumb', entry, 'text', 1)
+#         entry.set_placeholder_text('thumb number')
+#         info_box.pack_start(entry, False, True, 0)
 
-        #ALIASES
-        tagbox = Gtk.Box.new(orientation=1, spacing=2)
-        self.attach(tagbox, 2, 0, 1, 1)
+#         entry = Gtk.Entry()
+#         entry.set_placeholder_text('note')
+#         ta_model.bind_property('note', entry, 'text', 1)
+#         info_box.pack_start(entry, False, True, 0)
 
-        label = Gtk.Label('Aliases:')
-        tagbox.pack_start(label, False, True, 0)
+#         entry = Gtk.SpinButton.new_with_range(0,100,1)
+#         entry.set_placeholder_text('rating')
+#         ta_model.bind_property('rating', entry, 'value', 1)
+#         info_box.pack_start(entry, False, True, 0)
+
+#         tags = TagsView2()
+#         tags.set_model(ta_model.al_model)
+#         # button.set_halign(1)
+#         # button.connect('clicked', self.on_update)
+#         info_box.pack_start(tags, False, True, 0)
+
+#         button = Gtk.Button('Update')
+#         button.set_halign(1)
+#         button.connect('clicked', self.on_update)
+#         info_box.pack_start(button, False, True, 0)
+
+#         #ALIASES
+#         tagbox = Gtk.Box.new(orientation=1, spacing=2)
+#         self.attach(tagbox, 2, 0, 1, 1)
+
+#         label = Gtk.Label('Aliases:')
+#         tagbox.pack_start(label, False, True, 0)
         
-        tagview = TagView()
-        tagview.connect('row-activated', self.on_alias_read)
-        tagview.connect('tag-delete', self.on_alias_delete)
-        tagview.connect('tag-read', self.on_alias_read)
-        # tagview.connect('tag-update', self.on_alias_update)
-        tagview.set_model(ta_model.al_model)
-        # tagview.set_vexpand(True)
-        scrolled = Gtk.ScrolledWindow()
-        scrolled.set_vexpand(True)
-        scrolled.set_property('shadow-type', 1)
-        scrolled.add(tagview)
-        tagbox.pack_start(scrolled, True, True, 0)
+#         tagview = TagView()
+#         tagview.connect('row-activated', self.on_alias_read)
+#         tagview.connect('tag-delete', self.on_alias_delete)
+#         tagview.connect('tag-read', self.on_alias_read)
+#         # tagview.connect('tag-update', self.on_alias_update)
+#         tagview.set_model(ta_model.al_model)
+#         # tagview.set_vexpand(True)
+#         scrolled = Gtk.ScrolledWindow()
+#         scrolled.set_vexpand(True)
+#         scrolled.set_property('shadow-type', 1)
+#         scrolled.add(tagview)
+#         tagbox.pack_start(scrolled, True, True, 0)
 
-        hbox = Gtk.Box.new(orientation=0, spacing=0)
-        hbox.get_style_context().add_class("linked")
+#         hbox = Gtk.Box.new(orientation=0, spacing=0)
+#         hbox.get_style_context().add_class("linked")
 
-        entry = Gtk.Entry()
-        comp = Gtk.EntryCompletion()
-        comp.set_text_column(1)
-        comp.set_model(tag_store)
-        entry.set_completion(comp)
-        hbox.pack_start(entry, True, True, 0)
+#         entry = Gtk.Entry()
+#         comp = Gtk.EntryCompletion()
+#         comp.set_text_column(1)
+#         comp.set_model(tag_store)
+#         entry.set_completion(comp)
+#         hbox.pack_start(entry, True, True, 0)
 
-        button = Gtk.Button()
-        img = Gtk.Image.new_from_icon_name("list-add-symbolic", Gtk.IconSize.MENU)
-        button.set_image(img)
-        button.connect('clicked', self.on_add_alias_clicked, entry)
-        hbox.pack_start(button, False, True, 0)
+#         button = Gtk.Button()
+#         img = Gtk.Image.new_from_icon_name("list-add-symbolic", Gtk.IconSize.MENU)
+#         button.set_image(img)
+#         button.connect('clicked', self.on_add_alias_clicked, entry)
+#         hbox.pack_start(button, False, True, 0)
 
-        tagbox.pack_start(hbox, False, True, 0)
+#         tagbox.pack_start(hbox, False, True, 0)
 
 
-        #COLLECTIONS
-        label = Gtk.Label('Collections:')
-        tagbox.pack_start(label, False, True, 0)
+#         #COLLECTIONS
+#         label = Gtk.Label('Collections:')
+#         tagbox.pack_start(label, False, True, 0)
       
-        tagview = TagView()
-        tagview.connect('row-activated', self.on_col_read_activated)
-        tagview.connect('tag-read', self.on_col_read_activated)
-        tagview.connect('tag-delete', self.on_col_delete)
-        tagview.connect('tag-update', self.on_col_update)
-        tagview.set_model(ta_model.co_model)
-        scrolled = Gtk.ScrolledWindow()
-        # scrolled.set_hexpand(True)
-        scrolled.set_vexpand(True)
-        scrolled.set_property('shadow-type', 1)
-        scrolled.add(tagview)
-        tagbox.pack_start(scrolled, True, True, 0)
+#         tagview = TagView()
+#         tagview.connect('row-activated', self.on_col_read_activated)
+#         tagview.connect('tag-read', self.on_col_read_activated)
+#         tagview.connect('tag-delete', self.on_col_delete)
+#         tagview.connect('tag-update', self.on_col_update)
+#         tagview.set_model(ta_model.co_model)
+#         scrolled = Gtk.ScrolledWindow()
+#         # scrolled.set_hexpand(True)
+#         scrolled.set_vexpand(True)
+#         scrolled.set_property('shadow-type', 1)
+#         scrolled.add(tagview)
+#         tagbox.pack_start(scrolled, True, True, 0)
 
-        hbox = Gtk.Box.new(orientation=0, spacing=0)
-        hbox.get_style_context().add_class("linked")
+#         hbox = Gtk.Box.new(orientation=0, spacing=0)
+#         hbox.get_style_context().add_class("linked")
 
-        entry = Gtk.Entry()
-        comp = Gtk.EntryCompletion()
-        comp.set_text_column(1)
-        comp.set_model(col_store)
-        entry.set_completion(comp)
-        hbox.pack_start(entry, True, True, 0)
+#         entry = Gtk.Entry()
+#         comp = Gtk.EntryCompletion()
+#         comp.set_text_column(1)
+#         comp.set_model(col_store)
+#         entry.set_completion(comp)
+#         hbox.pack_start(entry, True, True, 0)
 
-        button = Gtk.Button()
-        img = Gtk.Image.new_from_icon_name("list-add-symbolic", Gtk.IconSize.MENU)
-        button.set_image(img)
-        button.connect('clicked', self.on_add_col_clicked, entry)
-        hbox.pack_start(button, False, True, 0)
+#         button = Gtk.Button()
+#         img = Gtk.Image.new_from_icon_name("list-add-symbolic", Gtk.IconSize.MENU)
+#         button.set_image(img)
+#         button.connect('clicked', self.on_add_col_clicked, entry)
+#         hbox.pack_start(button, False, True, 0)
 
-        tagbox.pack_start(hbox, False, True, 0)
+#         tagbox.pack_start(hbox, False, True, 0)
 
-        #INFOBAR
-        info = Gtk.InfoBar()
-        message_label = Gtk.Label('Done')
-        # info.
-        info.connect('response', self.on_info_response, message_label)
-        info.set_revealed(False)
-        info.set_show_close_button(True)
-        self.info = info
-        c = info.get_content_area()
-        c.add(message_label)
-        self.attach(info, 0, 20, 3, 1)
+#         #INFOBAR
+#         info = Gtk.InfoBar()
+#         message_label = Gtk.Label('Done')
+#         # info.
+#         info.connect('response', self.on_info_response, message_label)
+#         info.set_revealed(False)
+#         info.set_show_close_button(True)
+#         self.info = info
+#         c = info.get_content_area()
+#         c.add(message_label)
+#         self.attach(info, 0, 20, 3, 1)
 
-    def on_rethumb(self, widget):
-        ta_model.thumbpath = f'/media/soni/1001/persistent/1001/thumbs/{ta_model.thumb}.jpg'
-
-
-
-    def on_info_response(self, info_bar, response_id, label):
-        print(response_id)
-        info_bar.set_revealed(True)
-        if response_id == 1:
-            label.set_label('Done')
-            def close(*args):
-                info_bar.set_revealed(False)
-            GLib.timeout_add(2400, close, None)
-        elif response_id == 2:
-            label.set_label('Error')
-        else:
-            info_bar.set_revealed(False)
-
-    def on_model_type_changed(self, obj):
-        if obj.query_type == QueryType.TAGUPDATE:
-            self.set_tag_id(obj.query_int)
-
-    def set_tag_id(self, id):
-        file = Query.get_tag(id)
-        ta_model.id = file.id
-        ta_model.name = file.name if file.name != None else ""
-        ta_model.note = file.note if file.note != None else ""
-        ta_model.rating = file.rating
-        ta_model.thumb = file.thumb
-        ta_model.thumbpath = f'/media/soni/1001/persistent/1001/thumbs/{file.thumb}.jpg'
-        #
-        ta_model.al_model.clear()
-        for q in Query.get_tag_aliases(id):
-            ta_model.al_model.append(q)
-        ta_model.co_model.clear()
-        for q in Query.get_tag_collections(id):
-            ta_model.co_model.append(q)
-
-    # def on_alias_update(self, widget):pass
-    def on_alias_read(self, widget, *args):pass
-        # selection = widget.get_selection()
-        # model, iter = selection.get_selected()
-        # main_model.view = "listview"
-
-    def on_alias_delete(self, widget):
-        selection = widget.get_selection()
-        model, iter = selection.get_selected()
-
-        #DIALOG
-        dialog = QuestionDialog(self, f"alias_name: \'{model[iter][1]}\', alias_id: \'{model[iter][0]}\'")
-        response = dialog.run()
-
-        if response == Gtk.ResponseType.YES:
-            if Query.remove_tag_alias(model[iter][0]):
-                model.remove(iter)
-        elif response == Gtk.ResponseType.NO:pass
-        dialog.destroy()
-
-    def on_add_alias_clicked(self, widget, entry):
-        text = entry.get_text()
-        tag_id = ta_model.id
-        alias, alias_id, is_created = Query.add_tag_alias(tag_id, text)
-        if is_created:
-            pass
-        ta_model.al_model.append((alias_id, alias,))
-        entry.set_text("")
+#     def on_rethumb(self, widget):
+#         ta_model.thumbpath = f'/media/soni/1001/persistent/1001/thumbs/{ta_model.thumb}.jpg'
 
 
-    def on_col_delete(self, widget):
-        selection = widget.get_selection()
-        model, iter = selection.get_selected()
-        col_id = model[iter][0]
-        tag_id = ta_model.id
 
-        #DIALOG
-        dialog = QuestionDialog(self, f"col_name: \'{model[iter][1]}\', col_id: \'{col_id}\', tag_id: \'{tag_id}\'")
-        response = dialog.run()
+#     def on_info_response(self, info_bar, response_id, label):
+#         print(response_id)
+#         info_bar.set_revealed(True)
+#         if response_id == 1:
+#             label.set_label('Done')
+#             def close(*args):
+#                 info_bar.set_revealed(False)
+#             GLib.timeout_add(2400, close, None)
+#         elif response_id == 2:
+#             label.set_label('Error')
+#         else:
+#             info_bar.set_revealed(False)
 
-        if response == Gtk.ResponseType.YES:
-            if Query.remove_tag_collection(tag_id, col_id):
-                model.remove(iter)
-        elif response == Gtk.ResponseType.NO:pass
-        dialog.destroy()
+#     def on_model_type_changed(self, obj):
+#         if obj.query_type == QueryType.TAGUPDATE:
+#             self.set_tag_id(obj.query_int)
+
+#     def set_tag_id(self, id):
+#         file = Query.get_tag(id)
+#         ta_model.id = file.id
+#         ta_model.name = file.name if file.name != None else ""
+#         ta_model.note = file.note if file.note != None else ""
+#         ta_model.rating = file.rating
+#         ta_model.thumb = file.thumb
+#         ta_model.thumbpath = f'/media/soni/1001/persistent/1001/thumbs/{file.thumb}.jpg'
+#         #
+#         ta_model.al_model.clear()
+#         for q in Query.get_tag_aliases(id):
+#             ta_model.al_model.append(q)
+#         ta_model.co_model.clear()
+#         for q in Query.get_tag_collections(id):
+#             ta_model.co_model.append(q)
+
+#     # def on_alias_update(self, widget):pass
+#     def on_alias_read(self, widget, *args):pass
+#         # selection = widget.get_selection()
+#         # model, iter = selection.get_selected()
+#         # main_model.view = "listview"
+
+#     def on_alias_delete(self, widget):
+#         selection = widget.get_selection()
+#         model, iter = selection.get_selected()
+
+#         #DIALOG
+#         dialog = QuestionDialog(self, f"alias_name: \'{model[iter][1]}\', alias_id: \'{model[iter][0]}\'")
+#         response = dialog.run()
+
+#         if response == Gtk.ResponseType.YES:
+#             if Query.remove_tag_alias(model[iter][0]):
+#                 model.remove(iter)
+#         elif response == Gtk.ResponseType.NO:pass
+#         dialog.destroy()
+
+#     def on_add_alias_clicked(self, widget, entry):
+#         text = entry.get_text()
+#         tag_id = ta_model.id
+#         alias, alias_id, is_created = Query.add_tag_alias(tag_id, text)
+#         if is_created:
+#             pass
+#         ta_model.al_model.append((alias_id, alias,))
+#         entry.set_text("")
 
 
-    def on_col_update(self, widget):pass
-    def on_add_col_clicked(self, widget, entry):
-        text = entry.get_text()
-        tag_id = ta_model.id
-        col_name, col_id, is_created = Query.add_tag_collection(tag_id, text)
-        if is_created:
-            col_store.append((col_id, col_name,))
-            #TODO select in view after new inserted?
-        ta_model.co_model.append((col_id, col_name,))
-        entry.set_text("")
+#     def on_col_delete(self, widget):
+#         selection = widget.get_selection()
+#         model, iter = selection.get_selected()
+#         col_id = model[iter][0]
+#         tag_id = ta_model.id
+
+#         #DIALOG
+#         dialog = QuestionDialog(self, f"col_name: \'{model[iter][1]}\', col_id: \'{col_id}\', tag_id: \'{tag_id}\'")
+#         response = dialog.run()
+
+#         if response == Gtk.ResponseType.YES:
+#             if Query.remove_tag_collection(tag_id, col_id):
+#                 model.remove(iter)
+#         elif response == Gtk.ResponseType.NO:pass
+#         dialog.destroy()
 
 
-    def on_col_read_activated(self, widget):
-        selection = widget.get_selection()
-        model, iter = selection.get_selected()
-        col_model.set_col(model[iter][0])
+#     def on_col_update(self, widget):pass
+#     def on_add_col_clicked(self, widget, entry):
+#         text = entry.get_text()
+#         tag_id = ta_model.id
+#         col_name, col_id, is_created = Query.add_tag_collection(tag_id, text)
+#         if is_created:
+#             col_store.append((col_id, col_name,))
+#             #TODO select in view after new inserted?
+#         ta_model.co_model.append((col_id, col_name,))
+#         entry.set_text("")
 
 
-    def on_update(self, widget):
-        r = Query.update_tag(ta_model.id, ta_model.name, ta_model.note, ta_model.rating, ta_model.thumb)
-        if r > 0: 
-            self.info.set_message_type(0)
-            self.info.response(1)
-        else:
-            self.info.set_message_type(3)
-            self.info.response(2)
-
-    def on_list_clicked(self,widget):
-        self.emit('list-tag', ta_model.id)
-
-    def on_del_clicked(self,widget):
-        tag_id = ta_model.id
-
-        #DIALOG
-        dialog = QuestionDialog(self, f"tag_id: \'{tag_id}\'")
-        response = dialog.run()
-
-        if response == Gtk.ResponseType.YES:
-            if Query.delete_tag(tag_id):
-                #TODO back?
-                main_model.back()
-        elif response == Gtk.ResponseType.NO:pass
-        dialog.destroy()
+#     def on_col_read_activated(self, widget):
+#         selection = widget.get_selection()
+#         model, iter = selection.get_selected()
+#         col_model.set_col(model[iter][0])
 
 
-class TagFlowBox(Gtk.FlowBox):
-    __gsignals__ = {
-        "child-deleted": (GObject.SignalFlags.RUN_FIRST, None, (GObject.GObject,)),
-        "child-clicked": (GObject.SignalFlags.RUN_FIRST, None, (GObject.GObject,))
-    }
-    def __init__(self):
-        Gtk.FlowBox.__init__(self)
-        self.set_selection_mode(0)
-        self.set_row_spacing(0)
-        self.set_column_spacing(0)
-        self.set_orientation(0)
-        self.set_activate_on_single_click(True)
-        # c = self.get_style_context()
-        # c.add_class('aliases')
-        # self.connect('child-activated', self.on_child_activated)
+#     def on_update(self, widget):
+#         r = Query.update_tag(ta_model.id, ta_model.name, ta_model.note, ta_model.rating, ta_model.thumb)
+#         if r > 0: 
+#             self.info.set_message_type(0)
+#             self.info.response(1)
+#         else:
+#             self.info.set_message_type(3)
+#             self.info.response(2)
 
-    def add_tagchild(self, id, label):
-        child = Gtk.FlowBoxChild()
-        child.id = id
-        child.label = label
-        # child.set_halign(1)
-        # child.set_valign(1)
+#     def on_list_clicked(self,widget):
+#         self.emit('list-tag', ta_model.id)
 
-        box = Gtk.Box.new(orientation=0, spacing=0)
-        c = box.get_style_context()
-        c.add_class('alias')
+#     def on_del_clicked(self,widget):
+#         tag_id = ta_model.id
 
-        link_event = Gtk.EventBox()
-        labelw = Gtk.Label(label.title())
-        link_event.add(labelw)
-        link_event.connect('button-release-event', self.on_link_clicked, child)
-        box.pack_start(link_event, True, True, 0)
+#         #DIALOG
+#         dialog = QuestionDialog(self, f"tag_id: \'{tag_id}\'")
+#         response = dialog.run()
 
-        del_but = Gtk.Button.new_from_icon_name('window-close-symbolic', 2)
-        del_but.connect('clicked', self.on_del_clicked, child)
-        del_but.set_relief(2)
-        del_but.set_can_focus(False)
-        del_but.set_halign(3)
-        del_but.set_valign(3)
-        c = del_but.get_style_context()
-        c.add_class('delbut')
-        box.pack_start(del_but, False, False, 0)
+#         if response == Gtk.ResponseType.YES:
+#             if Query.delete_tag(tag_id):
+#                 #TODO back?
+#                 main_model.back()
+#         elif response == Gtk.ResponseType.NO:pass
+#         dialog.destroy()
 
-        child.add(box)
-        child.show_all()
-
-        self.add(child)
-
-    def add_sggstchild(self, id, label):
-        child = Gtk.FlowBoxChild()
-        child.id = id
-        child.label = label
-        # child.set_halign(1)
-        # child.set_valign(1)
-
-        box = Gtk.Box.new(orientation=0, spacing=0)
-        c = box.get_style_context()
-        c.add_class('sggst')
-
-        link_event = Gtk.EventBox()
-        labelw = Gtk.Label(label.title())
-        link_event.add(labelw)
-        link_event.connect('button-release-event', self.on_link_clicked, child)
-        box.pack_start(link_event, True, True, 0)
-
-        child.add(box)
-        child.show_all()
-
-        self.add(child)
-
-    def on_link_clicked(self, widget, event, child):
-        self.emit('child-clicked', child)
-
-    def on_del_clicked(self, widget, child):
-        self.emit('child-deleted', child)
-
-    # def on_child_activated(self, flow_box, child):
-    #     # label = child.get_child().id
-    #     print(child.id)
 
 
 
