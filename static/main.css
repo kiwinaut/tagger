@@ -65,3 +65,9 @@ background-color: rgba(0,100,0,0.6);
 background-color: rgba(100,0,0,0.6);
 }
 
+#dirview{
+padding:4px;
+}
+#dirview entry{
+margin-bottom:4px
+}

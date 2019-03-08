@@ -18,7 +18,7 @@ class IconTagView(Gtk.IconView):
         self.add_attribute(renderer,'pixbuf', 4)
 
         srenderer = Gtk.CellRendererText()
-        srenderer.set_property('width', 128)
+        srenderer.set_property('width', 118)
         srenderer.set_property('xalign', .5)
 
         self.pack_start(srenderer, False)
@@ -193,16 +193,12 @@ class AliasesDirView(Gtk.Box):
     }
     def __init__(self):
         Gtk.Box.__init__(self, orientation=0, spacing=0)
+        self.set_name('dirview')
 
         fbox = Gtk.Box.new(orientation=1, spacing=0)
-        # fbox.set_property('margin',3)
-        alias_entry = Gtk.SearchEntry()
-        alias_entry.set_valign(3)
-        fbox.pack_start(alias_entry, False, True, 0)
 
 
         tag_store = TagStore()
-        alias_entry.connect('search-changed', self.on_tag_filter_changed, tag_store)
 
         #TAG VIEW
         tag_scroll = Gtk.ScrolledWindow()
@@ -221,6 +217,14 @@ class AliasesDirView(Gtk.Box):
         self.pack_end(fbox, True, True, 0)
 
         #COLLECTION VIEW
+        fbox = Gtk.Box.new(orientation=1, spacing=0)
+        fbox.set_property('margin',3)
+
+        alias_entry = Gtk.SearchEntry()
+        alias_entry.connect('search-changed', self.on_tag_filter_changed, tag_store)
+        alias_entry.set_valign(3)
+        fbox.pack_start(alias_entry, False, True, 0)
+        
         col_scroll = Gtk.ScrolledWindow()
         # col_scroll.set_property('margin-left',3)
         # col_scroll.set_property('margin-right',3)
@@ -235,7 +239,8 @@ class AliasesDirView(Gtk.Box):
         col_scroll.add(tree_view)
         col_scroll.set_size_request(240, -1)
 
-        self.pack_end(col_scroll, False, True, 0)
+        fbox.pack_start(col_scroll, True, True, 0)
+        self.pack_end(fbox, False, True, 0)
 
         self.show_all()
 
