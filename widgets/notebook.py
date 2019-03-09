@@ -10,9 +10,11 @@ class Notebook(Gtk.Notebook):
         closebutton.set_relief(2)
         closebutton.connect('clicked', self.on_tab_close, child)
         label = Gtk.Label(label)
+        label.set_ellipsize(3)
+        label.set_size_request(100, -1)
         box = Gtk.Box.new(orientation=0, spacing=0)
         box.pack_start(label, True, True, 0)
-        box.pack_start(closebutton, False, True, 0)
+        box.pack_start(closebutton, False, False, 0)
         box.show_all()
 
         return self.append_page(child, box)

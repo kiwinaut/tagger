@@ -59,9 +59,15 @@ padding:0px 0px 0px 5px;
 background-color: rgba(0,0,0,0.6);
 }
 .app-notification-ok{
+font-weight: bold;
+font-size: 14px;
+text-shadow: 1px 1px black;
 background-color: rgba(0,100,0,0.6);
 }
 .app-notification-error{
+	font-weight: bold;
+	font-size: 14px;
+	text-shadow: 1px 1px black;
 background-color: rgba(100,0,0,0.6);
 }
 

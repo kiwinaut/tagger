@@ -28,6 +28,7 @@ class TagEdit(EditOverlay):
         button = Gtk.Button()
         # button.set_halign(1)
         button.set_relief(2)
+        button.set_can_focus(False)
         img = Gtk.Image.new_from_file('')
         self.bind_property('thumbpath', img, 'file', 0)
         button.set_image(img)

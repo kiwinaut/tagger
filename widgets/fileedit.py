@@ -39,6 +39,7 @@ class FileEdit(EditOverlay):
         button = Gtk.Button()
         # button.set_halign(1)
         button.set_relief(2)
+        button.set_can_focus(False)
         img = Gtk.Image.new_from_file('')
         self.bind_property('imgfile', img, 'file', 0)
         button.set_image(img)
@@ -287,6 +288,10 @@ class FileEdit(EditOverlay):
 
     #RECOMMENDS
     def on_rcmmnds_child_clicked(self, widget, child):
-        alias, tag_id, is_created = Query.add_file_tag('archives', self.id, tagname=child.label)
-        self.tags_container.add_tagchild(tag_id, alias)
-        self.emit('updated','Done', 1)
+        try:
+            alias, tag_id, is_created = Query.add_file_tag('archives', self.id, tagname=child.label)
+            self.tags_container.add_tagchild(tag_id, alias)
+            self.emit('updated','Done', 1)
+        except Exception as e:
+            self.emit('updated',str(e), 0)
+

@@ -18,9 +18,9 @@ class ListView(Gtk.TreeView):
     #   'file-update': (GObject.SIGNAL_RUN_FIRST, None, (int,)),
     #   # 'edit': (GObject.SIGNAL_RUN_FIRST, None, (object, object,)),
     # }
-    def __init__(self):
-        Gtk.TreeView.__init__(self, has_tooltip=True)
-        # self.set_property('headers-visible', True)
+    def __init__(self, header=True):
+        Gtk.TreeView.__init__(self)
+        self.set_property('headers-visible', header)
         self.set_rules_hint(True)
         self.get_selection().set_mode(3)
         self.set_rubber_banding(True)
@@ -100,7 +100,7 @@ class ListView(Gtk.TreeView):
             path = paths[0]
             iter = model.get_iter(path)
             fileview = self.get_parent().get_parent().get_parent()
-            fileview.emit('file-edit', model[iter][0], fileview.alias)
+            fileview.emit('file-edit', model[iter][0], model[iter][2])
 
     def on_menu_edit_activated(self, widget, *args):
         selection = self.get_selection()
@@ -124,11 +124,11 @@ class ListView(Gtk.TreeView):
 
 
 class IconView(Gtk.IconView):
-    __gsignals__ = {
-      'file-read': (GObject.SIGNAL_RUN_FIRST, None, (int,)),
-      'file-update': (GObject.SIGNAL_RUN_FIRST, None, (int,)),
-      # 'edit': (GObject.SIGNAL_RUN_FIRST, None, (object, object,)),
-    }
+    # __gsignals__ = {
+    #   'file-read': (GObject.SIGNAL_RUN_FIRST, None, (int,)),
+    #   'file-update': (GObject.SIGNAL_RUN_FIRST, None, (int,)),
+    #   # 'edit': (GObject.SIGNAL_RUN_FIRST, None, (object, object,)),
+    # }
     def __init__(self):
         Gtk.IconView.__init__(self, has_tooltip=True)
         self.set_item_width(0)
@@ -171,15 +171,12 @@ class IconView(Gtk.IconView):
         update = Gtk.MenuItem.new_with_label('Update File')
         update.connect('activate', self.on_menu_edit_activated)
         menu.append(update)
+        self.menu = menu
         menu.show_all()
 
-        self.connect('button-press-event', self.show_menu, menu)
-        self.connect('item-activated', self.on_menu_read_activate)
+        self.connect('item-activated', self.on_menu_edit_activated)
 
-    def show_menu(self, widget, event, menu):
-        if event.button == Gdk.BUTTON_SECONDARY:
-            menu.popup(None, None, None, None, 0, Gtk.get_current_event_time())
-        return None
+
 
     def on_menu_read_activate(self, widget, *args):
         paths = self.get_selected_items()
@@ -187,15 +184,41 @@ class IconView(Gtk.IconView):
         if paths:
             path = paths[0]
             iter = model.get_iter(path)
-        self.emit('file-read', model[iter][0])
+            parent = self.get_parent().get_parent().get_parent()
+            # parent.emit('tag-edit', model[iter][0], model[iter][1])
 
     def on_menu_edit_activated(self, widget, *args):
         paths = self.get_selected_items()
         model = self.get_model()
         if not len(paths) >= 2:
             iter = model.get_iter(paths[0])
-            self.emit('file-edit', model[iter][0], model[iter][1])
+            parent = self.get_parent().get_parent().get_parent()
+            parent.emit('file-edit', model[iter][0], model[iter][2])
 
+    def do_button_press_event(self, event):
+        if event.button == Gdk.BUTTON_SECONDARY:
+            selection = self.get_selected_items()
+            path = self.get_path_at_pos(event.x, event.y)
+            # selection = self.get_selection()
+            # pos = self.get_path_at_pos(event.x, event.y)# path, column, cell_x, cell_y
+            if path:
+                #clicked any content
+                if path in selection:
+                    #clicked in selection
+                    self.menu.popup(None, None, None, None, event.button, event.time)
+                else:
+                    #clicked outside of selection
+                    # Gtk.IconView.do_button_press_event(self, event)
+                    self.unselect_all()
+                    self.select_path(path)
+
+                    self.menu.popup(None, None, None, None, event.button, event.time)
+            else:
+                #clicked empty area
+                self.unselect_all()
+                return False
+        else:
+            Gtk.IconView.do_button_press_event(self, event)
 
 class FileView(Gtk.Box):
     view = GObject.Property(type=str, default="listview")
@@ -216,11 +239,14 @@ class FileView(Gtk.Box):
         search_bar = Gtk.SearchBar()
         searchentry = Gtk.SearchEntry()
         search_bar.add(searchentry)
+        search_bar.set_show_close_button(True)
         search_bar.connect_entry(searchentry)
         # search_bar.set_search_mode(True)
         self.pack_start(search_bar, False, True, 0)
+        self.connect('key-press-event', self.on_sstack_key_pressed, search_bar)
 
         viewstore = ViewStore()
+        searchentry.connect('search-changed', self.on_file_filter_changed, viewstore)
         # self.connect("notify::tag_query", self.on_tag_query_notified, viewstore)
 
         sub_stack = Gtk.Stack()
@@ -262,3 +288,106 @@ class FileView(Gtk.Box):
         self.view = value
         self.stack.set_visible_child_full(value, 0)
 
+    def on_sstack_key_pressed(self, widget, event, search_bar):
+        search_bar.handle_event(event)
+
+    def on_file_filter_changed(self, widget, store):
+        text = widget.get_text()
+        store.set_query_filter_text(text)
+
+
+class AllFileView(Gtk.Box):
+    view = GObject.Property(type=str, default="listview")
+    query_fn_filter = GObject.Property(type=str, default="")
+    query_page = GObject.Property(type=int, default=1)
+    query_sort = GObject.Property(type=str, default="mtime")
+    query_order = GObject.Property(type=str, default="desc")
+    query_media = GObject.Property(type=str, default="archives")
+    # tag_query = GObject.Property(type=int)
+
+    __gsignals__ = {
+        'file-edit': (GObject.SIGNAL_RUN_FIRST, None, (int,str,)),
+        'tag-edit': (GObject.SIGNAL_RUN_FIRST, None, (int,str,)),
+    }
+    '''
+    Tagged File View
+    '''
+
+    def __init__(self, all_file_code=0):
+        Gtk.Box.__init__(self, orientation=1, spacing=0)
+        if all_file_code == 0:
+            self.alias = 'All Files'
+        elif all_file_code == 1:
+            self.alias = '1 Tagged Files'
+        elif all_file_code == -1:
+            self.alias = 'Untagged Files'
+
+        #REVEALER
+        rev = Gtk.Revealer()
+        entry = Gtk.SearchEntry()
+        closebutton = Gtk.Button.new_from_icon_name('window-close-symbolic', 2)
+        closebutton.connect('clicked', self.on_revealer_close, rev)
+        box = Gtk.Box.new(orientation=0, spacing=0)
+        box.pack_start(entry, True, True, 0)
+        box.pack_start(closebutton, False, True, 0)
+
+
+
+        self.connect('key-press-event', self.on_key_pressed, rev)
+        # entry.connect('activate', self.on_extra_changed)
+        rev.add(box)
+
+        self.pack_start(rev, False, True, 0)
+        #
+        # self.connect('key-press-event', self.on_sstack_key_pressed, search_bar)
+
+        viewstore = ViewStore()
+        # searchentry.connect('search-changed', self.on_file_filter_changed, viewstore)
+
+        sub_stack = Gtk.Stack()
+        scroll = Gtk.ScrolledWindow()
+        scroll.set_property('shadow-type', 0)
+        grid_view = IconView()
+        grid_view.set_model(viewstore)
+        # grid_view.connect('file-read', self.on_grid_file_read, stack)
+        scroll.add(grid_view)
+        sub_stack.add_named(scroll, 'gridview')
+        # self.connect("notify::view", self.on_view_notified, sub_stack)
+
+        scroll = Gtk.ScrolledWindow()
+        scroll.set_property('shadow-type', 0)
+        listview=ListView(header=False)
+        listview.set_model(viewstore)
+        # listview.connect('file-update', self.on_list_file_update, file_edit)
+        scroll.add(listview)
+        sub_stack.add_named(scroll, 'listview')
+        self.stack = sub_stack
+
+
+        self.pack_start(sub_stack, True, True, 0)
+        self.show_all()
+        sub_stack.set_visible_child_full('listview', 0)
+        viewstore.set_query_all_file_code(all_file_code)
+
+        # self.connect('file-update', self.a)
+
+    # def on_tag_query_notified(self, object, gparamstring, model):
+    #     print(self.tag_query)
+    #     model.set_query_tag_id(self.tag_query)
+
+    def on_tag_query_notified(self, object, gparamstring, stack):
+        stack.set_visible_child_full(self.view, 0)
+
+    def set_view(self, value):
+        self.view = value
+        self.stack.set_visible_child_full(value, 0)
+
+    def on_key_pressed(self, widget, event, rev):
+        rev.set_reveal_child(True)
+
+    def on_revealer_close(self, widget, rev):
+        rev.set_reveal_child(False)
+
+    def on_file_filter_changed(self, widget, store):
+        text = widget.get_text()
+        store.set_query_filter_text(text)

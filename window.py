@@ -9,7 +9,7 @@ from popovers import SciencePopOver
 from data_models import main_model, QueryType, col_model, col_store,  tag_icon_store, det_store, tag_group_store, avatar
 import shell_commands
 from widgets.notebook import Notebook
-from widgets.fileview import FileView
+from widgets.fileview import FileView, AllFileView
 from widgets.fileedit import FileEdit
 from widgets.tagedit import TagEdit
 from widgets.aliasesdirview import AliasesDirView
@@ -236,13 +236,22 @@ class Window(Gtk.ApplicationWindow):
         main_model.set_page(widget.get_value())
 
     def on_menu_all_files_activated(self, widget):
-        main_model.set_type(QueryType.TAGALL, -1, None)
+        fw = AllFileView(0)
+        fw.connect('file-edit', self.on_file_edit)
+        num = self.notebook.append_buttom(fw, '🌈'+'All Files')
+        self.notebook.set_current_page(num)
 
     def on_menu_untagged_files_activated(self, widget):
-        main_model.set_type(QueryType.TAG0, -1, None)
+        fw = AllFileView(-1)
+        fw.connect('file-edit', self.on_file_edit)
+        num = self.notebook.append_buttom(fw, '🌈'+'Untagged Files')
+        self.notebook.set_current_page(num)
 
     def on_menu_onetag_files_activated(self, widget):
-        main_model.set_type(QueryType.TAG1, -1, None)
+        fw = AllFileView(1)
+        fw.connect('file-edit', self.on_file_edit)
+        num = self.notebook.append_buttom(fw, '🌈'+'1 Tag Files')
+        self.notebook.set_current_page(num)
 
     # def on_menu_nocol_tags_activated(self, widget):
     #     tag_store.clear()
@@ -256,7 +265,7 @@ class Window(Gtk.ApplicationWindow):
         f_edit = FileEdit(file_id, alias)
         f_edit.show_all()
         # tag_edit.connect('list-tag', self.on_tag_edit_list_tag)
-        num = self.notebook.append_buttom(f_edit,'📝\t'+ alias)
+        num = self.notebook.append_buttom(f_edit,'📝'+ alias)
         self.notebook.set_current_page(num)
 
     # def on_tag_filter_changed(self, widget):
@@ -288,7 +297,7 @@ class Window(Gtk.ApplicationWindow):
     def on_file_list(self, widget, tag_id, tag_name):
         fw = FileView(tag_id, tag_name)
         fw.connect('file-edit', self.on_file_edit)
-        num = self.notebook.append_buttom(fw, '🔍\t'+tag_name)
+        num = self.notebook.append_buttom(fw, '🔍'+tag_name)
         self.notebook.set_current_page(num)
 
     def on_tag_edit(self, widget, tag_id, tag_name):
@@ -297,7 +306,7 @@ class Window(Gtk.ApplicationWindow):
         tag_edit = TagEdit(tag_id, tag_name)
         tag_edit.show_all()
         tag_edit.connect('file-list', self.on_file_list)
-        num = self.notebook.append_buttom(tag_edit, '🔖\t'+ tag_name)
+        num = self.notebook.append_buttom(tag_edit, '🔖'+ tag_name)
         self.notebook.set_current_page(num)
 
     def init_sets(self):

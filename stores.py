@@ -108,6 +108,7 @@ class ViewStore(Gtk.ListStore):
             self.append(q)
 
     def set_query_tag_id(self, tag_id):
+        self.tag_id = tag_id
         sq = Query.get_files('archives', 'filepath', 'desc', tag_id)
         # sq = Query.get_files(obj.query_media, obj.query_sort, obj.query_order, int(tag), filter=obj.query_fn_filter)
         self.clear()
@@ -115,5 +116,31 @@ class ViewStore(Gtk.ListStore):
             try:
                 pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{q[0]}.jpg', 192, 192)
             except GLib.Error:
-                pb = None
+                pb = avatar
+            self.append((*q[:-1], pb,))
+
+    def set_query_filter_text(self, value):
+        sq = Query.get_files('archives', 'filepath', 'desc', self.tag_id, filter=f'%{value}%')
+        self.clear()
+        for q in sq:
+            try:
+                pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{q[0]}.jpg', 192, 192)
+            except GLib.Error:
+                pb = avatar
+            self.append((*q[:-1], pb,))
+
+    def set_query_all_file_code(self, code):
+        if code == 0:
+            sq = Query.get_all_files('archives', 0, 'mtime', 'desc')
+        elif code == 1:
+            sq = Query.get_1tag_files('archives', 0, 'mtime',  'desc')
+        elif code == -1:
+            sq = Query.get_notag_files('archives', 0, 'mtime',  'desc')
+
+        self.clear()
+        for q in sq:
+            try:
+                pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{q[0]}.jpg', 192, 192)
+            except GLib.Error:
+                pb = avatar
             self.append((*q[:-1], pb,))

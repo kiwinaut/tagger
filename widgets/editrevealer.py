@@ -13,7 +13,7 @@ class EditOverlay(Gtk.Overlay):
 
         rev = Gtk.Revealer()
         rev.set_halign(3)
-        rev.set_valign(1)
+        rev.set_valign(2)
         box = Gtk.Box.new(orientation=0, spacing=4)
         context = box.get_style_context()
         context.add_class('app-notification')
@@ -26,14 +26,15 @@ class EditOverlay(Gtk.Overlay):
 
     def on_show_message(self, widget, message, r, label, context, revealer):
         label.set_label(message)
-        if r > 0:
-            context.add_class('app-notification-ok')
-        else:
-            context.add_class('app-notification-error')
-
-        revealer.set_reveal_child(True)
         def close(*args):
             revealer.set_reveal_child(False)
             context.remove_class('app-notification-ok')
             context.remove_class('app-notification-error')
-        GLib.timeout_add(2400, close, None)
+        if r > 0:
+            context.add_class('app-notification-ok')
+            revealer.set_reveal_child(True)
+            GLib.timeout_add(2400, close, None)
+        else:
+            context.add_class('app-notification-error')
+            revealer.set_reveal_child(True)
+            GLib.timeout_add(4400, close, None)
