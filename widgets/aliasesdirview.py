@@ -1,5 +1,5 @@
 from gi.repository import Gtk, Gdk, GObject
-from widgets.widgets import TagTreeView
+from widgets.widgets import TagTreeView, target3, target4
 from data_models import col_store
 from models import Query
 from stores import TagStore
@@ -22,9 +22,9 @@ class IconTagView(Gtk.IconView):
         srenderer.set_property('xalign', .5)
 
         self.pack_start(srenderer, False)
-        srenderer.set_property('font','Ubuntu 9')
+        # srenderer.set_property('font','Ubuntu 9')
         srenderer.set_property('ellipsize', 2)
-        srenderer.set_property('max-width-chars', 10)
+        # srenderer.set_property('max-width-chars', 10)
         self.add_attribute(srenderer,'text', 1)
 
         menu = Gtk.Menu()
@@ -38,6 +38,27 @@ class IconTagView(Gtk.IconView):
         self.menu = menu
         # self.connect('button-press-event', self.show_menu, menu)
         self.connect('item-activated', self.on_menu_read_activate)
+
+        self.enable_model_drag_source(
+            Gdk.ModifierType.BUTTON1_MASK|Gdk.ModifierType.CONTROL_MASK,
+            [target3, target4],
+            Gdk.DragAction.COPY
+        )
+        self.connect("drag-data-get", self.on_drag_data_get)
+
+    def on_drag_data_get(self, widget, drag_context, data, info, time):
+        selection = widget.get_selection()
+        model, iter = selection.get_selected()
+        # path = model.get_path(iter)
+        # value = '{}\n{}'.format(*model.get(iter, 0, 1))
+        # value = path.to_string()
+        if str(data.get_target()) == 'TAG':
+            value = str(model[iter][0])
+            data.set(data.get_target(), 8, bytes(value, "utf-8"))
+        elif str(data.get_target()) == 'text/plain':
+            string = model[iter][1]
+            data.set(data.get_target(), 8, bytes(string, "utf-8"))
+
 
     def do_button_press_event(self, event):
         if event.button == Gdk.BUTTON_SECONDARY:

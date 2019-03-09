@@ -246,7 +246,7 @@ class TagTreeView(Gtk.TreeView):
         delete = Gtk.MenuItem.new_with_label('Delete')
         delete.connect('activate', self.on_menu_delete_activate)
         menu.append(delete)
-        delete = Gtk.MenuItem.new_with_label('Read')
+        delete = Gtk.MenuItem.new_with_label('Show Tags')
         delete.connect('activate', self.on_menu_read_activate)
         menu.append(delete)
         delete = Gtk.MenuItem.new_with_label('Update')
@@ -925,30 +925,30 @@ class Paginator(Gtk.Box):
 #         srenderer.set_property('max-width-chars', 10)
 #         self.add_attribute(srenderer,'text', 1)
 
-    def do_button_press_event(self, event):
-        if event.button == Gdk.BUTTON_SECONDARY:
-            selection = self.get_selected_items()
-            path = self.get_path_at_pos(event.x, event.y)
-            # selection = self.get_selection()
-            # pos = self.get_path_at_pos(event.x, event.y)# path, column, cell_x, cell_y
-            if path:
-                #clicked any content
-                if path in selection:
-                    #clicked in selection
-                    self.dirmenu.popup(None, None, None, None, event.button, event.time)
-                else:
-                    #clicked outside of selection
-                    # Gtk.IconView.do_button_press_event(self, event)
-                    self.unselect_all()
-                    self.select_path(path)
+    # def do_button_press_event(self, event):
+    #     if event.button == Gdk.BUTTON_SECONDARY:
+    #         selection = self.get_selected_items()
+    #         path = self.get_path_at_pos(event.x, event.y)
+    #         # selection = self.get_selection()
+    #         # pos = self.get_path_at_pos(event.x, event.y)# path, column, cell_x, cell_y
+    #         if path:
+    #             #clicked any content
+    #             if path in selection:
+    #                 #clicked in selection
+    #                 self.dirmenu.popup(None, None, None, None, event.button, event.time)
+    #             else:
+    #                 #clicked outside of selection
+    #                 # Gtk.IconView.do_button_press_event(self, event)
+    #                 self.unselect_all()
+    #                 self.select_path(path)
 
-                    self.dirmenu.popup(None, None, None, None, event.button, event.time)
-            else:
-                #clicked empty area
-                self.unselect_all()
-                return False
-        else:
-            Gtk.IconView.do_button_press_event(self, event)
+    #                 self.dirmenu.popup(None, None, None, None, event.button, event.time)
+    #         else:
+    #             #clicked empty area
+    #             self.unselect_all()
+    #             return False
+    #     else:
+    #         Gtk.IconView.do_button_press_event(self, event)
 
 class IconView(Gtk.IconView):
     __gsignals__ = {

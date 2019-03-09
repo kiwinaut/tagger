@@ -31,7 +31,7 @@ class Window(Gtk.ApplicationWindow):
         # main_model.connect("notify::text", self.on_text_notified)
         # main_model.connect('type-changed', self.on_model_type_changed)
 
-        clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+        # clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
 
         #HEADER BAR
         header = Gtk.HeaderBar()
@@ -56,9 +56,9 @@ class Window(Gtk.ApplicationWindow):
         read = Gtk.MenuItem.new_with_label('One tag Files')
         read.connect('activate', self.on_menu_onetag_files_activated)
         menu.append(read)
-        read = Gtk.MenuItem.new_with_label('No Colection Tags')
-        read.connect('activate', self.on_menu_nocol_tags_activated)
-        menu.append(read)
+        # read = Gtk.MenuItem.new_with_label('No Colection Tags')
+        # read.connect('activate', self.on_menu_nocol_tags_activated)
+        # menu.append(read)
         read = Gtk.MenuItem.new_with_label('All Tag Details')
         read.connect('activate', self.on_menu_tags_details_activated)
         menu.append(read)
@@ -127,122 +127,6 @@ class Window(Gtk.ApplicationWindow):
 
         self.notebook = Notebook()
 
-        # stack = Gtk.Stack()
-        # self.stack = stack
-        # main_model.connect('type-changed', self.on_model_view_changed, stack)
-        # self.stack = stack
-
-        # sub_stack = Gtk.Stack()
-        # sub_stack.connect('key_press_event', self.on_sstack_key_pressed, science)
-        # # grid.attach(sub_stack, 0, 1, 1, 1)
-        # # main_model.connect("notify::view", self.on_view_notified, sub_stack)
-        # stack.add_named(sub_stack, 'files')
-
-        #TAG DETAILS
-        # scroll = Gtk.ScrolledWindow()
-        # det = DetailView()
-        # det.set_model(det_store)
-        # scroll.add(det)
-        # stack.add_named(scroll, 'detail')
-
-        #
-        # scroll = Gtk.ScrolledWindow()
-        # scroll.set_property('shadow-type', 0)
-        # grid_view = IconView()
-        # grid_view.set_model(viewstore)
-        # # grid_view.connect('file-read', self.on_grid_file_read, stack)
-        # scroll.add(grid_view)
-        # sub_stack.add_named(scroll, 'gridview')
-
-        # tag_edit = TagEdit()
-        # tag_edit.connect('list-tag', self.on_tag_edit_list_tag)
-        # stack.add_named(tag_edit, 'tagedit')
-
-        # icon_tag = IconTagView()
-        # icon_tag.connect('item-activated', self.on_icon_tag_item_activated)
-        # scroll = Gtk.ScrolledWindow()
-        # scroll.add(icon_tag)
-        # icon_tag.set_model(tag_icon_store)
-        # stack.add_named(scroll, 'icontag')
-
-        # file_edit = FileEdit()
-        # grid_view.connect('file-update', self.on_list_file_update, file_edit)
-
-        # stack.add_named(file_edit, 'fileedit')
-
-        # #LISTVIEW
-        # scroll = Gtk.ScrolledWindow()
-        # scroll.set_property('shadow-type', 0)
-        # listview=ListView()
-        # listview.set_model(viewstore)
-        # # listview.connect('file-update', self.on_list_file_update, file_edit)
-        # scroll.add(listview)
-        # sub_stack.add_named(scroll, 'listview')
-
-        # #TAG FILTER
-        # fbox = Gtk.Box.new(orientation=1, spacing=3)
-        # fbox.set_property('margin',3)
-        # alias_entry = Gtk.SearchEntry()
-        # alias_entry.connect('search-changed', self.on_tag_filter_changed)
-        # fbox.pack_start(alias_entry, False, True, 0)
-
-        # #TAG COMBO
-        # group_combo = Gtk.ComboBox.new_with_model(tag_group_store)
-        # group_combo.connect("changed", self.on_group_combo_changed)
-        # renderer_text = Gtk.CellRendererText()
-        # group_combo.pack_start(renderer_text, True)
-        # group_combo.add_attribute(renderer_text, "text", 1)
-        # renderer_text = Gtk.CellRendererText()
-        # group_combo.pack_start(renderer_text, True)
-        # group_combo.add_attribute(renderer_text, "text", 2)
-        # fbox.pack_start(group_combo, False, True, 0)
-
-        # #TAG VIEW
-        # tag_scroll = Gtk.ScrolledWindow()
-        # # tag_scroll.set_property('shadow-type', 1)
-        # # tag_store = TagStore()
-        # col_model.connect('col-changed', self.on_model_col_changed)
-        # col_model.connect('folder-changed', self.on_model_col_changed)
-        # tag_view = TagView()
-        # tag_view.set_model(tag_store)
-        # tag_view.connect('tag-read', self.on_tag_read)
-        # tag_view.connect('row-activated', self.on_tag_read)
-        # tag_view.connect('tag-update', self.on_tag_edit)
-        # tag_view.connect('filenames', self.on_tag_filenames, clipboard)
-        # tag_scroll.add(tag_view)
-        # fbox.pack_start(tag_scroll, True, True, 0)
-
-        # #COLLECTION VIEW
-        # col_scroll = Gtk.ScrolledWindow()
-        # col_scroll.set_property('margin-left',3)
-        # col_scroll.set_property('margin-right',3)
-        # # col_scroll.set_property('shadow-type', 1)
-        # col_view = TagTreeView()
-        # col_view.connect('tag-read', self.on_col_read_activated)
-        # col_view.connect('row-activated', self.on_col_read_activated)
-
-        # # col_store = ColStore()
-        # col_view.set_model(col_store)
-        # col_scroll.add(col_view)
-
-        # #TAG CONTROL
-        # tag_paned = Gtk.Paned(orientation=1)
-        # # tag_paned.set_wide_handle(True)
-        # # tag_paned.set_property('margin-left',3)
-        # tag_paned.set_property('border-width', 0)
-        # tag_paned.set_position(160)
-        # tag_paned.pack1(col_scroll, True, True)
-        # tag_paned.pack2(fbox, False, True)
-        
-
-        # #PANED
-        # paned = Gtk.Paned(orientation=0)
-        # paned.set_position(210)
-        # paned.set_property('border-width', 0)
-        # # paned.set_wide_handle(True)
-        # paned.pack1(tag_paned, False, True)
-        # paned.pack2(self.notebook, True, True)
-        # box.pack_start(paned, True, True, 0)
 
         box.pack_start(self.notebook, True, True, 0)
 
@@ -286,64 +170,33 @@ class Window(Gtk.ApplicationWindow):
             det_store.append(q)
         self.stack.set_visible_child_full('detail', 0)
 
-    def on_model_col_changed(self, obj, col_int):
-        tag_store.clear()
-        tag_icon_store.clear()
-        # for q in Query.get_tags(col_int):
-        #     tag_store.append(q)
-        for q in Query.get_tags(col_int):
-            tag_store.append(q)
-            try:
-                pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{q[3]}.jpg', 192, 192)
-                # pb = Pixbuf.new_from_file(f'/media/soni/1001/persistent/1001/avatars/{q[0]}.jpg')
-            except GLib.Error:
-                # avatar = Pixbuf.new_from_file_at_size('/usr/share/icons/Adwaita/256x256/status/avatar-default.png', 192, 192)
-                pb = avatar
-            tag_icon_store.append((q[0], q[1], pb,))
-        self.stack.set_visible_child_full('icontag', 0)
+    # def on_model_col_changed(self, obj, col_int):
+    #     tag_store.clear()
+    #     tag_icon_store.clear()
+    #     # for q in Query.get_tags(col_int):
+    #     #     tag_store.append(q)
+    #     for q in Query.get_tags(col_int):
+    #         tag_store.append(q)
+    #         try:
+    #             pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{q[3]}.jpg', 192, 192)
+    #             # pb = Pixbuf.new_from_file(f'/media/soni/1001/persistent/1001/avatars/{q[0]}.jpg')
+    #         except GLib.Error:
+    #             # avatar = Pixbuf.new_from_file_at_size('/usr/share/icons/Adwaita/256x256/status/avatar-default.png', 192, 192)
+    #             pb = avatar
+    #         tag_icon_store.append((q[0], q[1], pb,))
+    #     self.stack.set_visible_child_full('icontag', 0)
 
 
-    def on_model_view_changed(self, obj, stack):
-        if obj.query_type < QueryType.TAGREAD:
-            stack.set_visible_child_full('files', 0)
-        else:
-            if obj.query_type == QueryType.TAGREAD:pass
-            elif obj.query_type == QueryType.TAGUPDATE:
-                stack.set_visible_child_full('tagedit', 0)
-            elif obj.query_type == QueryType.FILEUPDATE:
-                stack.set_visible_child_full('fileedit', 0)
+    # def on_model_view_changed(self, obj, stack):
+    #     if obj.query_type < QueryType.TAGREAD:
+    #         stack.set_visible_child_full('files', 0)
+    #     else:
+    #         if obj.query_type == QueryType.TAGREAD:pass
+    #         elif obj.query_type == QueryType.TAGUPDATE:
+    #             stack.set_visible_child_full('tagedit', 0)
+    #         elif obj.query_type == QueryType.FILEUPDATE:
+    #             stack.set_visible_child_full('fileedit', 0)
 
-    # def on_model_type_changed(self, obj):
-    #     # if obj.query_type < QueryType.TAGREAD:
-    #     #     if obj.query_type == QueryType.TAGALL:
-    #         # sq = Query.get_all_files(obj.query_media, obj.query_page, obj.query_sort, obj.query_order, filter=obj.query_fn_filter)
-    #     #     elif obj.query_type == QueryType.TAG0:
-    #     #         sq = Query.get_notag_files(obj.query_media, obj.query_page, obj.query_sort, obj.query_order, filter=obj.query_fn_filter)
-    #     #     elif obj.query_type == QueryType.TAG1:
-    #     #         sq = Query.get_1tag_files(obj.query_media, obj.query_page, obj.query_sort, obj.query_order, filter=obj.query_fn_filter)
-    #         if obj.query_type == QueryType.TAGUPDATE:
-
-
-    #             tag_edit = TagEdit()
-    #             tag_edit.connect('list-tag', self.on_tag_edit_list_tag)
-
-    #             closebutton = Gtk.Button.new_from_icon_name('gtk-close', 2)
-    #             closebutton.set_relief(2)
-    #             label = Gtk.Label('obj.query_str')
-    #             box = Gtk.Box.new(orientation=0, spacing=0)
-    #             box.pack_start(label, True, True, 0)
-    #             box.pack_start(closebutton, False, True, 0)
-    #             box.show_all()
-
-    #             num = self.notebook.append_page(tag_edit, box)
-    #             self.notebook.set_current_page(num)
-
-    #         elif obj.query_type == QueryType.TAG:
-
-    #             fw = FileView(int(obj.query_int))
-                
-    #             num = self.notebook.append_buttom(fw, 'obj.query_str')
-    #             self.notebook.set_current_page(num)
 
     def on_view_switched(self, widget):
         num = self.notebook.get_current_page()
@@ -391,10 +244,10 @@ class Window(Gtk.ApplicationWindow):
     def on_menu_onetag_files_activated(self, widget):
         main_model.set_type(QueryType.TAG1, -1, None)
 
-    def on_menu_nocol_tags_activated(self, widget):
-        tag_store.clear()
-        for q in Query.get_tags():
-            tag_store.append(q)
+    # def on_menu_nocol_tags_activated(self, widget):
+    #     tag_store.clear()
+    #     for q in Query.get_tags():
+    #         tag_store.append(q)
 
     def on_view_notified(self, obj, gparamstring, stack):
         stack.set_visible_child_full(obj.view, 0)
@@ -406,11 +259,11 @@ class Window(Gtk.ApplicationWindow):
         num = self.notebook.append_buttom(f_edit,'📝\t'+ alias)
         self.notebook.set_current_page(num)
 
-    def on_tag_filter_changed(self, widget):
-        text = widget.get_text()
-        tag_store.clear()
-        for q in Query.get_tags_by_filter(text):
-            tag_store.append(q)
+    # def on_tag_filter_changed(self, widget):
+    #     text = widget.get_text()
+    #     tag_store.clear()
+    #     for q in Query.get_tags_by_filter(text):
+    #         tag_store.append(q)
 
     def on_col_read_activated(self, widget, *args):
         selection = widget.get_selection()

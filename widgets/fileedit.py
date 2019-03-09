@@ -9,6 +9,27 @@ from .widgets import QuestionDialog
 from .tagflowbox import TagFlowBox
 
 
+
+class EditOverlay(Gtk.Overlay):
+    def __init__(self, file_id, alias):
+        Gtk.Overlay.__init__(self)
+        self.alias = alias
+
+        c = self.get_style_context()
+        c.add_class('editpage')
+
+        rev = Gtk.Revealer()
+        rev.set_halign(3)
+        rev.set_valign(1)
+        self.rev = rev
+        box = Gtk.Box.new(orientation=0, spacing=4)
+        c = box.get_style_context()
+        c.add_class('app-notification')
+        label = Gtk.Label('mmessage')
+        self.msglabel = label
+        box.pack_start(label, False, True, 0)
+        rev.add(box)
+
 class FileEdit(Gtk.Overlay):
     id = GObject.Property(type=int)
     filepath = GObject.Property(type=str)
