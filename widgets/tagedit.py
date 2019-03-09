@@ -3,9 +3,10 @@ from models import Query
 from .widgets import QuestionDialog
 from .tagflowbox import TagFlowBox
 # from data_models import tag_store
+from widgets.editrevealer import EditOverlay
 
 
-class TagEdit(Gtk.Overlay):
+class TagEdit(EditOverlay):
     id = GObject.Property(type=int)
     name = GObject.Property(type=str)
     note = GObject.Property(type=str)
@@ -17,27 +18,12 @@ class TagEdit(Gtk.Overlay):
         'file-list': (GObject.SIGNAL_RUN_FIRST, None, (int, str,)),
     }
     def __init__(self, tag_id, alias):
-        Gtk.Overlay.__init__(self)
-        c = self.get_style_context()
-        c.add_class('editpage')
-
-        rev = Gtk.Revealer()
-        rev.set_halign(3)
-        rev.set_valign(1)
-        self.rev = rev
-        box = Gtk.Box.new(orientation=0, spacing=4)
-        c = box.get_style_context()
-        c.add_class('app-notification')
-        label = Gtk.Label('mmessage')
-        self.msglabel = label
-        box.pack_start(label, False, True, 0)
-        rev.add(box)
+        EditOverlay.__init__(self)
 
         #FILE INFOS
         info_box = Gtk.Box.new(orientation=1, spacing=4)
         info_box.set_hexpand(True)
         self.add(info_box)
-        self.add_overlay(rev)
 
         button = Gtk.Button()
         # button.set_halign(1)
@@ -123,22 +109,6 @@ class TagEdit(Gtk.Overlay):
     def on_rethumb(self, widget):
         self.thumbpath = f'/media/soni/1001/persistent/1001/thumbs/{self.thumb}.jpg'
 
-    def show_message(self, message, r):
-        self.msglabel.set_label(message)
-        box = self.msglabel.get_parent()
-        sc = box.get_style_context()
-        if r > 0:
-            sc.add_class('app-notification-ok')
-        else:
-            sc.add_class('app-notification-error')
-
-        self.rev.set_reveal_child(True)
-        def close(*args):
-            self.rev.set_reveal_child(False)
-            sc.remove_class('app-notification-ok')
-            sc.remove_class('app-notification-error')
-        GLib.timeout_add(2400, close, None)
-
     def set_tag_id(self, id):
         file = Query.get_tag(id)
         self.id = file.id
@@ -163,9 +133,9 @@ class TagEdit(Gtk.Overlay):
             r = Query.remove_tag_alias(child.id)
             if r > 0:
                 widget.remove(child)
-                self.show_message('Done', r)
+                self.emit('updated','Done', r)
             else:
-                self.show_message('Error', r)
+                self.emit('updated','Error', 0)
                 
         elif response == Gtk.ResponseType.NO:pass
         dialog.destroy()
@@ -180,16 +150,16 @@ class TagEdit(Gtk.Overlay):
         if is_created:
             pass
         self.aliases.add_tagchild(alias_id,alias)
-        self.show_message('Done', 1)
+        self.emit('updated','Done', 1)
         entry.set_text("")
 
 
     def on_update(self, widget):
         try:
             r = Query.update_tag(self.id, self.name, self.note, self.rating, self.thumb)
-            self.show_message('Done', r)
+            self.emit('updated','Done', r)
         except:
-            self.show_message('Error', 0)
+            self.emit('updated','Error', 0)
             
 
     def on_list_clicked(self, widget):

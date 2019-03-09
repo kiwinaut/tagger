@@ -7,30 +7,13 @@ from shell_commands import open_file, trash_file
 # from data_models import tag_store
 from .widgets import QuestionDialog
 from .tagflowbox import TagFlowBox
+from widgets.editrevealer import EditOverlay
 
 
 
-class EditOverlay(Gtk.Overlay):
-    def __init__(self, file_id, alias):
-        Gtk.Overlay.__init__(self)
-        self.alias = alias
 
-        c = self.get_style_context()
-        c.add_class('editpage')
 
-        rev = Gtk.Revealer()
-        rev.set_halign(3)
-        rev.set_valign(1)
-        self.rev = rev
-        box = Gtk.Box.new(orientation=0, spacing=4)
-        c = box.get_style_context()
-        c.add_class('app-notification')
-        label = Gtk.Label('mmessage')
-        self.msglabel = label
-        box.pack_start(label, False, True, 0)
-        rev.add(box)
-
-class FileEdit(Gtk.Overlay):
+class FileEdit(EditOverlay):
     id = GObject.Property(type=int)
     filepath = GObject.Property(type=str)
     filename = GObject.Property(type=str)
@@ -45,30 +28,13 @@ class FileEdit(Gtk.Overlay):
         'tag-edit': (GObject.SIGNAL_RUN_FIRST, None, (int, str,)),
     }
     def __init__(self, file_id, alias):
-        Gtk.Overlay.__init__(self)
+        EditOverlay.__init__(self)
         self.alias = alias
-
-        c = self.get_style_context()
-        c.add_class('editpage')
-
-        rev = Gtk.Revealer()
-        rev.set_halign(3)
-        rev.set_valign(1)
-        self.rev = rev
-        box = Gtk.Box.new(orientation=0, spacing=4)
-        c = box.get_style_context()
-        c.add_class('app-notification')
-        label = Gtk.Label('mmessage')
-        self.msglabel = label
-        box.pack_start(label, False, True, 0)
-        rev.add(box)
-
 
         #FILE INFOS
         info_box = Gtk.Box.new(orientation=1, spacing=4)
         info_box.set_hexpand(True)
         self.add(info_box)
-        self.add_overlay(rev)
 
         button = Gtk.Button()
         # button.set_halign(1)
@@ -245,27 +211,10 @@ class FileEdit(Gtk.Overlay):
                 note=self.note,
                 rating=self.rating,
                 )
-            self.show_message('Done', r)
+            self.emit('updated','Done', r)
         except:
-            self.show_message('Error', 0)
+            self.emit('updated','Error', 0)
 
-
-    #REVELAER
-    def show_message(self, message, r):
-        self.msglabel.set_label(message)
-        box = self.msglabel.get_parent()
-        sc = box.get_style_context()
-        if r > 0:
-            sc.add_class('app-notification-ok')
-        else:
-            sc.add_class('app-notification-error')
-
-        self.rev.set_reveal_child(True)
-        def close(*args):
-            self.rev.set_reveal_child(False)
-            sc.remove_class('app-notification-ok')
-            sc.remove_class('app-notification-error')
-        GLib.timeout_add(2400, close, None)
 
     #COMMANDS
     def on_open_button_clicked(self,widget):
@@ -316,9 +265,9 @@ class FileEdit(Gtk.Overlay):
             r = Query.delete_file_tag('archives', self.id, child.id)
             if r > 0:
                 widget.remove(child)
-                self.show_message('Done', r)
+                self.emit('updated','Done', r)
             else:
-                self.show_message('Error', r)
+                self.emit('updated','Error', 0)
                 
         elif response == Gtk.ResponseType.NO:pass
         dialog.destroy()
@@ -333,11 +282,11 @@ class FileEdit(Gtk.Overlay):
         if is_created:
             pass
         self.tags_container.add_tagchild(tag_id, alias)
-        self.show_message('Done', 1)
+        self.emit('updated','Done', 1)
         entry.set_text("")
 
     #RECOMMENDS
     def on_rcmmnds_child_clicked(self, widget, child):
         alias, tag_id, is_created = Query.add_file_tag('archives', self.id, tagname=child.label)
         self.tags_container.add_tagchild(tag_id, alias)
-        self.show_message('Done', 1)
+        self.emit('updated','Done', 1)
