@@ -5,12 +5,9 @@ from clip import rethumb
 from shell_commands import open_file, trash_file
 # from widgets import TagView
 # from data_models import tag_store
-from .widgets import QuestionDialog
 from .tagflowbox import TagFlowBox
 from widgets.editrevealer import EditOverlay
-
-
-
+from decorators import exc_try, check_dialog
 
 
 class FileEdit(EditOverlay):
@@ -199,83 +196,109 @@ class FileEdit(EditOverlay):
         img = widget.get_image()
         item = Query.get_file(self.id)
         dest = rethumb(item, 'archives')
-        print(dest)
         img.set_from_file(dest)
 
+    @exc_try
     def on_update_button_clicked(self, widget):
-        try:
-            r = Query.update_file(
-                media='archives',
-                index=self.id,
-                thumb=self.thumbpath,
-                set=self.set,
-                note=self.note,
-                rating=self.rating,
-                )
-            self.emit('updated','Done', r)
-        except:
-            self.emit('updated','Error', 0)
-
+        r = Query.update_file(
+            media='archives',
+            index=self.id,
+            thumb=self.thumbpath,
+            set=self.set,
+            note=self.note,
+            rating=self.rating,
+            )
+        self.emit('updated','Done', r)
 
     #COMMANDS
+    @exc_try
     def on_open_button_clicked(self,widget):
         open_file(self.filepath, 'default')
 
+    @exc_try
     def on_openf_button_clicked(self,widget):
         open_file(self.filepath, 'folder')
-
+        
+    @exc_try
     def on_mcomix_button_clicked(self,widget):
         open_file(self.filepath, 'mcomix')
 
+    @check_dialog
+    @exc_try
     def on_del_entry_button_clicked(self,widget):
-        #DIALOG
-        dialog = QuestionDialog(self, f"file_id: \'{self.id}\'")
-        response = dialog.run()
+        r = Query.delete_file('archives', self.id)
+        self.emit('updated',f'{r} Deleted Entry Close Window', r)
 
-        if response == Gtk.ResponseType.YES:
-            r = Query.delete_file(self.id)
-            if r:
-                main_model.back()
-        elif response == Gtk.ResponseType.NO:pass
-        dialog.destroy()
+    # def on_del_entry_button_clicked(self,widget):
+    #     #DIALOG
+    #     dialog = QuestionDialog(self, f"file_id: \'{self.id}\'")
+    #     response = dialog.run()
 
+    #     if response == Gtk.ResponseType.YES:
+    #         try:
+    #             r = Query.delete_file('archives', self.id)
+    #             self.emit('updated',f'{r} Deleted Entry Close Window', r)
+    #         except Exception as e:
+    #             self.emit('updated',str(e), 0)
+    #     elif response == Gtk.ResponseType.NO:pass
+    #     dialog.destroy()
+
+    @check_dialog
+    @exc_try
     def on_del_file_entry_button_clicked(self,widget):
-        #DIALOG
-        dialog = QuestionDialog(self, f"file_id: \'{self.id}\', \'{self.filepath}\'")
-        response = dialog.run()
+        trash_file(self.filepath)
+        Query.delete_file('archives', self.id)
+        # self.emit('updated',f'{r} Deleted File and Entry Close Window', r)
 
-        if response == Gtk.ResponseType.YES:
-            r = trash_file(self.filepath)
-            if not r:#0 success
-                r = Query.delete_file(self.id)
-                if r:
-                    main_model.back()
-        elif response == Gtk.ResponseType.NO:pass
-        dialog.destroy()
+    # def on_del_file_entry_button_clicked(self,widget):
+    #     #DIALOG
+    #     dialog = QuestionDialog(self, f"file_id: \'{self.id}\', \'{self.filepath}\'")
+    #     response = dialog.run()
+
+    #     if response == Gtk.ResponseType.YES:
+    #         try:
+    #             trash_file(self.filepath)
+    #             r = Query.delete_file('archives', self.id)
+    #             self.emit('updated',f'{r} Deleted File and Entry Close Window', r)
+    #         except Exception as e:
+    #             self.emit('updated',str(e), 0)
+    #     elif response == Gtk.ResponseType.NO:pass
+    #     dialog.destroy()
 
     #TAGS CONTAINER
     def on_tag_container_child_clicked(self, widget, child):
         self.emit('file-list', child.id, child.label)
 
+    @check_dialog
+    @exc_try
     def on_tag_container_child_deleted(self, widget, child):
-        #DIALOG
-        dialog = QuestionDialog(self, f"alias_name: \'{child.label}\', alias_id: \'{child.id}\'")
-        response = dialog.run()
+        Query.delete_file_tag('archives', self.id, child.id)
+        widget.remove(child)
+        # self.emit('updated','Done', r)
 
-        if response == Gtk.ResponseType.YES:
-            r = Query.delete_file_tag('archives', self.id, child.id)
-            if r > 0:
-                widget.remove(child)
-                self.emit('updated','Done', r)
-            else:
-                self.emit('updated','Error', 0)
-                
-        elif response == Gtk.ResponseType.NO:pass
-        dialog.destroy()
+    # def on_tag_container_child_deleted(self, widget, child):
+    #     #DIALOG
+    #     dialog = QuestionDialog(self, f"alias_name: \'{child.label}\', alias_id: \'{child.id}\'")
+    #     response = dialog.run()
+
+    #     if response == Gtk.ResponseType.YES:
+    #         try:
+    #             r = Query.delete_file_tag('archives', self.id, child.id)
+    #             if r > 0:
+    #                 widget.remove(child)
+    #                 self.emit('updated','Done', r)
+    #             else:
+    #                 raise Exception('Zero Update')
+    #         except Exception as e:
+    #             self.emit('updated',str(e), 0)
+    #     elif response == Gtk.ResponseType.NO:pass
+    #     dialog.destroy()
 
     def on_add_tag_entry_activated(self, widget, button):
         button.clicked()
 
+
+    @exc_try
     def on_add_tag_button_clicked(self, widget, entry):
         text = entry.get_text()
         file_id = self.id
@@ -283,15 +306,13 @@ class FileEdit(EditOverlay):
         if is_created:
             pass
         self.tags_container.add_tagchild(tag_id, alias)
-        self.emit('updated','Done', 1)
+        # self.emit('updated','Done', 1)
         entry.set_text("")
 
     #RECOMMENDS
+    @exc_try
     def on_rcmmnds_child_clicked(self, widget, child):
-        try:
-            alias, tag_id, is_created = Query.add_file_tag('archives', self.id, tagname=child.label)
-            self.tags_container.add_tagchild(tag_id, alias)
-            self.emit('updated','Done', 1)
-        except Exception as e:
-            self.emit('updated',str(e), 0)
+        alias, tag_id, is_created = Query.add_file_tag('archives', self.id, tagname=child.label)
+        self.tags_container.add_tagchild(tag_id, alias)
+        # self.emit('updated','Done', 1)
 

@@ -18,6 +18,7 @@ class EditOverlay(Gtk.Overlay):
         context = box.get_style_context()
         context.add_class('app-notification')
         label = Gtk.Label('mmessage')
+        label.set_ellipsize(2)
         box.pack_start(label, False, True, 0)
         rev.add(box)
         # rev.show_all()

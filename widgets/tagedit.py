@@ -4,6 +4,7 @@ from .widgets import QuestionDialog
 from .tagflowbox import TagFlowBox
 # from data_models import tag_store
 from widgets.editrevealer import EditOverlay
+from decorators import exc_try, check_dialog
 
 
 class TagEdit(EditOverlay):
@@ -125,25 +126,16 @@ class TagEdit(EditOverlay):
     def on_alias_clicked(self, widget, child):
         self.emit('file-list', self.id, self.name)
 
+    @check_dialog
+    @exc_try
     def on_alias_delete(self, widget, child):
-        #DIALOG
-        dialog = QuestionDialog(self, f"alias_name: \'{child.label}\', alias_id: \'{child.id}\'")
-        response = dialog.run()
-
-        if response == Gtk.ResponseType.YES:
-            r = Query.remove_tag_alias(child.id)
-            if r > 0:
-                widget.remove(child)
-                self.emit('updated','Done', r)
-            else:
-                self.emit('updated','Error', 0)
-                
-        elif response == Gtk.ResponseType.NO:pass
-        dialog.destroy()
+        Query.remove_tag_alias(child.id)
+        widget.remove(child)
 
     def on_add_alias_entry_activated(self, widget, button):
         button.clicked()
 
+    @exc_try
     def on_add_alias_clicked(self, widget, entry):
         text = entry.get_text()
         tag_id = self.id
@@ -151,32 +143,19 @@ class TagEdit(EditOverlay):
         if is_created:
             pass
         self.aliases.add_tagchild(alias_id,alias)
-        self.emit('updated','Done', 1)
         entry.set_text("")
 
-
+    @exc_try
     def on_update(self, widget):
-        try:
-            r = Query.update_tag(self.id, self.name, self.note, self.rating, self.thumb)
-            self.emit('updated','Done', r)
-        except:
-            self.emit('updated','Error', 0)
+        Query.update_tag(self.id, self.name, self.note, self.rating, self.thumb)
             
 
     def on_list_clicked(self, widget):
         self.emit('file-list', self.id, self.name)
 
+    @check_dialog
+    @exc_try
     def on_del_clicked(self,widget):
         tag_id = self.id
-
-        #DIALOG
-        dialog = QuestionDialog(self, f"tag_id: \'{tag_id}\'")
-        response = dialog.run()
-
-        if response == Gtk.ResponseType.YES:
-            if Query.delete_tag(tag_id):
-                #TODO back?
-                main_model.back()
-        elif response == Gtk.ResponseType.NO:pass
-        dialog.destroy()
+        Query.delete_tag(tag_id)
 

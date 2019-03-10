@@ -2,9 +2,12 @@ from gi.repository import Gtk, GObject, GLib
 from gi.repository.GdkPixbuf import Pixbuf
 from models import Query
 
-import threading, time
+# import threading, time
+theme = Gtk.IconTheme.get_default()
+missing = theme.load_icon('image-missing',64, Gtk.IconLookupFlags.USE_BUILTIN)
+avatar = theme.load_icon('avatar-default-symbolic',64, Gtk.IconLookupFlags.USE_BUILTIN)
 
-avatar = Pixbuf.new_from_file_at_size('/usr/share/icons/Adwaita/256x256/status/avatar-default.png', 32, 32)
+# avatar = Pixbuf.new_from_file_at_size('/usr/share/icons/Adwaita/256x256/status/avatar-default.png', 32, 32)
 
 class TagStore(Gtk.ListStore):
     def __init__(self):
@@ -116,7 +119,7 @@ class ViewStore(Gtk.ListStore):
             try:
                 pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{q[0]}.jpg', 192, 192)
             except GLib.Error:
-                pb = avatar
+                pb = missing
             self.append((*q[:-1], pb,))
 
     def set_query_filter_text(self, value):
@@ -126,7 +129,7 @@ class ViewStore(Gtk.ListStore):
             try:
                 pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{q[0]}.jpg', 192, 192)
             except GLib.Error:
-                pb = avatar
+                pb = missing
             self.append((*q[:-1], pb,))
 
     def set_query_all_file_code(self, code):
@@ -142,5 +145,5 @@ class ViewStore(Gtk.ListStore):
             try:
                 pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{q[0]}.jpg', 192, 192)
             except GLib.Error:
-                pb = avatar
+                pb = missing
             self.append((*q[:-1], pb,))

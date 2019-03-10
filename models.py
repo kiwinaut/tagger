@@ -143,11 +143,15 @@ class Query:
 
     def update_tag(tag_id, tag_name, note, rating, thumb):
         r = Tags.update(name=tag_name, note=note, rating=rating, thumb=thumb).where(Tags.id==tag_id).execute()
+        if not r:
+            raise Exception('Can not update tag')
         return r
 
     def delete_tag(tag_id):
-        tag = Tags.get(Tags.id==tag_id)
-        return tag.delete_instance()
+        r = Tags.delete().where(Tags.id==tag_id).execute()
+        if not r:
+            raise Exception('Can not delete tag')
+        return r
 
     def check_alias(alias_list):
         # print(alias_list)
@@ -242,6 +246,9 @@ class Query:
             
         Table, j = Query.tables(media)
         r = j.insert(tag=tag, file=fid).execute()
+        if not r:
+            raise Exception('Can not link file and tag')
+
         alias.lastupdated = datetime.now()
         alias.save()
         return alias.alias.title(), tag.id, is_tag_created
@@ -249,6 +256,8 @@ class Query:
     def delete_file_tag(media, fid, tid):
         Table, j = Query.tables(media)
         r = j.delete().where(j.tag==tid, j.file==fid).execute()
+        if not r:
+            raise Exception('Can not delete file and tag link')
         return r
 
     def file_tags(file_id):
@@ -289,6 +298,8 @@ class Query:
         # if kw['rethumb']:
         #     item=Table.get(Table.id==index)
         #     clip.rethumb(item, media, thumb)
+        if not r:
+            raise Exception('Can not update file')
         return r
 
     def rethumb(media, ids):
@@ -425,10 +436,12 @@ class Query:
             sq = sq.where(Table.filename ** filter)
         return sq.order_by(order(), Table.mtime.asc()).paginate(page,50).tuples()
 
-    def delete_file(media, id):
+    def delete_file(media, file_id):
         Table, j = Query.tables(media)
-        item = Table.get(Table.id==id)
-        return item.delete_instance()
+        r = Table.delete().where(Table.id==file_id).execute()
+        if r == 0:
+            raise Exception(f'Zero Row Affected')
+        return r
 
     def get_tags_by_group(tag_id, media='archive'):
         # q = f'''
