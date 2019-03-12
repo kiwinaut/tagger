@@ -1,6 +1,7 @@
 from gi.repository import Gtk, GObject, Gdk
 from print_pretty.pretty_size import psize
 from stores import ViewStore, AllViewStore
+from data_models import TabModel
 # from widgets import MainSignals
 
 def ctime_cell_data_func(tree_column, cell, tree_model, iter, data):
@@ -235,7 +236,8 @@ class FileView(Gtk.Box):
     def __init__(self, tag_id, alias_name):
         Gtk.Box.__init__(self, orientation=1, spacing=0)
         self.alias = alias_name
-
+        self.tab_model = TabModel()
+        self.tab_model.name = 'stack'
         search_bar = Gtk.SearchBar()
         searchentry = Gtk.SearchEntry()
         search_bar.add(searchentry)
@@ -246,6 +248,7 @@ class FileView(Gtk.Box):
         self.connect('key-press-event', self.on_sstack_key_pressed, search_bar)
 
         viewstore = ViewStore()
+        self.tab_model.connect("notify::scalefactor", self.on_scalefactor_notified, viewstore)
         searchentry.connect('search-changed', self.on_file_filter_changed, viewstore)
         # self.connect("notify::tag_query", self.on_tag_query_notified, viewstore)
 
@@ -281,6 +284,9 @@ class FileView(Gtk.Box):
     #     print(self.tag_query)
     #     model.set_query_tag_id(self.tag_query)
 
+    def on_scalefactor_notified(self, obj, gparam, store):
+        store.set_scale(self.scalefactor)
+
     def on_tag_query_notified(self, object, gparamstring, stack):
         stack.set_visible_child_full(self.view, 0)
 
@@ -303,7 +309,7 @@ class AllFileView(Gtk.Box):
     query_sort = GObject.Property(type=str, default="mtime")
     query_order = GObject.Property(type=str, default="desc")
     query_media = GObject.Property(type=str, default="archives")
-    scalefactor = GObject.Property(type=float, default=6.0)
+    # scalefactor = GObject.Property(type=float, default=6.0)
     # tag_query = GObject.Property(type=int)
 
     __gsignals__ = {
@@ -323,8 +329,10 @@ class AllFileView(Gtk.Box):
         elif all_file_code == -1:
             self.alias = 'Untagged Files'
 
+        self.tab_model = TabModel()
+        self.tab_model.name = 'stack'
         viewstore = AllViewStore()
-        self.connect("notify::scalefactor", self.on_scalefactor_notified, viewstore)
+        self.tab_model.connect("notify::scalefactor", self.on_scalefactor_notified, viewstore)
         #REVEALER
         rev = Gtk.Revealer()
         box = Gtk.Box.new(orientation=0, spacing=5)
@@ -395,7 +403,7 @@ class AllFileView(Gtk.Box):
         viewstore.set_code(all_file_code)
 
     def on_scalefactor_notified(self, obj, gparam, store):
-        store.set_scale(self.scalefactor)
+        store.set_scale(self.tab_model.scalefactor)
 
 
     def on_page_changed(self, widget, store):

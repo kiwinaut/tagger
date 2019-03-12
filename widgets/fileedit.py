@@ -8,6 +8,7 @@ from shell_commands import open_file, trash_file
 from .tagflowbox import TagFlowBox
 from widgets.editrevealer import EditOverlay
 from decorators import exc_try, check_dialog
+from data_models import TabModel
 
 
 class FileEdit(EditOverlay):
@@ -27,6 +28,8 @@ class FileEdit(EditOverlay):
     def __init__(self, file_id, alias):
         EditOverlay.__init__(self)
         self.alias = alias
+        self.tab_model = TabModel()
+        self.tab_model.name = 'search'
 
         #FILE INFOS
         info_box = Gtk.Box.new(orientation=1, spacing=4)

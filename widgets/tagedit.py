@@ -5,6 +5,7 @@ from .tagflowbox import TagFlowBox
 # from data_models import tag_store
 from widgets.editrevealer import EditOverlay
 from decorators import exc_try, check_dialog
+from data_models import TabModel
 
 
 class TagEdit(EditOverlay):
@@ -20,7 +21,8 @@ class TagEdit(EditOverlay):
     }
     def __init__(self, tag_id, alias):
         EditOverlay.__init__(self)
-
+        self.tab_model = TabModel()
+        self.tab_model.name = 'search'
         #FILE INFOS
         info_box = Gtk.Box.new(orientation=1, spacing=4)
         info_box.set_hexpand(True)

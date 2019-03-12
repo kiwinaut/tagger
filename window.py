@@ -13,8 +13,7 @@ from widgets.fileview import FileView, AllFileView
 from widgets.fileedit import FileEdit
 from widgets.tagedit import TagEdit
 from widgets.aliasesdirview import AliasesDirView
-
-viewstore = ViewStore()
+# viewstore = ViewStore()
 
 
 
@@ -27,6 +26,10 @@ class Window(Gtk.ApplicationWindow):
         Gtk.ApplicationWindow.__init__(self, *args, gravity=1, **kwargs)
         # self.set_border_width(0)
         self.set_default_size(900, 732)
+        # self.tab_model = TabModel()
+        # self.current_tab_model = TabModel()
+        self.bindings = {}
+
         self.connect("delete-event", self.on_window_delete_event)
         # main_model.view = 'listview'
         # main_model.connect("notify::text", self.on_text_notified)
@@ -91,7 +94,10 @@ class Window(Gtk.ApplicationWindow):
         # science.connect('sort-changed', self.on_science_sort_changed)
         # science.connect('filename-filter-changed', self.on_science_filename_filter_changed)
         # science.set_relative_to(button)
-        science.adj.bind_property('value', self, 'scalefactor' ,0)
+        # science.adj.bind_property('value', self, 'scalefactor' ,0)
+        # GBinding = self.tab_model.bind_property('scalefactor', science.adj, 'scalefactor', 1)
+        self.bindings['scale'] = (science.adj, None)
+
         # self.bind_property('scalefactor', science.adj, 'value', 0)
 
         button.set_popover(science)
@@ -107,6 +113,7 @@ class Window(Gtk.ApplicationWindow):
 
         sw = ViewSwitcher()
         sw.connect('switched', self.on_view_switched)
+        self.bindings['view'] = (sw, None)
         # sw.view = main_model.view
         # main_model.bind_property('view', sw, 'view', 1)
         box.pack_start(sw, False, False, 0)
@@ -130,6 +137,7 @@ class Window(Gtk.ApplicationWindow):
         self.add(box)
 
         self.notebook = Notebook()
+        self.notebook.connect('switch-page', self.on_notebook_switch_page)
 
 
         box.pack_start(self.notebook, True, True, 0)
@@ -151,7 +159,7 @@ class Window(Gtk.ApplicationWindow):
         adv = AliasesDirView()
         adv.connect('file-list', self.on_file_list)
         adv.connect('tag-edit', self.on_tag_edit)
-        self.bind_property('scalefactor', adv, 'scalefactor', 0)
+        # self.bind_property('scalefactor', adv, 'scalefactor', 0)
         num = self.notebook.append_static(adv,'Search')
         self.notebook.set_current_page(num)
 
@@ -201,6 +209,44 @@ class Window(Gtk.ApplicationWindow):
     #             stack.set_visible_child_full('tagedit', 0)
     #         elif obj.query_type == QueryType.FILEUPDATE:
     #             stack.set_visible_child_full('fileedit', 0)
+    def set_tab_model(self, tab_model):
+        if tab_model.name == 'search':
+            widget, binding = self.bindings['view']
+            widget.set_sensitive(False)
+            
+            widget, binding = self.bindings['scale']
+            # widget.set_sensitive(True)
+            if binding:
+                binding.unbind()
+            widget.set_property('value', tab_model.scalefactor)
+            GBinding = tab_model.bind_property('scalefactor', widget, 'value', 1)
+            self.bindings['scale'] = (widget, GBinding)
+
+        elif tab_model.name == 'edit':
+            widget, binding = self.bindings['scale']
+            # widget.set_sensitive(False)
+            widget, binding = self.bindings['view']
+            widget.set_sensitive(False)
+            
+        elif tab_model.name == 'stack':
+            widget, binding = self.bindings['view']
+            widget.set_sensitive(True)
+            if binding:
+                binding.unbind()
+            widget.set_property('view', tab_model.view)
+            GBinding = tab_model.bind_property('view', widget, 'view', 1)
+            self.bindings['view'] = (widget, GBinding)
+
+            widget, binding = self.bindings['scale']
+            # widget.set_sensitive(True)
+            if binding:
+                binding.unbind()
+            widget.set_property('value', tab_model.scalefactor)
+            GBinding = tab_model.bind_property('scalefactor', widget, 'value', 1)
+            self.bindings['scale'] = (widget, GBinding)
+
+    def on_notebook_switch_page(self, notebook, page, page_num):
+        self.set_tab_model(page.tab_model)
 
 
     def on_view_switched(self, widget):
@@ -243,7 +289,7 @@ class Window(Gtk.ApplicationWindow):
     def on_menu_all_files_activated(self, widget):
         fw = AllFileView(0)
         fw.connect('file-edit', self.on_file_edit)
-        self.bind_property('scalefactor', fw, 'scalefactor', 0)
+        # self.bind_property('scalefactor', fw, 'scalefactor', 0)
         num = self.notebook.append_buttom(fw, 'All Files', 'all-file-list')
         self.notebook.set_current_page(num)
 

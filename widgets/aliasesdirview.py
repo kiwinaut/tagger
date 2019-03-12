@@ -3,6 +3,7 @@ from widgets.widgets import TagTreeView, target3, target4
 from data_models import col_store
 from models import Query
 from stores import TagStore
+from data_models import TabModel
 
 
 clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
@@ -226,7 +227,6 @@ class TagViewTest(Gtk.TreeView):
         return None
 
 class AliasesDirView(Gtk.Box):
-    scalefactor = GObject.Property(type=float, default=6.0)
 
     __gsignals__ = {
         'file-list': (GObject.SIGNAL_RUN_FIRST, None, (int, str,)),
@@ -236,10 +236,11 @@ class AliasesDirView(Gtk.Box):
         Gtk.Box.__init__(self, orientation=0, spacing=0)
         self.set_name('dirview')
         fbox = Gtk.Box.new(orientation=1, spacing=0)
-
+        self.tab_model = TabModel()
+        self.tab_model.name = 'search'
 
         tag_store = TagStore()
-        self.connect("notify::scalefactor", self.on_scalefactor_notified, tag_store)
+        self.tab_model.connect("notify::scalefactor", self.on_scalefactor_notified, tag_store)
 
         #TAG VIEW
         tag_scroll = Gtk.ScrolledWindow()
@@ -286,7 +287,7 @@ class AliasesDirView(Gtk.Box):
         self.show_all()
 
     def on_scalefactor_notified(self, obj, gparam, store):
-        store.set_scale(self.scalefactor)
+        store.set_scale(self.tab_model.scalefactor)
 
     def on_tag_filter_changed(self, widget, store):
         text = widget.get_text()

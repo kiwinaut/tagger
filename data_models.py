@@ -13,6 +13,15 @@ tag_group_store = Gtk.ListStore(int, str, int)
 
 
 
+class TabModel(GObject.GObject):
+    scalefactor = GObject.Property(type=float, default=6.0)
+    view = GObject.Property(type=str, default="listview")
+    name = GObject.Property(type=str)
+
+    def __init__(self):
+        GObject.GObject.__init__(self)
+
+
 class FileEditModel(GObject.GObject):
     id = GObject.Property(type=int)
     filepath = GObject.Property(type=str)
