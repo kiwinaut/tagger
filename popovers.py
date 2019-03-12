@@ -24,58 +24,15 @@ class SciencePopOver(Gtk.Popover):
         box = Gtk.Box.new(orientation=1, spacing=0)
         box.set_property('margin',18)
 
-        grid = Gtk.Grid(row_spacing=0, column_spacing=15)
+        adj = Gtk.Adjustment.new(6.0, 1.0, 8.0, 1.0, 10.0, 0)
+        self.adj = adj
+        scale = Gtk.Scale.new(0, adj)
+        scale.set_size_request(180, -1)
+        scale.set_digits(0)
+        scale.connect('format-value', self.on_format_value)
+        # scale.set_draw_value(False)
+        box.pack_start(scale, False, True, 0)
 
-
-        radio = Gtk.RadioButton.new_with_label(None, 'Set     A-Z')
-        radio.set_halign(1)
-        radio.set_active(True)
-        radio.connect("toggled", self.on_sortby_radio_toggled, "set,asc")
-        grid.attach(radio, 0, 2, 1, 1)
-
-        radio = Gtk.RadioButton.new_from_widget(radio)
-        radio.set_label("Set     Z-A")
-        radio.connect("toggled", self.on_sortby_radio_toggled, "set,desc")
-        grid.attach(radio, 0, 3, 1, 1)
-
-        radio = Gtk.RadioButton.new_from_widget(radio)
-        radio.set_label("Count    1-9")
-        radio.connect("toggled", self.on_sortby_radio_toggled, "count,asc")
-        grid.attach(radio, 0, 4, 1, 1)
-
-        radio = Gtk.RadioButton.new_from_widget(radio)
-        radio.set_label("Count    9-1")
-        radio.connect("toggled", self.on_sortby_radio_toggled, "count,desc")
-        grid.attach(radio, 0, 5, 1, 1)
-
-        radio = Gtk.RadioButton.new_from_widget(radio)
-        radio.set_label("Mtime    1-9")
-        radio.connect("toggled", self.on_sortby_radio_toggled, "mtime,asc")
-        grid.attach(radio, 0, 6, 1, 1)
-
-        radio = Gtk.RadioButton.new_from_widget(radio)
-        radio.set_label("Mtime    9-1")
-        radio.connect("toggled", self.on_sortby_radio_toggled, "mtime,desc")
-        grid.attach(radio, 0, 7, 1, 1)
-
-        radio = Gtk.RadioButton.new_from_widget(radio)
-        radio.set_label("Size     1-9")
-        radio.connect("toggled", self.on_sortby_radio_toggled, "size,asc")
-        grid.attach(radio, 0, 8, 1, 1)
-
-        radio = Gtk.RadioButton.new_from_widget(radio)
-        radio.set_label("Size     9-1")
-        radio.connect("toggled", self.on_sortby_radio_toggled, "size,desc")
-        grid.attach(radio, 0, 9, 1, 1)
-
-        sepa = Gtk.Separator()
-        grid.attach(sepa, 0, 19, 1, 1)
-
-        # order
-        entry = Gtk.SearchEntry()
-        self.file_search = entry
-        entry.connect('activate', self.on_extra_changed)
-        grid.attach(entry, 0, 29, 1, 1)
 
         # radio = Gtk.RadioButton.new_with_label(None, 'Set Like')
         # radio.connect("toggled", self.on_extra_filter_col_toggled)
@@ -89,10 +46,12 @@ class SciencePopOver(Gtk.Popover):
         # grid.attach(radio, 3, 4, 1, 1)
 
 
-        box.pack_start(grid, True, True, 0)
         box.show_all()
 
         self.add(box)
+
+    def on_format_value(self, scale, value):
+        return f'{int(value*32)}px'
 
     def on_extra_changed(self, widget):
         text = widget.get_text()

@@ -1,4 +1,4 @@
-from gi.repository import Gtk, Gdk, GLib
+from gi.repository import Gtk, Gdk, GLib, GObject
 from config import CONFIG
 from widgets.widgets import ViewSwitcher, IconView, HistorySwitcher, MediaSwitcher, DetailView, TagTreeView
 from dirview import TagStore, CollectionView, ColStore
@@ -19,6 +19,7 @@ viewstore = ViewStore()
 
 
 class Window(Gtk.ApplicationWindow):
+    scalefactor = GObject.Property(type=float, default=6.0)
     # __gsignals__ = {
     #   'scope-changed': (GObject.SIGNAL_RUN_FIRST, None, ()),
     # }
@@ -84,14 +85,17 @@ class Window(Gtk.ApplicationWindow):
         box = Gtk.Box(orientation=0, spacing=4)
         header.pack_end(box)
 
-        # image = Gtk.Image.new_from_icon_name("applications-science-symbolic", Gtk.IconSize.MENU)
-        # button = Gtk.MenuButton(image=image)
-        # science = SciencePopOver()
+        image = Gtk.Image.new_from_icon_name("applications-science-symbolic", Gtk.IconSize.MENU)
+        button = Gtk.MenuButton(image=image)
+        science = SciencePopOver()
         # science.connect('sort-changed', self.on_science_sort_changed)
         # science.connect('filename-filter-changed', self.on_science_filename_filter_changed)
         # science.set_relative_to(button)
-        # button.set_popover(science)
-        # box.pack_end(button, False, True, 0)
+        science.adj.bind_property('value', self, 'scalefactor' ,0)
+        # self.bind_property('scalefactor', science.adj, 'value', 0)
+
+        button.set_popover(science)
+        box.pack_end(button, False, True, 0)
 
         # spin_button = Gtk.SpinButton.new_with_range(1,9999,1)
         # # entry.set_size_request(20,12)
@@ -147,6 +151,7 @@ class Window(Gtk.ApplicationWindow):
         adv = AliasesDirView()
         adv.connect('file-list', self.on_file_list)
         adv.connect('tag-edit', self.on_tag_edit)
+        self.bind_property('scalefactor', adv, 'scalefactor', 0)
         num = self.notebook.append_static(adv,'Search')
         self.notebook.set_current_page(num)
 
@@ -238,6 +243,7 @@ class Window(Gtk.ApplicationWindow):
     def on_menu_all_files_activated(self, widget):
         fw = AllFileView(0)
         fw.connect('file-edit', self.on_file_edit)
+        self.bind_property('scalefactor', fw, 'scalefactor', 0)
         num = self.notebook.append_buttom(fw, 'All Files', 'all-file-list')
         self.notebook.set_current_page(num)
 

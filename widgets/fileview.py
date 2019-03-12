@@ -303,6 +303,7 @@ class AllFileView(Gtk.Box):
     query_sort = GObject.Property(type=str, default="mtime")
     query_order = GObject.Property(type=str, default="desc")
     query_media = GObject.Property(type=str, default="archives")
+    scalefactor = GObject.Property(type=float, default=6.0)
     # tag_query = GObject.Property(type=int)
 
     __gsignals__ = {
@@ -323,6 +324,7 @@ class AllFileView(Gtk.Box):
             self.alias = 'Untagged Files'
 
         viewstore = AllViewStore()
+        self.connect("notify::scalefactor", self.on_scalefactor_notified, viewstore)
         #REVEALER
         rev = Gtk.Revealer()
         box = Gtk.Box.new(orientation=0, spacing=5)
@@ -391,6 +393,9 @@ class AllFileView(Gtk.Box):
         self.show_all()
         sub_stack.set_visible_child_full('listview', 0)
         viewstore.set_code(all_file_code)
+
+    def on_scalefactor_notified(self, obj, gparam, store):
+        store.set_scale(self.scalefactor)
 
 
     def on_page_changed(self, widget, store):

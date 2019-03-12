@@ -42,6 +42,18 @@ class TagStore(Gtk.ListStore):
                 pb = avatar
             self.append((*q, pb,))
 
+    def set_scale(self, value):
+        size = 32 * value
+        avatar = theme.load_icon('avatar-default-symbolic',size, Gtk.IconLookupFlags.USE_BUILTIN)
+        def add_pb(model, path, iter, data):
+            try:
+                pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{model[iter][3]}.jpg', size, size)
+            except GLib.Error:
+                pb = avatar
+            model.set_value(iter, 4, pb)
+        self.foreach(add_pb, None)
+
+
     # def set_query_like_text_pb(self, text):
     #     if not self.load_busy:
     #         self.load_busy = True
@@ -105,7 +117,18 @@ class ViewStore(Gtk.ListStore):
             # int,     #8 duration
             Pixbuf,  #9 thumb
         )
-        
+
+    def set_scale(self, value):
+        size = 32 * value
+        missing = theme.load_icon('image-missing', size, Gtk.IconLookupFlags.USE_BUILTIN)
+        def add_pb(model, path, iter, data):
+            try:
+                pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{model[iter][0]}.jpg', size, size)
+            except GLib.Error:
+                pb = missing
+            model.set_value(iter, 8, pb)
+        self.foreach(add_pb, None)
+
     def append_from_query(self, query):
         for q in query:
             self.append(q)
