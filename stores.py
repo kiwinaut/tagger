@@ -105,7 +105,7 @@ class ViewStore(Gtk.ListStore):
             # int,     #8 duration
             Pixbuf,  #9 thumb
         )
-
+        
     def append_from_query(self, query):
         for q in query:
             self.append(q)
@@ -132,14 +132,45 @@ class ViewStore(Gtk.ListStore):
                 pb = missing
             self.append((*q[:-1], pb,))
 
-    def set_query_all_file_code(self, code):
-        if code == 0:
-            sq = Query.get_all_files('archives', 0, 'mtime', 'desc')
-        elif code == 1:
-            sq = Query.get_1tag_files('archives', 0, 'mtime',  'desc')
-        elif code == -1:
-            sq = Query.get_notag_files('archives', 0, 'mtime',  'desc')
 
+class AllViewStore(ViewStore):
+    query_fn_filter = GObject.Property(type=str, default="")
+    query_page = GObject.Property(type=int, default=1)
+    query_sort = GObject.Property(type=str, default="mtime")
+    query_order = GObject.Property(type=str, default="desc")
+    query_media = GObject.Property(type=str, default="archives")
+    query_code = GObject.Property(type=int, default=0)
+
+    def __init__(self):
+        ViewStore.__init__(self)
+
+    def set_order(self, text):
+        self.query_order = text.lower()
+        self.load_store()
+
+    def set_sort(self, text):
+        self.query_sort = text.lower()
+        self.load_store()
+
+    def set_page(self, value):
+        self.query_page = value
+        self.load_store()
+
+    def set_code(self, value):
+        self.query_code = value
+        self.load_store()
+
+    def set_fn_filter(self, text):
+        self.query_fn_filter = f"%{text}%"
+        self.load_store()
+
+    def load_store(self):
+        if self.query_code == 0:
+            sq = Query.get_all_files('archives', self.query_page, self.query_sort, self.query_order, self.query_fn_filter)
+        elif self.query_code == 1:
+            sq = Query.get_1tag_files('archives', self.query_page, self.query_sort,  self.query_order, self.query_fn_filter)
+        elif self.query_code == -1:
+            sq = Query.get_notag_files('archives', self.query_page, self.query_sort,  self.query_order, self.query_fn_filter)
         self.clear()
         for q in sq:
             try:
@@ -147,3 +178,6 @@ class ViewStore(Gtk.ListStore):
             except GLib.Error:
                 pb = missing
             self.append((*q[:-1], pb,))
+        
+
+

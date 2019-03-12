@@ -1,6 +1,6 @@
 from gi.repository import Gtk, GObject, Gdk
 from print_pretty.pretty_size import psize
-from stores import ViewStore
+from stores import ViewStore, AllViewStore
 # from widgets import MainSignals
 
 def ctime_cell_data_func(tree_column, cell, tree_model, iter, data):
@@ -322,27 +322,50 @@ class AllFileView(Gtk.Box):
         elif all_file_code == -1:
             self.alias = 'Untagged Files'
 
+        viewstore = AllViewStore()
         #REVEALER
         rev = Gtk.Revealer()
+        box = Gtk.Box.new(orientation=0, spacing=5)
+        box.set_property('margin', 5)
+
         entry = Gtk.SearchEntry()
+        entry.set_placeholder_text('Filename like')
+        entry.connect('search-changed', self.on_filter_search_changed, viewstore)
+        box.pack_start(entry, True, True, 0)
+
+        spin_button = Gtk.SpinButton.new_with_range(1,9999,1)
+        # entry.set_size_request(20,12)
+        spin_button.set_property('width-request', 20)
+        spin_button.connect('value-changed', self.on_page_changed, viewstore)
+        box.pack_start(spin_button, False, False, 0)
+
+        sortcombo = Gtk.ComboBoxText()
+        sortcombo.append_text('Filename')
+        sortcombo.append_text('Set')
+        sortcombo.append_text('Mtime')
+        sortcombo.append_text('Count')
+        sortcombo.append_text('Size')
+        sortcombo.set_active(0)
+        sortcombo.connect('changed', self.on_sort_combo_changed, viewstore)
+        box.pack_start(sortcombo, False, True, 0)
+
+        ordercombo = Gtk.ComboBoxText()
+        ordercombo.append_text('Desc')
+        ordercombo.append_text('Asc')
+        ordercombo.set_active(0)
+        ordercombo.connect('changed', self.on_order_combo_changed, viewstore)
+        box.pack_start(ordercombo, False, True, 0)
+
         closebutton = Gtk.Button.new_from_icon_name('window-close-symbolic', 2)
         closebutton.connect('clicked', self.on_revealer_close, rev)
-        box = Gtk.Box.new(orientation=0, spacing=0)
-        box.pack_start(entry, True, True, 0)
         box.pack_start(closebutton, False, True, 0)
 
-
-
         self.connect('key-press-event', self.on_key_pressed, rev)
-        # entry.connect('activate', self.on_extra_changed)
         rev.add(box)
 
         self.pack_start(rev, False, True, 0)
         #
         # self.connect('key-press-event', self.on_sstack_key_pressed, search_bar)
-
-        viewstore = ViewStore()
-        # searchentry.connect('search-changed', self.on_file_filter_changed, viewstore)
 
         sub_stack = Gtk.Stack()
         scroll = Gtk.ScrolledWindow()
@@ -367,13 +390,20 @@ class AllFileView(Gtk.Box):
         self.pack_start(sub_stack, True, True, 0)
         self.show_all()
         sub_stack.set_visible_child_full('listview', 0)
-        viewstore.set_query_all_file_code(all_file_code)
+        viewstore.set_code(all_file_code)
 
-        # self.connect('file-update', self.a)
 
-    # def on_tag_query_notified(self, object, gparamstring, model):
-    #     print(self.tag_query)
-    #     model.set_query_tag_id(self.tag_query)
+    def on_page_changed(self, widget, store):
+        store.set_page(widget.get_value())
+
+    def on_order_combo_changed(self, widget, store):
+        store.set_order(widget.get_active_text())
+
+    def on_sort_combo_changed(self, widget, store):
+        store.set_sort(widget.get_active_text())
+
+    def on_filter_search_changed(self, widget, store):
+        store.set_fn_filter(widget.get_text())
 
     def on_tag_query_notified(self, object, gparamstring, stack):
         stack.set_visible_child_full(self.view, 0)

@@ -4,6 +4,10 @@ from data_models import col_store
 from models import Query
 from stores import TagStore
 
+
+clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+
+
 class IconTagView(Gtk.IconView):
     def __init__(self):
         Gtk.IconView.__init__(self, has_tooltip=True)
@@ -34,6 +38,9 @@ class IconTagView(Gtk.IconView):
         delete = Gtk.MenuItem.new_with_label('Tag Edit')
         delete.connect('activate', self.on_menu_update_activate)
         menu.append(delete)
+        delete = Gtk.MenuItem.new_with_label('Copy Name')
+        delete.connect('activate', self.on_menu_copy_name_activate)
+        menu.append(delete)
         menu.show_all()
         self.menu = menu
         # self.connect('button-press-event', self.show_menu, menu)
@@ -41,23 +48,25 @@ class IconTagView(Gtk.IconView):
 
         self.enable_model_drag_source(
             Gdk.ModifierType.BUTTON1_MASK|Gdk.ModifierType.CONTROL_MASK,
-            [target3, target4],
+            [target4],
             Gdk.DragAction.COPY
         )
         self.connect("drag-data-get", self.on_drag_data_get)
 
     def on_drag_data_get(self, widget, drag_context, data, info, time):
-        selection = widget.get_selection()
-        model, iter = selection.get_selected()
-        # path = model.get_path(iter)
-        # value = '{}\n{}'.format(*model.get(iter, 0, 1))
-        # value = path.to_string()
-        if str(data.get_target()) == 'TAG':
-            value = str(model[iter][0])
-            data.set(data.get_target(), 8, bytes(value, "utf-8"))
-        elif str(data.get_target()) == 'text/plain':
-            string = model[iter][1]
-            data.set(data.get_target(), 8, bytes(string, "utf-8"))
+        paths = self.get_selected_items()
+        model = self.get_model()
+        if paths:
+            path = paths[0]
+            iter = model.get_iter(path)
+
+            if str(data.get_target()) == 'TAG':
+                value = str(model[iter][0])
+                print(value)
+                data.set(data.get_target(), 8, bytes(value, "utf-8"))
+        # elif str(data.get_target()) == 'text/plain':
+        #     string = model[iter][1]
+        #     data.set(data.get_target(), 8, bytes(string, "utf-8"))
 
 
     def do_button_press_event(self, event):
@@ -84,6 +93,14 @@ class IconTagView(Gtk.IconView):
                 return False
         else:
             Gtk.IconView.do_button_press_event(self, event)
+
+    def on_menu_copy_name_activate(self, widget, *args):
+        paths = self.get_selected_items()
+        model = self.get_model()
+        if paths:
+            path = paths[0]
+            iter = model.get_iter(path)
+            clipboard.set_text(model[iter][1], -1)
 
     def on_menu_read_activate(self, widget, *args):
         paths = self.get_selected_items()

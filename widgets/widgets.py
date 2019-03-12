@@ -219,7 +219,20 @@ class DetailView(Gtk.TreeView):
 #                 return False
 #         else:
 #             Gtk.TreeView.do_button_press_event(self, event)
+class DialogExample(Gtk.Dialog):
+    def __init__(self, parent):
+        Gtk.Dialog.__init__(self, "Entry Dialog", parent, 0,
+            (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+             Gtk.STOCK_OK, Gtk.ResponseType.OK))
 
+        self.set_default_size(150, 100)
+
+        entry = Gtk.Entry()
+        self.entry = entry
+
+        box = self.get_content_area()
+        box.add(entry)
+        self.show_all()
 
 class TagTreeView(Gtk.TreeView):
     __gsignals__ = {
@@ -255,6 +268,8 @@ class TagTreeView(Gtk.TreeView):
 
         delete = Gtk.MenuItem.new_with_label('Filenames')
         delete.connect('activate', self.on_menu_filenames_activate)
+        self.connect('key-press-event', self.on_key_pressed)
+
         menu.append(delete)
 
         menu.show_all()
@@ -270,6 +285,29 @@ class TagTreeView(Gtk.TreeView):
         self.connect("drag-data-get", self.on_drag_data_get)
         self.enable_model_drag_dest([target2,target4], Gdk.DragAction.MOVE)
         self.connect("drag-data-received", self.on_drag_data_received)
+        # self.connect("drag-motion", self.on_drag_motion)
+
+    def on_drag_motion(self, widget, context, x, y, time):
+        path, pos = self.get_drag_dest_row()
+        print(path, pos)
+        # path = self.get_dest_row_at_pos(x,y)
+        # print(x,y)
+
+    def on_key_pressed(self, widget, event):
+        # Gdk.ModifierType.CONTROL_MASK = 4
+        if (4 & event.state) and (event.keyval == 97):
+            dialog = DialogExample(self.get_toplevel())
+            response = dialog.run()
+
+            if response == Gtk.ResponseType.OK:
+                name = dialog.entry.get_text()
+                selection = widget.get_selection()
+                model, iter = selection.get_selected()
+                parent_path = model[iter][1]
+                qu = Query.new_folder(parent_path, name)
+                model.add_from_branch(iter, parent_path, qu)
+            elif response == Gtk.ResponseType.CANCEL:pass
+            dialog.destroy()
 
     def on_drag_data_get(self, widget, drag_context, data, info, time):
         selection = widget.get_selection()

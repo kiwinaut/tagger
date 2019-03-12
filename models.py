@@ -371,6 +371,7 @@ class Query:
             )
         sort = getattr(Table, sort_string)
         order = getattr(sort, order_string)
+        print(len(filter), filter)
         if filter:
             sq = sq.where(Table.filename ** filter)
         return sq.order_by(order(), Table.mtime.asc()).paginate(page,50).tuples()

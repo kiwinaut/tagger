@@ -17,6 +17,7 @@ class ConfigManager(object):
             'logger.path': '%s/.cache/1001.log' % HOME,
             'css': '%s/static/main.css' % DIRPATH,
             'icon': '%s/static/tagger.png' % DIRPATH,
+            'static': f'{DIRPATH}/static',
             'indexer.locations': ('/media/soni/1001/',),
             'indexer.thumb_location': '/media/soni/1001/.thumbnails',
             'indexer.size_threshold': 20000,
