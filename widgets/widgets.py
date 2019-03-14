@@ -256,14 +256,17 @@ class TagTreeView(Gtk.TreeView):
         self.append_column(column)
 
         menu = Gtk.Menu()
-        delete = Gtk.MenuItem.new_with_label('Delete')
-        delete.connect('activate', self.on_menu_delete_activate)
+        delete = Gtk.MenuItem.new_with_label('New')
+        delete.connect('activate', self.on_menu_new_activate)
         menu.append(delete)
         delete = Gtk.MenuItem.new_with_label('Show Tags')
         delete.connect('activate', self.on_menu_read_activate)
         menu.append(delete)
         delete = Gtk.MenuItem.new_with_label('Update')
         delete.connect('activate', self.on_menu_update_activate)
+        menu.append(delete)
+        delete = Gtk.MenuItem.new_with_label('Delete')
+        delete.connect('activate', self.on_menu_delete_activate)
         menu.append(delete)
 
         delete = Gtk.MenuItem.new_with_label('Filenames')
@@ -286,12 +289,24 @@ class TagTreeView(Gtk.TreeView):
         self.enable_model_drag_dest([target2,target4], Gdk.DragAction.MOVE)
         self.connect("drag-data-received", self.on_drag_data_received)
         # self.connect("drag-motion", self.on_drag_motion)
+        # self.connect("drag-leave", self.on_drag_leave)
+
+    def on_drag_leave(self, widget, context, time):
+        """
+            @param row as RowDND
+            @param context as Gdk.DragContext
+            @param time as int
+        """
+        widget.get_style_context().remove_class("drag-up")
+        # row.get_style_context().remove_class("drag-down")
 
     def on_drag_motion(self, widget, context, x, y, time):
-        path, pos = self.get_drag_dest_row()
-        print(path, pos)
+        # path, pos = self.get_drag_dest_row()
+        # print(path, pos)
         # path = self.get_dest_row_at_pos(x,y)
         # print(x,y)
+        widget.get_style_context().add_class("drag-up")
+        # row.get_style_context().remove_class("drag-downg")
 
     def on_key_pressed(self, widget, event):
         # Gdk.ModifierType.CONTROL_MASK = 4
@@ -405,15 +420,31 @@ class TagTreeView(Gtk.TreeView):
         # somewhere updated
         # update model in here or there?
 
+    def on_menu_new_activate(self, widget, *args):
+            dialog = DialogExample(self.get_toplevel())
+            response = dialog.run()
+
+            if response == Gtk.ResponseType.OK:
+                name = dialog.entry.get_text()
+                selection = self.get_selection()
+                model, iter = selection.get_selected()
+                parent_path = model[iter][1]
+                rowcount, treepath = Query.new_folder(parent_path, name)
+                qu = Query.get_tree(treepath)
+                model.init(qu, iter)
+            elif response == Gtk.ResponseType.CANCEL:pass
+            dialog.destroy()
+
     def on_menu_delete_activate(self, widget, *args):
         # sure
         # db del
         # self del
-
-        # selection = self.get_selection()
-        # model, iter = selection.get_selected()
-        # self.emit('tag-delete', model[iter][0], model[iter][1])
-        self.emit('tag-delete')
+        selection = self.get_selection()
+        model, iter = selection.get_selected()
+        try:
+            Query.delete_folder(model[iter][1])
+            model.remove(iter)
+        except:pass
 
     def do_button_press_event(self, event):
         if event.button == Gdk.BUTTON_SECONDARY:

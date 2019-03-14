@@ -113,11 +113,24 @@ class Query:
         return res.rowcount, f'{parent_path}/{child_name}%'
 
     def delete_folder(path):
-        q = f'''
-        insert into tagtree ('path','name') values('{parent_path}/{child_name}', '{child_name}')
-        '''
-        res = db.execute_sql(q)
-        return res.rowcount, f'{parent_path}/{child_name}%'
+        #How many tags it has got
+        value = TagTree.select(fn.Count(TagTree.id))\
+        .join(Tags)\
+        .where(TagTree.path ** f'{path}%')\
+        .scalar()
+        if value == 0:
+            #how many children it has got
+            ccount = TagTree.select(fn.Count(TagTree.id))\
+            .where(TagTree.path ** f'{path}/%')\
+            .scalar()
+            if ccount == 0:
+                res = TagTree.delete().where(TagTree.path ** f'{path}%').execute()
+                return res
+            else:
+                raise Exception('Folder have folders')
+
+        else:
+            raise Exception('Folder have tags')
 
     def get_tags_by_filter(text):
         sq = Aliases.select(Tags.id, Aliases.alias, Tags.note, Tags.thumb)\
