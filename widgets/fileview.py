@@ -103,6 +103,7 @@ class ListView(Gtk.TreeView):
             path = paths[0]
             iter = model.get_iter(path)
             fileview = self.get_parent().get_parent().get_parent()
+            # scrolled = row.get_ancestor(Gtk.ScrolledWindow)
             fileview.emit('file-edit', model[iter][0], model[iter][2])
 
     def on_menu_edit_activated(self, widget, *args):
