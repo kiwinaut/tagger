@@ -8,6 +8,16 @@ import re
 pattern = re.compile('\\b[a-zA-Z-]{3,}\\b')
 
 class Query:
+    def get_file_path_first(tag_id):
+        Archives.select(Archives.filepath)\
+        .join(ArchiveTags)\
+        .join(Tags)\
+        .where(Tags.id==tag_id).limit(1).tuples()
+
+    def get_file_path(file_id):
+        row = Archives.get(Archives.id==file_id)
+        return row.filepath
+
     def get_tag_aliases(tag_id):
         q = Aliases.select(Aliases.id, Aliases.alias)\
         .join(Tags)\
@@ -73,8 +83,9 @@ class Query:
             ).order_by(Collections.name).tuples()
 
 
-    def get_tree():
+    def get_tree(path='/'):
         return TagTree.select()\
+        .where(TagTree.path ** f'{path}%')\
         .order_by(TagTree.path).tuples()
 
     def set_folder(tag_id, folder_id):
@@ -89,22 +100,24 @@ class Query:
         update tagtree set path = '{parent_path}' ||  substr("path", length('{p_path}')+1)
         where "path" like '{child_path}%';
         '''
+        print(q)
         res = db.execute_sql(q)
         new_child_path = f'{parent_path}/{child_name}'
-        return res.rowcount, TagTree.select()\
-        .where(TagTree.path ** f'{new_child_path}%')\
-        .order_by(TagTree.path).tuples()
+        return res.rowcount, new_child_path
 
     def new_folder(parent_path, child_name):
         q = f'''
         insert into tagtree ('path','name') values('{parent_path}/{child_name}', '{child_name}')
         '''
         res = db.execute_sql(q)
-        return res.rowcount, TagTree.select()\
-        .where(TagTree.path ** f'{parent_path}/{child_name}%')\
-        .order_by(TagTree.path).tuples()
+        return res.rowcount, f'{parent_path}/{child_name}%'
 
-    def delete_folder():pass
+    def delete_folder(path):
+        q = f'''
+        insert into tagtree ('path','name') values('{parent_path}/{child_name}', '{child_name}')
+        '''
+        res = db.execute_sql(q)
+        return res.rowcount, f'{parent_path}/{child_name}%'
 
     def get_tags_by_filter(text):
         sq = Aliases.select(Tags.id, Aliases.alias, Tags.note, Tags.thumb)\

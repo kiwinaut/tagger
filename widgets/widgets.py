@@ -304,8 +304,9 @@ class TagTreeView(Gtk.TreeView):
                 selection = widget.get_selection()
                 model, iter = selection.get_selected()
                 parent_path = model[iter][1]
-                qu = Query.new_folder(parent_path, name)
-                model.add_from_branch(iter, parent_path, qu)
+                rowcount, treepath = Query.new_folder(parent_path, name)
+                qu = Query.get_tree(treepath)
+                model.init(qu, iter)
             elif response == Gtk.ResponseType.CANCEL:pass
             dialog.destroy()
 
@@ -315,7 +316,7 @@ class TagTreeView(Gtk.TreeView):
 
         if str(data.get_target()) == 'FOLDER':
             path = model.get_path(iter)
-            string = f"{path.to_string()}"
+            string = f"{path.to_string()};{model[iter][1]}"
             data.set(data.get_target(), 8, bytes(string, "utf-8"))
         else:
             data.set(data.get_target(), 8, bytes(model[iter][1], "utf-8"))
@@ -323,44 +324,48 @@ class TagTreeView(Gtk.TreeView):
 
     def on_drag_data_received(self, widget, drag_context, x, y, data, info, time):
         model = widget.get_model()
-        if str(data.get_target()) == 'FOLDER':
-            drag_string = data.get_data().decode("utf-8")
-            pos = widget.get_dest_row_at_pos(x, y)
-            if pos:
-                drop_path, position = pos
-                drag_path = Gtk.TreePath.new_from_string(drag_string)
-                action = drag_context.get_actions()
+        # if str(data.get_target()) == 'FOLDER':
+        #     drag_string, drag_folderpath = data.get_data().decode("utf-8").split(';')
+        #     pos = widget.get_dest_row_at_pos(x, y)
+        #     if pos:
+        #         drop_path, position = pos
+        #         drag_path = Gtk.TreePath.new_from_string(drag_string)
+        #         action = drag_context.get_actions()
 
-                drop_iter = model.get_iter(drop_path)
-                drag_iter = model.get_iter_from_string(drag_string)
-                if (drop_path.compare(drag_path) == 0)\
-                or (drop_path.is_descendant(drag_path))\
-                : # equal
-                    drag_context.finish(False, False, time)
-                    return
+        #         drop_iter = model.get_iter(drop_path)
+
+        #         # drag_iter = model.get_iter_from_string(drag_string)
+        #         if (drop_path.compare(drag_path) == 0)\
+        #         or (drop_path.is_descendant(drag_path))\
+        #         : # equal
+        #             drag_context.finish(False, False, time)
+        #             return
 
 
-                if position == 2 or position == 3:
-                    # into
-                    # make this parent
-                    if (action & Gdk.DragAction.MOVE) == Gdk.DragAction.MOVE:
-                        is_created, branch_query = Query.set_folder_parent(model[drop_iter][1], model[drag_iter][1])
-                        # print(is_created)
-                        if is_created:
-                            # model.append(drop_iter, (model[drag_iter][0], model[drag_iter][1]))
-                            model.add_from_branch(drop_iter, model[drop_iter][1], branch_query)
-                            if not widget.row_expanded(drop_path):
-                                widget.expand_row(drop_path, False)
-                            drag_context.finish(True, True, time)
-                        else:
-                            drag_context.finish(False, False, time)
-                    else:
-                        drag_context.finish(False, False, time)
-                    # if (action & Gdk.DragAction.COPY) == Gdk.DragAction.COPY:
-                    #     # ask make synonym
-                    #     pass
-                else:pass
-        elif str(data.get_target()) == 'TAG':
+        #         if position == 2 or position == 3:
+        #             # into
+        #             # make this parent
+        #             if (action & Gdk.DragAction.MOVE) == Gdk.DragAction.MOVE:
+        #                 # is_created, branch_query = 
+        #                 rowcount, treepath = Query.set_folder_parent(model[drop_iter][1], drag_folderpath)
+        #                 # print(is_created)
+        #                 if rowcount:
+        #                     # model.append(drop_iter, (model[drag_iter][0], model[drag_iter][1]))
+        #                     # model.init(drop_iter, model[drop_iter][1], branch_query)
+        #                     qu = Query.get_tree(treepath)
+        #                     model.init(qu, root_iter=drop_iter)
+        #                     if not widget.row_expanded(drop_path):
+        #                         widget.expand_row(drop_path, False)
+        #                     drag_context.finish(True, True, time)
+        #                 else:
+        #                     drag_context.finish(False, False, time)
+        #             else:
+        #                 drag_context.finish(False, False, time)
+        #             # if (action & Gdk.DragAction.COPY) == Gdk.DragAction.COPY:
+        #             #     # ask make synonym
+        #             #     pass
+        #         else:pass
+        if str(data.get_target()) == 'TAG':
             drag_string = data.get_data().decode("utf-8")
             pos = widget.get_dest_row_at_pos(x, y)
             if pos:
@@ -376,66 +381,7 @@ class TagTreeView(Gtk.TreeView):
             else:
                 drag_context.finish(False, False, time)
 
-    def on_drag_data_received2(self, widget, drag_context, x, y, data, info, time):
-        model = widget.get_model()
-        if str(data.get_target()) == 'TAG':
-            drag_path = data.get_data().decode("utf-8")
-            drag_iter = model.get_iter(drag_path)
-            drag_id = model[drag_iter][0]
-            drag_tag = model[drag_iter][1]
-            # value = data.get_data()
-            # drag_id, drag_tag = value.split('\n')
-            pos = widget.get_dest_row_at_pos(x, y)
-            if pos:
-                drop_path, position = pos
-                action = drag_context.get_actions()
-                drop_iter = model.get_iter(drop_path)
-                drop_type = model[drop_iter][2]
-                drop_id = model[drop_iter][0]
-                if drag_id == drop_id:
-                    drag_context.finish(False, False, time)
-                    return
-                    
-                        # dir
-                if position == 2 or position == 3:
-                    # into
-                    # make this parent
-                    if drop_type == 0:
-                        if (action & Gdk.DragAction.MOVE) == Gdk.DragAction.MOVE:
-                            if TagQuery.set_tag_parent(drag_tag, drop_id):
-                                if widget.row_expanded(drop_path):
-                                    model.append(drop_iter, (drag_id, drag_tag, model[drag_iter][2],))
-                                drag_context.finish(True, True, time)
-                            else:
-                                drag_context.finish(False, False, time)
-                        else:
-                            drag_context.finish(False, False, time)
-                    elif drop_type == 1:
-                        if (action & Gdk.DragAction.COPY) == Gdk.DragAction.COPY:
-                            # ask make synonym
-                            pass
-                else:
-                    if (action & Gdk.DragAction.MOVE) == Gdk.DragAction.MOVE:
-                        drop_iter_parent = model.iter_parent(drop_iter)
-                        drag_iter_parent = model.iter_parent(drag_iter)
-                        if drop_iter_parent == drag_iter_parent:
-                            # do nothing
-                            print('same')
-                            # pass
-                        else:
-                            if drop_iter_parent:
-                                drop_iter_parent_id = model[drop_iter_parent][0]
-                            else:
-                                drop_iter_parent_id = None
-                            if TagQuery.set_tag_parent(drag_tag, drop_iter_parent_id):
-                                print(drop_path)
-                                if widget.row_expanded(model.get_path(drop_iter_parent)):
-                                    model.append(drop_iter_parent, (drop_iter_parent_id, drag_tag, model[drag_iter][2],))
-                                drag_context.finish(True, True, time)
-                                print('moved')
-                            else:
-                                drag_context.finish(False, False, time)
-                                print('failed')
+
                         
 
     def on_menu_filenames_activate(self, widget, *args):

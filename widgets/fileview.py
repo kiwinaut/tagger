@@ -3,6 +3,8 @@ from print_pretty.pretty_size import psize
 from stores import ViewStore, AllViewStore
 from data_models import TabModel
 # from widgets import MainSignals
+from shell_commands import open_file
+from models import Query
 
 def ctime_cell_data_func(tree_column, cell, tree_model, iter, data):
     date = tree_model[iter][4]
@@ -218,6 +220,13 @@ class IconView(Gtk.IconView):
                 #clicked empty area
                 self.unselect_all()
                 return False
+        elif event.button == Gdk.BUTTON_MIDDLE:
+            path = self.get_path_at_pos(event.x, event.y)
+            self.select_path(path)
+            model = self.get_model()
+            iter = model.get_iter(path)
+            filepath = Query.get_file_path(model[iter][0])
+            open_file(filepath, 'mcomix')
         else:
             Gtk.IconView.do_button_press_event(self, event)
 
@@ -285,7 +294,7 @@ class FileView(Gtk.Box):
     #     model.set_query_tag_id(self.tag_query)
 
     def on_scalefactor_notified(self, obj, gparam, store):
-        store.set_scale(self.scalefactor)
+        store.set_scale(self.tab_model.scalefactor)
 
     def on_tag_query_notified(self, object, gparamstring, stack):
         stack.set_visible_child_full(self.view, 0)
@@ -304,11 +313,11 @@ class FileView(Gtk.Box):
 
 class AllFileView(Gtk.Box):
     view = GObject.Property(type=str, default="listview")
-    query_fn_filter = GObject.Property(type=str, default="")
-    query_page = GObject.Property(type=int, default=1)
-    query_sort = GObject.Property(type=str, default="mtime")
-    query_order = GObject.Property(type=str, default="desc")
-    query_media = GObject.Property(type=str, default="archives")
+    # query_fn_filter = GObject.Property(type=str, default="")
+    # query_page = GObject.Property(type=int, default=1)
+    # query_sort = GObject.Property(type=str, default="mtime")
+    # query_order = GObject.Property(type=str, default="desc")
+    # query_media = GObject.Property(type=str, default="archives")
     # scalefactor = GObject.Property(type=float, default=6.0)
     # tag_query = GObject.Property(type=int)
 

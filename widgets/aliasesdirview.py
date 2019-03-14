@@ -42,6 +42,9 @@ class IconTagView(Gtk.IconView):
         delete = Gtk.MenuItem.new_with_label('Copy Name')
         delete.connect('activate', self.on_menu_copy_name_activate)
         menu.append(delete)
+        delete = Gtk.MenuItem.new_with_label('Open First')
+        delete.connect('activate', self.on_menu_open_first_activate)
+        menu.append(delete)
         menu.show_all()
         self.menu = menu
         # self.connect('button-press-event', self.show_menu, menu)
@@ -88,12 +91,23 @@ class IconTagView(Gtk.IconView):
                     self.select_path(path)
 
                     self.menu.popup(None, None, None, None, event.button, event.time)
-            else:
-                #clicked empty area
-                self.unselect_all()
-                return False
+        elif event.button == Gdk.BUTTON_MIDDLE:
+            path = self.get_path_at_pos(event.x, event.y)
+            self.select_path(path)
+            model = self.get_model()
+            iter = model.get_iter(path)
+            parent = self.get_parent().get_parent().get_parent()
+            parent.emit('tag-edit', model[iter][0], model[iter][1])
         else:
             Gtk.IconView.do_button_press_event(self, event)
+
+    def on_menu_open_first_activate(self, widget, *args):
+        paths = self.get_selected_items()
+        model = self.get_model()
+        if paths:
+            path = paths[0]
+            iter = model.get_iter(path)
+            clipboard.set_text(model[iter][1], -1)
 
     def on_menu_copy_name_activate(self, widget, *args):
         paths = self.get_selected_items()

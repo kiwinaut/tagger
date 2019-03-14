@@ -2,6 +2,7 @@ from gi.repository import Gtk, GObject
 from collections import deque
 from gi.repository.GdkPixbuf import Pixbuf
 from models import Query
+from os.path import dirname
 
 avatar = Pixbuf.new_from_file_at_size('/usr/share/icons/Adwaita/256x256/status/avatar-default.png', 192, 192)
 
@@ -44,50 +45,58 @@ class TagTreeStore(Gtk.TreeStore):
     def __init__(self):
         Gtk.TreeStore.__init__(self, int, str, str)
 
-    def init(self, root_query):
-        stack = []
+    def init(self, root_query, root_iter=None):
+        dic = {}
         for q in root_query:
-            if q[0] == 1:
-                stack.append((None, '/'))
-                # continue
+            iter = dic.get(dirname(q[1]), root_iter)
+            iter = self.append(iter, q)
+            dic[q[1]] = iter
+            
 
-            t = stack[-1]
-            if q[1].startswith(t[1]):
-                iter = self.append(t[0], q)
-                stack.append((iter,q[1],))
-            else:
-                while True:
-                    x = stack.pop()
-                    # print(x[1], q[1])
-                    if q[1].startswith(x[1]):
-                        iter = self.append(x[0], q)
-                        stack.append(x)
-                        stack.append((iter,q[1],))
-                        break
-                    # else:
-                    #     stack.append(x)
+    # def init2(self, root_query):
+    #     stack = []
+    #     for q in root_query:
+    #         if q[0] == 1:
+    #             stack.append((None, '/'))
+    #             # continue
 
-    def add_from_branch(self, parent_iter, parent_path, branch_query):
-        stack = [(parent_iter, parent_path,)]
-        for q in branch_query:
-            # print(q)
-            # if q[0] == 1:
-            #     stack.append((None, '/'))
-            #     continue
+    #         t = stack[-1]
+    #         if q[1].startswith(t[1]):
+    #             iter = self.append(t[0], q)
+    #             stack.append((iter,q[1],))
+    #         else:
+    #             while True:
+    #                 x = stack.pop()
+    #                 # print(x[1], q[1])
+    #                 if q[1].startswith(x[1]):
+    #                     iter = self.append(x[0], q)
+    #                     stack.append(x)
+    #                     stack.append((iter,q[1],))
+    #                     break
+    #                 # else:
+    #                 #     stack.append(x)
 
-            t = stack[-1]
-            if q[1].startswith(t[1]):
-                iter = self.append(t[0],q)
-                stack.append((iter,q[1],))
-            else:
-                while True:
-                    x = stack.pop()
-                    # print(x[1])
-                    if q[1].startswith(x[1]):
-                        iter = self.append(x[0],q)
-                        stack.append(x)
-                        stack.append((iter,q[1],))
-                        break
+    # def add_from_branch(self, parent_iter, parent_path, branch_query):
+    #     stack = [(parent_iter, parent_path,)]
+    #     for q in branch_query:
+    #         # print(q)
+    #         # if q[0] == 1:
+    #         #     stack.append((None, '/'))
+    #         #     continue
+
+    #         t = stack[-1]
+    #         if q[1].startswith(t[1]):
+    #             iter = self.append(t[0],q)
+    #             stack.append((iter,q[1],))
+    #         else:
+    #             while True:
+    #                 x = stack.pop()
+    #                 # print(x[1])
+    #                 if q[1].startswith(x[1]):
+    #                     iter = self.append(x[0],q)
+    #                     stack.append(x)
+    #                     stack.append((iter,q[1],))
+    #                     break
 
 col_store = TagTreeStore()
 
