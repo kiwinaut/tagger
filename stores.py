@@ -103,7 +103,7 @@ class TagStore(Gtk.ListStore):
     #     thread.join()
 
 class ViewStore(Gtk.ListStore):
-    def __init__(self):
+    def __init__(self, scale=192):
         Gtk.ListStore.__init__(
             self,
             int,     # 0 file_id
@@ -117,6 +117,7 @@ class ViewStore(Gtk.ListStore):
             # int,     #8 duration
             Pixbuf,  #9 thumb
         )
+        self.scale = scale
 
     def set_scale(self, value):
         size = 32 * value
@@ -134,23 +135,25 @@ class ViewStore(Gtk.ListStore):
             self.append(q)
 
     def set_query_tag_id(self, tag_id):
+        scale = self.scale
         self.tag_id = tag_id
         sq = Query.get_files('archives', 'filepath', 'desc', tag_id)
         # sq = Query.get_files(obj.query_media, obj.query_sort, obj.query_order, int(tag), filter=obj.query_fn_filter)
         self.clear()
         for q in sq:
             try:
-                pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{q[0]}.jpg', 192, 192)
+                pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{q[0]}.jpg', scale, scale)
             except GLib.Error:
                 pb = missing
             self.append((*q[:-1], pb,))
 
     def set_query_filter_text(self, value):
+        scale = self.scale
         sq = Query.get_files('archives', 'filepath', 'desc', self.tag_id, filter=f'%{value}%')
         self.clear()
         for q in sq:
             try:
-                pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{q[0]}.jpg', 192, 192)
+                pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{q[0]}.jpg', scale, scale)
             except GLib.Error:
                 pb = missing
             self.append((*q[:-1], pb,))
@@ -164,8 +167,8 @@ class AllViewStore(ViewStore):
     query_media = GObject.Property(type=str, default="archives")
     query_code = GObject.Property(type=int, default=0)
 
-    def __init__(self):
-        ViewStore.__init__(self)
+    def __init__(self, scale):
+        ViewStore.__init__(self, scale)
 
     def set_order(self, text):
         self.query_order = text.lower()
@@ -197,7 +200,7 @@ class AllViewStore(ViewStore):
         self.clear()
         for q in sq:
             try:
-                pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{q[0]}.jpg', 192, 192)
+                pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{q[0]}.jpg', self.scale, self.scale)
             except GLib.Error:
                 pb = missing
             self.append((*q[:-1], pb,))
