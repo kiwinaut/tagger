@@ -11,8 +11,8 @@ class ConfigManager(object):
 
     def __init__(self):
         self.defaults = {
-            'testdatabase.path': f'{HOME}/.cache/tracker-{dbv}_test.db',
-            'database.version': f'{dbv}_test',
+            'testdatabase.path': f'{HOME}/.cache/tracker-{dbv}.db',
+            'database.version': f'{dbv}',
             'database.path': '%s/.cache/1001.db' % HOME,
             'logger.path': '%s/.cache/1001.log' % HOME,
             'css': '%s/static/main.css' % DIRPATH,
@@ -46,7 +46,8 @@ class ConfigManager(object):
         args = parser.parse_args()
         self.options['test'] = args.test
         if args.test:
-            self.options['database.path'] = ':memory:'
+            self.options['testdatabase.path'] = f'{HOME}/.cache/tracker-{dbv}_test.db'
+            self.options['database.version'] = f'{dbv}_test'
 
 
 
