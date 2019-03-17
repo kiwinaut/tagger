@@ -11,12 +11,17 @@ class Notebook(Gtk.Notebook):
         # closebutton.set_css_name('small-button')
         closebutton.set_relief(2)
         closebutton.connect('clicked', self.on_tab_close, child)
+
+        event = Gtk.EventBox()
+        event.connect('button-release-event', self.on_link_clicked, child)
+
         label = Gtk.Label(label)
+        event.add(label)
         label.set_ellipsize(3)
         label.set_size_request(100, -1)
         box = Gtk.Box.new(orientation=0, spacing=0)
         box.pack_start(img, False, False, 0)
-        box.pack_start(label, True, True, 0)
+        box.pack_start(event, True, True, 0)
         box.pack_start(closebutton, False, False, 0)
         box.show_all()
 
@@ -35,6 +40,11 @@ class Notebook(Gtk.Notebook):
     def on_tab_close(self, widget, child):
         num = self.page_num(child)
         self.remove_page(num)
+
+    def on_link_clicked(self, widget, event, child):
+        if event.button == 2: #Gdk.BUTTON_MIDDLE:
+            num = self.page_num(child)
+            self.remove_page(num)
 
 
 # system-search-symbolic  filelist
