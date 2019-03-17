@@ -243,7 +243,7 @@ class FileView(Gtk.Box):
     Tagged File View
     '''
 
-    def __init__(self, tag_id, alias_name):
+    def __init__(self, tag_id, alias_name, scale, view):
         Gtk.Box.__init__(self, orientation=1, spacing=0)
         self.alias = alias_name
         self.tab_model = TabModel()
@@ -257,7 +257,7 @@ class FileView(Gtk.Box):
         self.pack_start(search_bar, False, True, 0)
         self.connect('key-press-event', self.on_sstack_key_pressed, search_bar)
 
-        viewstore = ViewStore()
+        viewstore = ViewStore(scale=scale)
         self.tab_model.connect("notify::scalefactor", self.on_scalefactor_notified, viewstore)
         searchentry.connect('search-changed', self.on_file_filter_changed, viewstore)
         # self.connect("notify::tag_query", self.on_tag_query_notified, viewstore)
@@ -284,7 +284,7 @@ class FileView(Gtk.Box):
 
         self.pack_start(sub_stack, True, True, 0)
         self.show_all()
-        sub_stack.set_visible_child_full('listview', 0)
+        sub_stack.set_visible_child_full(view, 0)
 
         viewstore.set_query_tag_id(tag_id)
 
@@ -330,7 +330,7 @@ class AllFileView(Gtk.Box):
     Tagged File View
     '''
 
-    def __init__(self, all_file_code=0):
+    def __init__(self, scale, view, all_file_code=0,):
         Gtk.Box.__init__(self, orientation=1, spacing=0)
         if all_file_code == 0:
             self.alias = 'All Files'
@@ -341,7 +341,7 @@ class AllFileView(Gtk.Box):
 
         self.tab_model = TabModel()
         self.tab_model.name = 'stack'
-        viewstore = AllViewStore()
+        viewstore = AllViewStore(scale)
         self.tab_model.connect("notify::scalefactor", self.on_scalefactor_notified, viewstore)
         #REVEALER
         rev = Gtk.Revealer()
@@ -409,7 +409,7 @@ class AllFileView(Gtk.Box):
 
         self.pack_start(sub_stack, True, True, 0)
         self.show_all()
-        sub_stack.set_visible_child_full('listview', 0)
+        sub_stack.set_visible_child_full(view, 0)
         viewstore.set_code(all_file_code)
 
     def on_scalefactor_notified(self, obj, gparam, store):

@@ -1,12 +1,9 @@
-from gi.repository import Gtk, Gdk, GLib, GObject
+from gi.repository import Gtk, Gdk, GObject
 from config import CONFIG
-from widgets.widgets import ViewSwitcher, IconView, HistorySwitcher, MediaSwitcher, DetailView, TagTreeView
-from dirview import TagStore, CollectionView, ColStore
-from icon_list_view import ViewStore, ListView
-from models import Collections, Tags, Aliases, TagCollections, Query
-from gi.repository.GdkPixbuf import Pixbuf
+from widgets.widgets import ViewSwitcher
+from models import  Query
 from popovers import SciencePopOver
-from data_models import main_model, QueryType, col_model, col_store,  tag_icon_store, det_store, tag_group_store, avatar
+from data_models import main_model, QueryType, col_model, col_store, det_store
 import shell_commands
 from widgets.notebook import Notebook
 from widgets.fileview import FileView, AllFileView
@@ -15,7 +12,8 @@ from widgets.tagedit import TagEdit
 from widgets.aliasesdirview import AliasesDirView
 # viewstore = ViewStore()
 
-
+# VIEW = ""
+# VALUE = 0.0
 
 class Window(Gtk.ApplicationWindow):
     scalefactor = GObject.Property(type=float, default=6.0)
@@ -234,6 +232,8 @@ class Window(Gtk.ApplicationWindow):
             if binding:
                 binding.unbind()
             widget.set_property('view', tab_model.view)
+            # global VIEW
+            # VIEW = tab_model.view
             GBinding = tab_model.bind_property('view', widget, 'view', 1)
             self.bindings['view'] = (widget, GBinding)
 
@@ -242,6 +242,8 @@ class Window(Gtk.ApplicationWindow):
             if binding:
                 binding.unbind()
             widget.set_property('value', tab_model.scalefactor)
+            # global VALUE
+            # VALUE = tab_model.scalefactor
             GBinding = tab_model.bind_property('scalefactor', widget, 'value', 1)
             self.bindings['scale'] = (widget, GBinding)
 
@@ -254,7 +256,7 @@ class Window(Gtk.ApplicationWindow):
         child = self.notebook.get_nth_page(num)
         child.set_view(widget.view)
 
-    def on_tag_edit_list_tag(self, widget, tag_id):
+    def on_tag_edit_list_tag(self, widget, tag_id, tag_label):
         # main_model.set_type(QueryType.TAG, tag_id, None)
         # selection = widget.get_selection()
         # model, iter = selection.get_selected()
@@ -287,20 +289,41 @@ class Window(Gtk.ApplicationWindow):
         main_model.set_page(widget.get_value())
 
     def on_menu_all_files_activated(self, widget):
-        fw = AllFileView(0)
+        scale, binding = self.bindings['scale']
+        view, binding = self.bindings['view']
+        
+        fw = AllFileView(
+            scale.get_property('value'),
+            view.get_property('view'),
+            0
+            )
         fw.connect('file-edit', self.on_file_edit)
         # self.bind_property('scalefactor', fw, 'scalefactor', 0)
         num = self.notebook.append_buttom(fw, 'All Files', 'all-file-list')
         self.notebook.set_current_page(num)
 
     def on_menu_untagged_files_activated(self, widget):
-        fw = AllFileView(-1)
+        scale, binding = self.bindings['scale']
+        view, binding = self.bindings['view']
+        
+        fw = AllFileView(
+            scale.get_property('value'),
+            view.get_property('view'),
+            -1
+            )
         fw.connect('file-edit', self.on_file_edit)
         num = self.notebook.append_buttom(fw, 'Untagged Files', 'all-file-list')
         self.notebook.set_current_page(num)
 
     def on_menu_onetag_files_activated(self, widget):
-        fw = AllFileView(1)
+        scale, binding = self.bindings['scale']
+        view, binding = self.bindings['view']
+
+        fw = AllFileView(
+            scale.get_property('value'),
+            view.get_property('view'),
+            1
+            )
         fw.connect('file-edit', self.on_file_edit)
         num = self.notebook.append_buttom(fw, '1 Tag Files', 'all-file-list')
         self.notebook.set_current_page(num)
@@ -316,7 +339,7 @@ class Window(Gtk.ApplicationWindow):
     def on_file_edit(self, widget, file_id, alias):
         f_edit = FileEdit(file_id, alias)
         f_edit.show_all()
-        # tag_edit.connect('list-tag', self.on_tag_edit_list_tag)
+        f_edit.connect('tag-edit', self.on_tag_edit)
         num = self.notebook.append_buttom(f_edit,alias, 'edit')
         self.notebook.set_current_page(num)
 
@@ -347,7 +370,15 @@ class Window(Gtk.ApplicationWindow):
         self.on_file_list(widget, model[iter][0], model[iter][1])
 
     def on_file_list(self, widget, tag_id, tag_name):
-        fw = FileView(tag_id, tag_name)
+        scale, binding = self.bindings['scale']
+        view, binding = self.bindings['view']
+        
+        fw = FileView(
+            tag_id, 
+            tag_name, 
+            scale.get_property('value'),
+            view.get_property('view')
+            )
         fw.connect('file-edit', self.on_file_edit)
         num = self.notebook.append_buttom(fw,tag_name,'file-list')
         self.notebook.set_current_page(num)
