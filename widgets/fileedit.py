@@ -270,7 +270,7 @@ class FileEdit(EditOverlay):
 
     #TAGS CONTAINER
     def on_tag_container_child_clicked(self, widget, child):
-        self.emit('file-list', child.id, child.label)
+        self.emit('tag-edit', child.id, child.label)
 
     @check_dialog
     @exc_try

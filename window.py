@@ -256,7 +256,7 @@ class Window(Gtk.ApplicationWindow):
         child = self.notebook.get_nth_page(num)
         child.set_view(widget.view)
 
-    def on_tag_edit_list_tag(self, widget, tag_id):
+    def on_tag_edit_list_tag(self, widget, tag_id, tag_label):
         # main_model.set_type(QueryType.TAG, tag_id, None)
         # selection = widget.get_selection()
         # model, iter = selection.get_selected()
@@ -339,7 +339,7 @@ class Window(Gtk.ApplicationWindow):
     def on_file_edit(self, widget, file_id, alias):
         f_edit = FileEdit(file_id, alias)
         f_edit.show_all()
-        # tag_edit.connect('list-tag', self.on_tag_edit_list_tag)
+        f_edit.connect('tag-edit', self.on_tag_edit)
         num = self.notebook.append_buttom(f_edit,alias, 'edit')
         self.notebook.set_current_page(num)
 
