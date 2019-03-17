@@ -46,7 +46,8 @@ class ConfigManager(object):
         args = parser.parse_args()
         self.options['test'] = args.test
         if args.test:
-            self.options['database.path'] = ':memory:'
+            self.options['testdatabase.path'] = f'{HOME}/.cache/tracker-{dbv}_test.db'
+            self.options['database.version'] = f'{dbv}_test'
 
 
 
