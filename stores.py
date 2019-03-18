@@ -18,6 +18,7 @@ class TagStore(Gtk.ListStore):
             str,     # 2 
             str,     # 3 
             Pixbuf,  #4 thumb
+            str     # 5
         )
         self.load_busy = False
         self.text_buf = []
@@ -29,7 +30,7 @@ class TagStore(Gtk.ListStore):
                 pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{q[3]}.jpg', 192, 192)
             except GLib.Error:
                 pb = avatar
-            self.append((*q, pb,))
+            self.append((*q[:4], pb, q[4], ))
 
     def set_query_like_text(self, text):
         self.clear()
@@ -40,7 +41,7 @@ class TagStore(Gtk.ListStore):
                 pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{q[3]}.jpg', 192, 192)
             except GLib.Error:
                 pb = avatar
-            self.append((*q, pb,))
+            self.append((*q[:4], pb,q[4],))
 
     def set_scale(self, value):
         size = 32 * value

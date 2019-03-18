@@ -133,7 +133,7 @@ class Query:
             raise Exception('Folder have tags')
 
     def get_tags_by_filter(text):
-        sq = Aliases.select(Tags.id, Aliases.alias, Tags.note, Tags.thumb)\
+        sq = Aliases.select(Tags.id, Aliases.alias, Tags.note, Tags.thumb, Tags.flag)\
             .join(Tags)\
             .order_by(Aliases.alias.asc())
         if text == "":
@@ -145,13 +145,13 @@ class Query:
 
     def get_tags(col_id=None):
         if col_id is None:
-            sq = Aliases.select(Tags.id, Aliases.alias, Tags.note, Tags.thumb)\
+            sq = Aliases.select(Tags.id, Aliases.alias, Tags.note, Tags.thumb, Tags.flag)\
             .join(Tags)\
             .join(TagCollections, JOIN.LEFT_OUTER)\
             .where(TagCollections.collection_id >> None)\
             .order_by(Aliases.alias.asc())
         elif col_id == -1:
-            sq = Aliases.select(Tags.id, Aliases.alias, Tags.note, Tags.thumb)\
+            sq = Aliases.select(Tags.id, Aliases.alias, Tags.note, Tags.thumb, Tags.flag)\
             .join(Tags)\
             .order_by(Aliases.alias.asc())
         else:
@@ -161,14 +161,14 @@ class Query:
             #     .join(Collections)\
             #     .where(Collections.id==col_id)\
             #     .order_by(Aliases.alias.asc())
-            sq = Aliases.select(Tags.id, Aliases.alias, Tags.note, Tags.thumb)\
+            sq = Aliases.select(Tags.id, Aliases.alias, Tags.note, Tags.thumb, Tags.flag)\
                 .join(Tags)\
                 .where(Tags.parent_id==col_id)\
                 .order_by(Aliases.alias.asc())
         return sq.group_by(Tags.id).tuples()
 
-    def update_tag(tag_id, tag_name, note, rating, thumb):
-        r = Tags.update(name=tag_name, note=note, rating=rating, thumb=thumb).where(Tags.id==tag_id).execute()
+    def update_tag(tag_id, tag_name, note, rating, thumb, flag):
+        r = Tags.update(name=tag_name, note=note, rating=rating, thumb=thumb, flag=flag).where(Tags.id==tag_id).execute()
         if not r:
             raise Exception('Can not update tag')
         return r

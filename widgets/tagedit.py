@@ -12,6 +12,7 @@ class TagEdit(EditOverlay):
     id = GObject.Property(type=int)
     name = GObject.Property(type=str)
     note = GObject.Property(type=str)
+    flag = GObject.Property(type=str)
     rating = GObject.Property(type=int)
     thumb = GObject.Property(type=str)
     thumbpath = GObject.Property(type=str)
@@ -58,6 +59,12 @@ class TagEdit(EditOverlay):
         entry.set_placeholder_text('note')
         self.bind_property('note', entry, 'text', 1)
         info_box.pack_start(entry, False, True, 0)
+
+        flag = Gtk.Entry()
+        flag.set_placeholder_text('flag')
+        flag.set_property('show-emoji-icon', True)
+        self.bind_property('flag', flag, 'text', 1)
+        info_box.pack_start(flag, False, True, 0)
 
         entry = Gtk.SpinButton.new_with_range(0,100,1)
         entry.set_placeholder_text('rating')
@@ -118,6 +125,7 @@ class TagEdit(EditOverlay):
         self.id = file.id
         self.name = file.name if file.name != None else ""
         self.note = file.note if file.note != None else ""
+        self.flag = file.flag if file.flag != None else "🇧🇱"
         self.rating = file.rating
         self.thumb = file.thumb
         self.thumbpath = f'/media/soni/1001/persistent/1001/thumbs/{file.thumb}.jpg'
@@ -149,7 +157,7 @@ class TagEdit(EditOverlay):
 
     @exc_try
     def on_update(self, widget):
-        Query.update_tag(self.id, self.name, self.note, self.rating, self.thumb)
+        Query.update_tag(self.id, self.name, self.note, self.rating, self.thumb, self.flag)
             
 
     def on_list_clicked(self, widget):
