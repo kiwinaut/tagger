@@ -8,6 +8,7 @@ import shell_commands
 from widgets.notebook import Notebook
 from widgets.fileview import FileView, AllFileView
 from widgets.fileedit import FileEdit
+from widgets.instaview import InstaBox
 from widgets.tagedit import TagEdit
 from widgets.aliasesdirview import AliasesDirView
 # viewstore = ViewStore()
@@ -63,6 +64,9 @@ class Window(Gtk.ApplicationWindow):
         # menu.append(read)
         read = Gtk.MenuItem.new_with_label('All Tag Details')
         read.connect('activate', self.on_menu_tags_details_activated)
+        menu.append(read)
+        read = Gtk.MenuItem.new_with_label('Insta Select')
+        read.connect('activate', self.on_menu_insta_select_activated)
         menu.append(read)
         read = Gtk.MenuItem.new_with_label('Move and Vindex')
         read.connect('activate', self.on_menu_move_and_vindex_activated)
@@ -270,6 +274,13 @@ class Window(Gtk.ApplicationWindow):
         model = widget.get_model()
         iter = model.get_iter(path[0])
         main_model.set_type(QueryType.TAGUPDATE, model[iter][0], None)
+
+    def on_menu_insta_select_activated(self, widget):
+        i = InstaBox()
+        i.show_all()
+        # f_edit.connect('tag-edit', self.on_tag_edit)
+        num = self.notebook.append_buttom(i, 'insta', 'edit')
+        self.notebook.set_current_page(num)
 
     def on_menu_move_and_vindex_activated(self, widget):
         shell_commands.movetotemp()
