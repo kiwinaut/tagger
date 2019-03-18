@@ -1,9 +1,10 @@
 from config import CONFIG
-from vdbs.tracker_2_1 import *
+from vdbs.tracker_2_2 import *
 from os.path import split
 
 db.init(CONFIG['testdatabase.path'])
 
+create_tagaliases()
 import re
 pattern = re.compile('\\b[a-zA-Z-]{3,}\\b')
 

@@ -1,7 +1,7 @@
 import argparse
 import os
 from constants import Mime
-from vdbs.tracker_2_1 import __version__ as dbv
+from vdbs.tracker_2_2 import __version__ as dbv
 
 HOME = os.environ['HOME']
 DIRPATH = os.path.dirname(os.path.realpath(__file__))
