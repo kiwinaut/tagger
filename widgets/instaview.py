@@ -3,6 +3,8 @@ from gi.repository.GdkPixbuf import Pixbuf
 from data_models import TabModel
 import pathlib
 import threading
+from decorators import wait
+
 
 class InstaStore(Gtk.ListStore):
     def __init__(self):
@@ -13,12 +15,14 @@ class InstaStore(Gtk.ListStore):
         )
         self.undo = None
 
-    def set_folderpath(self, path):
+    def set_folderpath(self, path, finish_cb):
         self.clear()
         p = pathlib.Path(path)
         # print(p.glob('*.jpg'))
         for p in p.glob('*.jpg'):
             self.append((str(p), None))
+
+        # print(len(self))
 
         def add_pb(model, path, iter, data):
             try:
@@ -26,7 +30,13 @@ class InstaStore(Gtk.ListStore):
             except GLib.Error:
                 pb = None
             GLib.idle_add(self.set_value, iter, 1, pb)
-        thread = threading.Thread(target=self.foreach, args=[add_pb, None], daemon=True)
+
+        def another():
+            self.foreach(add_pb, None)
+            finish_cb()
+
+        thread = threading.Thread(target=another, daemon=True)
+        # thread = threading.Thread(target=self.foreach, args=[add_pb, None], daemon=True)
         thread.start()
 
 
@@ -69,7 +79,7 @@ class InstaView(Gtk.IconView):
         # menu.append(delete)
         # menu.show_all()
         # self.menu = menu
-        self.connect('button-press-event', self.show_menu, menu)
+        self.connect('button-release-event', self.show_menu, menu)
         self.connect('item-activated', self.on_open_image)
         self.set_activate_on_single_click(True)
 
@@ -94,11 +104,16 @@ class InstaView(Gtk.IconView):
         #     path = paths[0]
         iter = model.get_iter(path)
         img = Gtk.Image.new_from_file(model[iter][0])
+        # pb = img.get_pixbuf()
+        # if pb.get_height() > 1080 
         pop = Gtk.Window.new(1)
+        # scroll = Gtk.ScrolledWindow()
+        # scroll.set_pre
+        # scroll.add(img)
         pop.add(img)
         pop.set_position(3)
         pop.show_all()
-        pop.connect('button-press-event', self.on_pop_click)
+        pop.connect('button-release-event', self.on_pop_click)
 
 
         #open
@@ -114,8 +129,19 @@ class InstaBox(Gtk.Box):
     # }
     def __init__(self):
         Gtk.Box.__init__(self, orientation=1, spacing=0)
-        fbox = Gtk.Box.new(orientation=0, spacing=0)
-        but = Gtk.FileChooserButton.new('Open Folder',2)
+        fbox = Gtk.Box.new(orientation=0, spacing=5)
+        fbox.set_property('margin', 5)
+        filebut = Gtk.FileChooserButton.new('Open Folder',2)
+        filebut.add_shortcut_folder('/home/soni/Downloads/p/instagram')
+        fbox.pack_start(filebut, False, False, 0)
+
+        but = Gtk.Button('Undo')
+        fbox.pack_start(but, False, False, 0)
+
+        but = Gtk.Button('Reload')
+        fbox.pack_start(but, False, False, 0)
+
+        but = Gtk.Button('Zip')
         fbox.pack_start(but, False, False, 0)
 
 
@@ -126,7 +152,7 @@ class InstaBox(Gtk.Box):
         self.tab_model.name = 'insta'
 
         insta_store = InstaStore()
-        but.connect('file-set', self.on_folder_set, insta_store)
+        filebut.connect('file-set', self.on_folder_set, insta_store)
 
         #TAG VIEW
         tag_scroll = Gtk.ScrolledWindow()
@@ -144,8 +170,20 @@ class InstaBox(Gtk.Box):
         self.pack_start(fbox, False, True, 0)
         self.pack_start(tag_scroll, True, True, 0)
 
-    def on_folder_set(self, button, store):
+    @wait
+    def on_folder_set(self, button, store, callback):
+        # display = self.get_display()
+        # cursor = Gdk.Cursor.new_from_name(display, 'wait')
+        # cursor_d = Gdk.Cursor.new_from_name(display, 'default')
+
+        # toplevel = self.get_toplevel()
+        # window = toplevel.get_window()
+        # window.set_cursor(cursor)
+
+        # def finish_cb():
+        #     window.set_cursor(cursor_d)
+
         f = button.get_file()
         # e = f.enumerate_children('', 0, None)
-        print(f.get_path())
-        store.set_folderpath(f.get_path())
+        # print(f.get_path())
+        store.set_folderpath(f.get_path(), callback)
