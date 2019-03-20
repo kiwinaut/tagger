@@ -1,6 +1,9 @@
 from gi.repository import Gtk, GObject, GLib
 from gi.repository.GdkPixbuf import Pixbuf
 from models import Query
+# from decorators import wait
+import threading
+import multiprocessing
 
 # import threading, time
 theme = Gtk.IconTheme.get_default()
@@ -18,18 +21,40 @@ class TagStore(Gtk.ListStore):
             str,     # 2 
             str,     # 3 
             Pixbuf,  #4 thumb
+            str     # 5
         )
         self.load_busy = False
         self.text_buf = []
 
-    def set_query_from_folder(self, fol_int):
+    def set_query_from_folder(self, fol_int, finish_cb):
+        self.clear()
+        for q in Query.get_tags(fol_int):
+            self.append((*q[:4], None, q[4], ))
+
+        def add_pb(model, path, iter, data):
+            try:
+                pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{model[iter][3]}.jpg', 192, 192)
+            except GLib.Error:
+                pb = avatar
+            GLib.idle_add(self.set_value, iter, 4, pb)
+
+        def another(finish_cb):
+            self.foreach(add_pb, None)
+            finish_cb()
+
+        # thread = multiprocessing.Process(target=another, args=(finish_cb,), daemon=True)
+        # thread.start()
+        thread = threading.Thread(target=another, name='tag', args=(finish_cb,), daemon=True)
+        thread.start()
+
+    def set_query_from_folder2(self, fol_int):
         self.clear()
         for q in Query.get_tags(fol_int):
             try:
                 pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{q[3]}.jpg', 192, 192)
             except GLib.Error:
                 pb = avatar
-            self.append((*q, pb,))
+            self.append((*q[:4], pb, q[4], ))
 
     def set_query_like_text(self, text):
         self.clear()
@@ -40,7 +65,7 @@ class TagStore(Gtk.ListStore):
                 pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{q[3]}.jpg', 192, 192)
             except GLib.Error:
                 pb = avatar
-            self.append((*q, pb,))
+            self.append((*q[:4], pb,q[4],))
 
     def set_scale(self, value):
         size = 32 * value
