@@ -4,6 +4,7 @@ from data_models import col_store
 from models import Query
 from stores import TagStore
 from data_models import TabModel
+from decorators import wait
 
 
 clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
@@ -307,8 +308,9 @@ class AliasesDirView(Gtk.Box):
         text = widget.get_text()
         store.set_query_like_text(text)
 
-    def on_col_read_activated(self, widget,path, column, store):
+    @wait
+    def on_col_read_activated(self, widget, path, column, store, callback):
         selection = widget.get_selection()
         model, iter = selection.get_selected()
-        store.set_query_from_folder(model[iter][0])
+        store.set_query_from_folder(model[iter][0], callback)
 

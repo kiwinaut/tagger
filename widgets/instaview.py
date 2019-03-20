@@ -172,18 +172,5 @@ class InstaBox(Gtk.Box):
 
     @wait
     def on_folder_set(self, button, store, callback):
-        # display = self.get_display()
-        # cursor = Gdk.Cursor.new_from_name(display, 'wait')
-        # cursor_d = Gdk.Cursor.new_from_name(display, 'default')
-
-        # toplevel = self.get_toplevel()
-        # window = toplevel.get_window()
-        # window.set_cursor(cursor)
-
-        # def finish_cb():
-        #     window.set_cursor(cursor_d)
-
         f = button.get_file()
-        # e = f.enumerate_children('', 0, None)
-        # print(f.get_path())
         store.set_folderpath(f.get_path(), callback)

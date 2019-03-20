@@ -125,7 +125,7 @@ class TagEdit(EditOverlay):
         self.id = file.id
         self.name = file.name if file.name != None else ""
         self.note = file.note if file.note != None else ""
-        self.flag = file.flag if file.flag != None else "🇧🇱"
+        self.flag = file.flag if file.flag != None else ""
         self.rating = file.rating
         self.thumb = file.thumb
         self.thumbpath = f'/media/soni/1001/persistent/1001/thumbs/{file.thumb}.jpg'
