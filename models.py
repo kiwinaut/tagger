@@ -20,17 +20,21 @@ class Query:
         return row.filepath
 
     def get_tag_aliases(tag_id):
-        q = Aliases.select(Aliases.id, Aliases.alias)\
+        '''
+        one tags aliases
+        from tag edit
+        '''
+        q = Aliases.select(Aliases.tag_id, Aliases.alias)\
         .join(Tags)\
         .where(Tags.id==tag_id).tuples()
         return q
 
-    def get_tag_collections(tag_id):
-        q = Collections.select(Collections.id, Collections.name)\
-        .join(TagCollections)\
-        .join(Tags)\
-        .where(Tags.id==tag_id).tuples()
-        return q
+    # def get_tag_collections(tag_id):
+    #     q = Collections.select(Collections.id, Collections.name)\
+    #     .join(TagCollections)\
+    #     .join(Tags)\
+    #     .where(Tags.id==tag_id).tuples()
+    #     return q
 
 
     def add_tag_alias(tag_id, alias):
@@ -38,33 +42,33 @@ class Query:
         # print("ALIAS", alias)
         if alias == "":
             raise Exception('Empty String')
-        try:
-            item = Aliases.get(Aliases.alias==alias)
-            # print(item.id, item.alias)
-            item.tag_id = tag_id
-            item.save()
-            iscreated = False
-        except Exception as e:
+        # try:
+        #     item = Aliases.get(Aliases.alias==alias)
+        #     # print(item.id, item.alias)
+        #     item.tag_id = tag_id
+        #     item.save()
+        #     iscreated = False
+        # except Exception as e:
             # print(e)
-            item = Aliases.create(alias=alias, tag_id=tag_id)
-            iscreated = True
-        return item.alias, item.id, iscreated
+        item = Aliases.create(alias=alias, tag_id=tag_id)
+        iscreated = True
+        return item.alias, item.tag_id, iscreated
 
     def remove_tag_alias(alias_id):
         r = Aliases.delete().where(Aliases.id==alias_id).execute()
         return r
 
-    def add_tag_collection(tid, col):
-        col = col.strip().lower()
-        if col == "":
-            raise Exception('Empty String')
-        item, is_col_created = Collections.get_or_create(name=col)
-        r, is_j_created = TagCollections.get_or_create(tag_id=tid, collection_id=item.id)
-        return item.name, item.id, is_col_created 
+    # def add_tag_collection(tid, col):
+    #     col = col.strip().lower()
+    #     if col == "":
+    #         raise Exception('Empty String')
+    #     item, is_col_created = Collections.get_or_create(name=col)
+    #     r, is_j_created = TagCollections.get_or_create(tag_id=tid, collection_id=item.id)
+    #     return item.name, item.id, is_col_created 
 
-    def remove_tag_collection(tag_id, col_id):
-        # delete_or_ignore
-        return TagCollections.delete().where(TagCollections.tag_id==tag_id, TagCollections.collection_id==col_id).execute()
+    # def remove_tag_collection(tag_id, col_id):
+    #     # delete_or_ignore
+    #     return TagCollections.delete().where(TagCollections.tag_id==tag_id, TagCollections.collection_id==col_id).execute()
 
         # a = TagCollections.get(TagCollections.tag_id==tag_id, TagCollections.collection_id==col_id)
         # r = a.delete_instance()
@@ -78,10 +82,10 @@ class Query:
         return alias_list
 
 
-    def get_cols():
-        return Collections.select(
-                Collections.id, Collections.name
-            ).order_by(Collections.name).tuples()
+    # def get_cols():
+    #     return Collections.select(
+    #             Collections.id, Collections.name
+    #         ).order_by(Collections.name).tuples()
 
 
     def get_tree(path='/'):
@@ -133,40 +137,18 @@ class Query:
         else:
             raise Exception('Folder have tags')
 
-    def get_tags_by_filter(text):
-        sq = Aliases.select(Tags.id, Aliases.alias, Tags.note, Tags.thumb, Tags.flag)\
-            .join(Tags)\
-            .order_by(Aliases.alias.asc())
-        if text == "":
-            pass
-        else:
-            sq=sq.where(Aliases.alias**f"{text}%")
+
+    def get_tags(folder_id=None, filter_text=None):
+        sq = Aliases.select(Tags.id, fn.group_concat(Aliases.alias), Tags.note, Tags.thumb, Tags.flag)\
+        .join(Tags)\
+        .group_by(Aliases.tag_id)\
+        .order_by(Aliases.alias.asc())
+        if folder_id:
+            sq = sq.where(Tags.parent_id==folder_id)
+        if filter_text:
+            sq = sq.where(Aliases.alias**f"{filter_text}%")
         return sq.tuples()
 
-
-    def get_tags(col_id=None):
-        if col_id is None:
-            sq = Aliases.select(Tags.id, Aliases.alias, Tags.note, Tags.thumb, Tags.flag)\
-            .join(Tags)\
-            .join(TagCollections, JOIN.LEFT_OUTER)\
-            .where(TagCollections.collection_id >> None)\
-            .order_by(Aliases.alias.asc())
-        elif col_id == -1:
-            sq = Aliases.select(Tags.id, Aliases.alias, Tags.note, Tags.thumb, Tags.flag)\
-            .join(Tags)\
-            .order_by(Aliases.alias.asc())
-        else:
-            # sq = Aliases.select(Tags.id, Aliases.alias)\
-            #     .join(Tags)\
-            #     .join(TagCollections)\
-            #     .join(Collections)\
-            #     .where(Collections.id==col_id)\
-            #     .order_by(Aliases.alias.asc())
-            sq = Aliases.select(Tags.id, Aliases.alias, Tags.note, Tags.thumb, Tags.flag)\
-                .join(Tags)\
-                .where(Tags.parent_id==col_id)\
-                .order_by(Aliases.alias.asc())
-        return sq.group_by(Tags.id).tuples()
 
     def update_tag(tag_id, tag_name, note, rating, thumb, flag):
         r = Tags.update(name=tag_name, note=note, rating=rating, thumb=thumb, flag=flag).where(Tags.id==tag_id).execute()

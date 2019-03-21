@@ -25,7 +25,7 @@ class TagStore(Gtk.ListStore):
 
     def set_query_from_folder(self, fol_int):
         self.clear()
-        for q in Query.get_tags(fol_int):
+        for q in Query.get_tags(folder_id=fol_int):
             try:
                 pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{q[3]}.jpg', 192, 192)
             except GLib.Error:
@@ -36,7 +36,7 @@ class TagStore(Gtk.ListStore):
         self.clear()
         if text == "":
             return
-        for q in Query.get_tags_by_filter(text):
+        for q in Query.get_tags(filter_text=text):
             try:
                 pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{q[3]}.jpg', 192, 192)
             except GLib.Error:
