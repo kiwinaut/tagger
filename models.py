@@ -4,7 +4,7 @@ from os.path import split
 
 db.init(CONFIG['testdatabase.path'])
 
-create_tagaliases()
+# create_tagaliases()
 import re
 pattern = re.compile('\\b[a-zA-Z-]{3,}\\b')
 
