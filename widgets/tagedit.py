@@ -40,6 +40,7 @@ class TagEdit(EditOverlay):
         info_box.pack_start(button, False, True, 0)
 
         label = Gtk.Label()
+        label.set_selectable(True)
         self.bind_property('id', label, 'label', 0)
         label.set_halign(1)
         info_box.pack_start(label, False, True, 0)
@@ -77,7 +78,7 @@ class TagEdit(EditOverlay):
         info_box.pack_start(button, False, True, 0)
 
         self.aliases = TagFlowBox()
-        self.aliases.connect("child-deleted", self.on_alias_delete)
+        self.aliases.connect("child-deleted", self.on_alias_delete_clicked)
         self.aliases.connect("child-clicked", self.on_alias_clicked)
         info_box.pack_start(self.aliases, False, True, 0)
 
@@ -138,8 +139,8 @@ class TagEdit(EditOverlay):
 
     @check_dialog
     @exc_try
-    def on_alias_delete(self, widget, child):
-        Query.remove_tag_alias(child.id)
+    def on_alias_delete_clicked(self, widget, child):
+        Query.remove_tag_alias(child.id, child.label)
         widget.remove(child)
 
     def on_add_alias_entry_activated(self, widget, button):
@@ -147,12 +148,10 @@ class TagEdit(EditOverlay):
 
     @exc_try
     def on_add_alias_clicked(self, widget, entry):
-        text = entry.get_text()
-        tag_id = self.id
-        alias, alias_id, is_created = Query.add_tag_alias(tag_id, text)
-        if is_created:
-            pass
-        self.aliases.add_tagchild(alias_id,alias)
+        aliases = entry.get_text()
+        for text in aliases.split(','):
+            alias, alias_id = Query.add_tag_alias(self.id, text)
+            self.aliases.add_tagchild(alias_id,alias)
         entry.set_text("")
 
     @exc_try

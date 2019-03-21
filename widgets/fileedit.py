@@ -192,7 +192,7 @@ class FileEdit(EditOverlay):
         for q in Query.file_tags(id):
             self.tags_container.add_tagchild(q[0],q[1])
         for q in Query.tag_findall(file.filename):
-            self.rcmmnds_container.add_sggstchild(q[0],q[1])
+            self.rcmmnds_container.add_sggstchild(q)
 
 
     def on_rethumb_button_clicked(self,widget):
@@ -232,41 +232,11 @@ class FileEdit(EditOverlay):
         r = Query.delete_file('archives', self.id)
         self.emit('updated',f'{r} Deleted Entry Close Window', r)
 
-    # def on_del_entry_button_clicked(self,widget):
-    #     #DIALOG
-    #     dialog = QuestionDialog(self, f"file_id: \'{self.id}\'")
-    #     response = dialog.run()
-
-    #     if response == Gtk.ResponseType.YES:
-    #         try:
-    #             r = Query.delete_file('archives', self.id)
-    #             self.emit('updated',f'{r} Deleted Entry Close Window', r)
-    #         except Exception as e:
-    #             self.emit('updated',str(e), 0)
-    #     elif response == Gtk.ResponseType.NO:pass
-    #     dialog.destroy()
-
     @check_dialog
     @exc_try
     def on_del_file_entry_button_clicked(self,widget):
         trash_file(self.filepath)
         Query.delete_file('archives', self.id)
-        # self.emit('updated',f'{r} Deleted File and Entry Close Window', r)
-
-    # def on_del_file_entry_button_clicked(self,widget):
-    #     #DIALOG
-    #     dialog = QuestionDialog(self, f"file_id: \'{self.id}\', \'{self.filepath}\'")
-    #     response = dialog.run()
-
-    #     if response == Gtk.ResponseType.YES:
-    #         try:
-    #             trash_file(self.filepath)
-    #             r = Query.delete_file('archives', self.id)
-    #             self.emit('updated',f'{r} Deleted File and Entry Close Window', r)
-    #         except Exception as e:
-    #             self.emit('updated',str(e), 0)
-    #     elif response == Gtk.ResponseType.NO:pass
-    #     dialog.destroy()
 
     #TAGS CONTAINER
     def on_tag_container_child_clicked(self, widget, child):
@@ -277,25 +247,7 @@ class FileEdit(EditOverlay):
     def on_tag_container_child_deleted(self, widget, child):
         Query.delete_file_tag('archives', self.id, child.id)
         widget.remove(child)
-        # self.emit('updated','Done', r)
 
-    # def on_tag_container_child_deleted(self, widget, child):
-    #     #DIALOG
-    #     dialog = QuestionDialog(self, f"alias_name: \'{child.label}\', alias_id: \'{child.id}\'")
-    #     response = dialog.run()
-
-    #     if response == Gtk.ResponseType.YES:
-    #         try:
-    #             r = Query.delete_file_tag('archives', self.id, child.id)
-    #             if r > 0:
-    #                 widget.remove(child)
-    #                 self.emit('updated','Done', r)
-    #             else:
-    #                 raise Exception('Zero Update')
-    #         except Exception as e:
-    #             self.emit('updated',str(e), 0)
-    #     elif response == Gtk.ResponseType.NO:pass
-    #     dialog.destroy()
 
     def on_add_tag_entry_activated(self, widget, button):
         button.clicked()
@@ -304,18 +256,15 @@ class FileEdit(EditOverlay):
     @exc_try
     def on_add_tag_button_clicked(self, widget, entry):
         text = entry.get_text()
-        file_id = self.id
-        alias, tag_id, is_created = Query.add_file_tag('archives', file_id, tagname=text)
+        alias, tag_id, is_created = Query.add_file_tag('archives', self.id, tagname=text)
         if is_created:
             pass
         self.tags_container.add_tagchild(tag_id, alias)
-        # self.emit('updated','Done', 1)
         entry.set_text("")
 
     #RECOMMENDS
     @exc_try
     def on_rcmmnds_child_clicked(self, widget, child):
-        alias, tag_id, is_created = Query.add_file_tag('archives', self.id, tagname=child.label)
-        self.tags_container.add_tagchild(tag_id, alias)
-        # self.emit('updated','Done', 1)
+        Query.add_file_tag_from_suggest('archives', self.id, child.id)
+        self.tags_container.add_tagchild(child.id, child.label)
 

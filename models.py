@@ -6,7 +6,7 @@ db.init(CONFIG['testdatabase.path'])
 
 # create_tagaliases()
 import re
-pattern = re.compile('\\b[a-zA-Z-]{3,}\\b')
+pattern = re.compile('\\b[a-zA-Z0-9-]{3,}\\b')
 
 class Query:
     def get_file_path_first(tag_id):
@@ -25,37 +25,18 @@ class Query:
         from tag edit
         '''
         q = Aliases.select(Aliases.tag_id, Aliases.alias)\
-        .join(Tags)\
-        .where(Tags.id==tag_id).tuples()
+        .where(Aliases.tag_id==tag_id).tuples()
         return q
-
-    # def get_tag_collections(tag_id):
-    #     q = Collections.select(Collections.id, Collections.name)\
-    #     .join(TagCollections)\
-    #     .join(Tags)\
-    #     .where(Tags.id==tag_id).tuples()
-    #     return q
-
 
     def add_tag_alias(tag_id, alias):
         alias = alias.strip().lower()
-        # print("ALIAS", alias)
         if alias == "":
             raise Exception('Empty String')
-        # try:
-        #     item = Aliases.get(Aliases.alias==alias)
-        #     # print(item.id, item.alias)
-        #     item.tag_id = tag_id
-        #     item.save()
-        #     iscreated = False
-        # except Exception as e:
-            # print(e)
         item = Aliases.create(alias=alias, tag_id=tag_id)
-        iscreated = True
-        return item.alias, item.tag_id, iscreated
+        return item.alias, item.tag_id
 
-    def remove_tag_alias(alias_id):
-        r = Aliases.delete().where(Aliases.id==alias_id).execute()
+    def remove_tag_alias(tag_id, alias):
+        r = Aliases.delete().where(Aliases.alias==alias, Aliases.tag_id==tag_id).execute()
         return r
 
     # def add_tag_collection(tid, col):
@@ -173,7 +154,7 @@ class Query:
                 exp = s
             s = Aliases.alias == alias
             exp = exp | s
-        sq = Aliases.select(Aliases.id, Aliases.alias).where(exp).tuples()
+        sq = Aliases.select(Aliases.tag_id, Aliases.alias, Tags.thumb).join(Tags).where(exp).tuples()
         # print(sq.sql())
         return sq
 
@@ -223,7 +204,43 @@ class Query:
             )
         return Table, j, select
 
+
+
         
+    def add_file_tag_from_suggest(media, file_id, tag_id):
+        Table, j = Query.tables(media)
+        r = j.insert(tag=tag, file=fid).execute()
+        if not r:
+            raise Exception('Can not link file and tag')
+
+
+    def add_file_tag_from_text(media, file_id, text):
+        Table, j = Query.tables(media)
+
+        text = text.strip().lower()
+        if text == "":
+            raise Exception('Empty String')
+
+        found = Aliases.select(fn.Count(Aliases.tag_id))\
+        .where(Aliases.alias == text).scalar()
+
+        if found == 0:
+            # Zero Tag
+            tag = Tags.create(thumb=file_id)
+            alias = Aliases.create(alias=text, tag_id=tag)
+
+            Table, j = Query.tables(media)
+            r = j.insert(tag=tag, file=file_id).execute()
+            if not r:
+                raise Exception('Can not link file and tag')
+                
+        elif found == 1:
+            # One Match
+        else:
+            # Multi Match ASK
+
+
+
     def add_file_tag(media, fid, tagname=None, tid=None):
         if tagname:
             tag_string = tagname.strip().lower()
