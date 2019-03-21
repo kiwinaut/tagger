@@ -33,6 +33,11 @@ class IconTagView(Gtk.IconView):
         # srenderer.set_property('max-width-chars', 10)
         self.add_attribute(srenderer,'text', 1)
 
+        srenderer = Gtk.CellRendererText()
+        srenderer.set_property('xalign', .5)
+        self.pack_start(srenderer, False)
+        self.add_attribute(srenderer,'text', 5)
+
         menu = Gtk.Menu()
         delete = Gtk.MenuItem.new_with_label('File List')
         delete.connect('activate', self.on_menu_read_activate)
