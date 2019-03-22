@@ -3,7 +3,7 @@ from config import CONFIG
 from widgets.widgets import ViewSwitcher
 from models import  Query
 from popovers import SciencePopOver
-from data_models import main_model, QueryType, col_model, col_store, det_store
+from data_models import QueryType, col_model, col_store, det_store
 import shell_commands
 from widgets.notebook import Notebook
 from widgets.fileview import FileView, AllFileView
@@ -13,8 +13,8 @@ from widgets.tagedit import TagEdit
 from widgets.aliasesdirview import AliasesDirView
 # viewstore = ViewStore()
 
-# VIEW = ""
-# VALUE = 0.0
+INIT_VIEW = "gridview"
+INIT_VALUE = 8.0
 
 class Window(Gtk.ApplicationWindow):
     scalefactor = GObject.Property(type=float, default=6.0)
@@ -29,7 +29,7 @@ class Window(Gtk.ApplicationWindow):
         # self.current_tab_model = TabModel()
         self.bindings = {}
 
-        self.connect("delete-event", self.on_window_delete_event)
+        # self.connect("delete-event", self.on_window_delete_event)
         # main_model.view = 'listview'
         # main_model.connect("notify::text", self.on_text_notified)
         # main_model.connect('type-changed', self.on_model_type_changed)
@@ -147,15 +147,15 @@ class Window(Gtk.ApplicationWindow):
         screen = Gdk.Screen.get_default()
         # css_provider = Gtk.CssProvider.get_named('Adwaita', 'dark')
         css_provider_file = Gtk.CssProvider()
-        css_provider_file.load_from_path(CONFIG['css'])
+        css_provider_file.load_from_path(CONFIG['static'].format('main.css'))
         context = Gtk.StyleContext()
         # # context.add_provider_for_screen(screen, css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
         context.add_provider_for_screen(screen, css_provider_file, Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
         self.show_all()
-        main_model.view = 'listview'
+        # main_model.view = 'listview'
         self.init_sets()
-        self.set_icon_from_file(CONFIG['icon'])
+        self.set_icon_from_file(CONFIG['static'].format('tagger.png'))
         # alias_entry.grab_focus()
 
         adv = AliasesDirView()
@@ -212,6 +212,7 @@ class Window(Gtk.ApplicationWindow):
     #         elif obj.query_type == QueryType.FILEUPDATE:
     #             stack.set_visible_child_full('fileedit', 0)
     def set_tab_model(self, tab_model):
+        global INIT_VIEW, INIT_VALUE
         if tab_model.name == 'search':
             widget, binding = self.bindings['view']
             widget.set_sensitive(False)
@@ -236,8 +237,8 @@ class Window(Gtk.ApplicationWindow):
             if binding:
                 binding.unbind()
             widget.set_property('view', tab_model.view)
-            # global VIEW
-            # VIEW = tab_model.view
+            INIT_VIEW = tab_model.view
+            print("init",INIT_VIEW)
             GBinding = tab_model.bind_property('view', widget, 'view', 1)
             self.bindings['view'] = (widget, GBinding)
 
@@ -246,13 +247,12 @@ class Window(Gtk.ApplicationWindow):
             if binding:
                 binding.unbind()
             widget.set_property('value', tab_model.scalefactor)
-            # global VALUE
-            # VALUE = tab_model.scalefactor
+            INIT_VALUE = tab_model.scalefactor
             GBinding = tab_model.bind_property('scalefactor', widget, 'value', 1)
             self.bindings['scale'] = (widget, GBinding)
 
     def on_notebook_switch_page(self, notebook, page, page_num):
-        self.set_tab_model(page.tab_model)
+        self.set_tab_model(page.tabmodel)
 
 
     def on_view_switched(self, widget):
@@ -302,10 +302,14 @@ class Window(Gtk.ApplicationWindow):
     def on_menu_all_files_activated(self, widget):
         scale, binding = self.bindings['scale']
         view, binding = self.bindings['view']
+        global INIT_VIEW, INIT_VALUE
+        print(INIT_VIEW, INIT_VALUE)
         
         fw = AllFileView(
-            scale.get_property('value'),
-            view.get_property('view'),
+            # scale.get_property('value'),
+            # view.get_property('view'),
+            INIT_VALUE,
+            INIT_VIEW,
             0
             )
         fw.connect('file-edit', self.on_file_edit)
@@ -318,8 +322,10 @@ class Window(Gtk.ApplicationWindow):
         view, binding = self.bindings['view']
         
         fw = AllFileView(
-            scale.get_property('value'),
-            view.get_property('view'),
+            # scale.get_property('value'),
+            # view.get_property('view'),
+            INIT_VALUE,
+            INIT_VIEW,
             -1
             )
         fw.connect('file-edit', self.on_file_edit)
@@ -331,8 +337,10 @@ class Window(Gtk.ApplicationWindow):
         view, binding = self.bindings['view']
 
         fw = AllFileView(
-            scale.get_property('value'),
-            view.get_property('view'),
+            # scale.get_property('value'),
+            # view.get_property('view'),
+            INIT_VALUE,
+            INIT_VIEW,
             1
             )
         fw.connect('file-edit', self.on_file_edit)
@@ -387,8 +395,10 @@ class Window(Gtk.ApplicationWindow):
         fw = FileView(
             tag_id, 
             tag_name, 
-            scale.get_property('value'),
-            view.get_property('view')
+            # scale.get_property('value'),
+            # view.get_property('view')
+            INIT_VALUE,
+            INIT_VIEW
             )
         fw.connect('file-edit', self.on_file_edit)
         num = self.notebook.append_buttom(fw,tag_name,'file-list')

@@ -3,9 +3,12 @@ from gi.repository.GdkPixbuf import Pixbuf
 from models import Query
 # from decorators import wait
 import threading
-import multiprocessing
+# import multiprocessing
+from config import CONFIG
 
-# import threading, time
+IMGPATH = CONFIG['indexer.thumb_location']
+
+
 theme = Gtk.IconTheme.get_default()
 missing = theme.load_icon('image-missing',64, Gtk.IconLookupFlags.USE_BUILTIN)
 avatar = theme.load_icon('avatar-default-symbolic',64, Gtk.IconLookupFlags.USE_BUILTIN)
@@ -33,7 +36,7 @@ class TagStore(Gtk.ListStore):
 
         def add_pb(model, path, iter, data):
             try:
-                pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{model[iter][3]}.jpg', 192, 192)
+                pb = Pixbuf.new_from_file_at_size(IMGPATH.format(model[iter][3]), 192, 192)
             except GLib.Error:
                 pb = avatar
             GLib.idle_add(self.set_value, iter, 4, pb)
@@ -51,7 +54,7 @@ class TagStore(Gtk.ListStore):
         self.clear()
         for q in Query.get_tags(folder_id=fol_int):
             try:
-                pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{q[3]}.jpg', 192, 192)
+                pb = Pixbuf.new_from_file_at_size(IMGPATH.format(q[3]), 192, 192)
             except GLib.Error:
                 pb = avatar
             self.append((*q[:4], pb, q[4], ))
@@ -62,7 +65,7 @@ class TagStore(Gtk.ListStore):
             return
         for q in Query.get_tags(filter_text=text):
             try:
-                pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{q[3]}.jpg', 192, 192)
+                pb = Pixbuf.new_from_file_at_size(IMGPATH.format(q[3]), 192, 192)
             except GLib.Error:
                 pb = avatar
             self.append((*q[:4], pb,q[4],))
@@ -72,63 +75,15 @@ class TagStore(Gtk.ListStore):
         avatar = theme.load_icon('avatar-default-symbolic',size, Gtk.IconLookupFlags.USE_BUILTIN)
         def add_pb(model, path, iter, data):
             try:
-                pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{model[iter][3]}.jpg', size, size)
+                pb = Pixbuf.new_from_file_at_size(IMGPATH.format(model[iter][3]), size, size)
             except GLib.Error:
                 pb = avatar
             model.set_value(iter, 4, pb)
         self.foreach(add_pb, None)
 
 
-    # def set_query_like_text_pb(self, text):
-    #     if not self.load_busy:
-    #         self.load_busy = True
-    #         self.clear()
-    #         for q in Query.get_tags_by_filter(text):
-    #             self.append((*q, None,))
-
-    #         def foreach():
-    #             def add_pb(model, path, iter, data):
-    #                 try:
-    #                     pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{model[iter][3]}.jpg', 128, 128)
-    #                 except GLib.Error:
-    #                     pb = avatar
-    #                     model.set_value(iter, 4, pb)
-    #                 time.sleep(1)
-    #             self.foreach(add_pb, None)
-
-    #         # foreach()
-    #         thread = threading.Thread(target=foreach)
-    #         thread.daemon = True
-    #         thread.start()
-    #         self.load_busy = False
-    #     else:
-    #         self.text_buf.append(text)
-    #     if self.text_buf:
-    #         last = self.text_buf.pop()
-    #         self.text_buf = []
-    #         print(self.text_buf)
-    #         self.set_query_like_text_pb(last)
-        
-
-    # def set_query_like_text_thread(self, text):
-    #     self.clear()
-    #     def appendrow():
-    #         for q in Query.get_tags_by_filter(text):
-    #             try:
-    #                 pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{q[3]}.jpg', 64, 64)
-    #             except GLib.Error:
-    #                 pb = None
-    #             # self.append((*q, pb,))
-    #             GLib.idle_add(self.append, (*q, pb,))
-
-
-    #     thread = threading.Thread(target=appendrow)
-    #     thread.daemon = True
-    #     thread.start()
-    #     thread.join()
-
 class ViewStore(Gtk.ListStore):
-    def __init__(self, scale=192):
+    def __init__(self, scale=4.0):
         Gtk.ListStore.__init__(
             self,
             int,     # 0 file_id
@@ -142,14 +97,18 @@ class ViewStore(Gtk.ListStore):
             # int,     #8 duration
             Pixbuf,  #9 thumb
         )
-        self.scale = scale
+        self.scale = scale * 32
+        self.missing = theme.load_icon('image-missing', self.scale, Gtk.IconLookupFlags.USE_BUILTIN)
+
 
     def set_scale(self, value):
-        size = 32 * value
-        missing = theme.load_icon('image-missing', size, Gtk.IconLookupFlags.USE_BUILTIN)
+        self.scale = 32 * value
+        self.missing = theme.load_icon('image-missing', self.scale, Gtk.IconLookupFlags.USE_BUILTIN)
+        scale = self.scale
+        missing = self.missing
         def add_pb(model, path, iter, data):
             try:
-                pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{model[iter][0]}.jpg', size, size)
+                pb = Pixbuf.new_from_file_at_size(IMGPATH.format(model[iter][0]), scale, scale)
             except GLib.Error:
                 pb = missing
             model.set_value(iter, 8, pb)
@@ -161,24 +120,26 @@ class ViewStore(Gtk.ListStore):
 
     def set_query_tag_id(self, tag_id):
         scale = self.scale
+        missing = self.missing
         self.tag_id = tag_id
         sq = Query.get_files('archives', 'filepath', 'desc', tag_id)
         # sq = Query.get_files(obj.query_media, obj.query_sort, obj.query_order, int(tag), filter=obj.query_fn_filter)
         self.clear()
         for q in sq:
             try:
-                pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{q[0]}.jpg', scale, scale)
+                pb = Pixbuf.new_from_file_at_size(IMGPATH.format(q[0]), scale, scale)
             except GLib.Error:
                 pb = missing
             self.append((*q[:-1], pb,))
 
     def set_query_filter_text(self, value):
         scale = self.scale
+        missing = self.missing
         sq = Query.get_files('archives', 'filepath', 'desc', self.tag_id, filter=f'%{value}%')
         self.clear()
         for q in sq:
             try:
-                pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{q[0]}.jpg', scale, scale)
+                pb = Pixbuf.new_from_file_at_size(IMGPATH.format(q[0]), scale, scale)
             except GLib.Error:
                 pb = missing
             self.append((*q[:-1], pb,))
@@ -216,6 +177,9 @@ class AllViewStore(ViewStore):
         self.load_store()
 
     def load_store(self):
+        missing = self.missing
+        scale = self.scale
+
         if self.query_code == 0:
             sq = Query.get_all_files('archives', self.query_page, self.query_sort, self.query_order, self.query_fn_filter)
         elif self.query_code == 1:
@@ -225,7 +189,7 @@ class AllViewStore(ViewStore):
         self.clear()
         for q in sq:
             try:
-                pb = Pixbuf.new_from_file_at_size(f'/media/soni/1001/persistent/1001/thumbs/{q[0]}.jpg', self.scale, self.scale)
+                pb = Pixbuf.new_from_file_at_size(IMGPATH.format(q[0]), scale, scale)
             except GLib.Error:
                 pb = missing
             self.append((*q[:-1], pb,))

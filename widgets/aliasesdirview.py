@@ -256,11 +256,11 @@ class AliasesDirView(Gtk.Box):
         Gtk.Box.__init__(self, orientation=0, spacing=0)
         self.set_name('dirview')
         fbox = Gtk.Box.new(orientation=1, spacing=0)
-        self.tab_model = TabModel()
-        self.tab_model.name = 'search'
+        self.tabmodel = TabModel()
+        self.tabmodel.name = 'search'
 
         tag_store = TagStore()
-        self.tab_model.connect("notify::scalefactor", self.on_scalefactor_notified, tag_store)
+        self.tabmodel.connect("notify::scalefactor", self.on_scalefactor_notified, tag_store, self.tabmodel)
 
         #TAG VIEW
         tag_scroll = Gtk.ScrolledWindow()
@@ -306,8 +306,8 @@ class AliasesDirView(Gtk.Box):
 
         self.show_all()
 
-    def on_scalefactor_notified(self, obj, gparam, store):
-        store.set_scale(self.tab_model.scalefactor)
+    def on_scalefactor_notified(self, obj, gparam, store, tabmodel):
+        store.set_scale(tabmodel.scalefactor)
 
     def on_tag_filter_changed(self, widget, store):
         text = widget.get_text()

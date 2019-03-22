@@ -3,7 +3,7 @@ from models import Query
 from humanfriendly import format_size
 # from shell_commands import open_file, trash_file
 # from clip import rethumb
-from data_models import  main_model
+# from data_models import  main_model
 # from humanfriendly import format_size
 
 def size_cell_data_func(tree_column, cell, tree_model, iter, data):
@@ -779,30 +779,30 @@ class TagTreeView(Gtk.TreeView):
 #     def on_info_clicked(self,widget):pass
 
 
-class HistorySwitcher(Gtk.Box):
-    def __init__(self):
-        Gtk.Box.__init__(self, orientation = 0 ,spacing=0)
-        self.get_style_context().add_class("linked")
+# class HistorySwitcher(Gtk.Box):
+#     def __init__(self):
+#         Gtk.Box.__init__(self, orientation = 0 ,spacing=0)
+#         self.get_style_context().add_class("linked")
 
-        img = Gtk.Image.new_from_icon_name('go-previous-symbolic', 2)
-        button = Gtk.Button(image=img)
-        button.set_sensitive(False)
-        main_model.bind_property('has_back', button, 'sensitive', 0)
-        button.connect('clicked', self.on_pre_clicked)
-        self.pack_start(button, False, False, 0)
+#         img = Gtk.Image.new_from_icon_name('go-previous-symbolic', 2)
+#         button = Gtk.Button(image=img)
+#         button.set_sensitive(False)
+#         main_model.bind_property('has_back', button, 'sensitive', 0)
+#         button.connect('clicked', self.on_pre_clicked)
+#         self.pack_start(button, False, False, 0)
 
-        img = Gtk.Image.new_from_icon_name('go-next-symbolic', 2)
-        button = Gtk.Button(image=img)
-        button.set_sensitive(False)
-        main_model.bind_property('has_forw', button, 'sensitive', 0)
-        button.connect('clicked', self.on_next_clicked)
-        self.pack_start(button, False, False, 0)
+#         img = Gtk.Image.new_from_icon_name('go-next-symbolic', 2)
+#         button = Gtk.Button(image=img)
+#         button.set_sensitive(False)
+#         main_model.bind_property('has_forw', button, 'sensitive', 0)
+#         button.connect('clicked', self.on_next_clicked)
+#         self.pack_start(button, False, False, 0)
 
-    def on_pre_clicked(self, widget):
-        main_model.back()
+#     def on_pre_clicked(self, widget):
+#         main_model.back()
 
-    def on_next_clicked(self, widget):
-        main_model.next()
+#     def on_next_clicked(self, widget):
+#         main_model.next()
 
 class MediaSwitcher(Gtk.Button):
     media = GObject.Property(type=str, default="archives")

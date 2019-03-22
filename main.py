@@ -20,13 +20,13 @@ class Application(Gtk.Application):
     def do_startup(self):
         Gtk.Application.do_startup(self)
 
-        action = Gio.SimpleAction.new("about", None)
-        action.connect("activate", self.on_about)
-        self.add_action(action)
+        # action = Gio.SimpleAction.new("about", None)
+        # action.connect("activate", self.on_about)
+        # self.add_action(action)
 
-        action = Gio.SimpleAction.new("quit", None)
-        action.connect("activate", self.on_quit)
-        self.add_action(action)
+        # action = Gio.SimpleAction.new("quit", None)
+        # action.connect("activate", self.on_quit)
+        # self.add_action(action)
 
     def do_activate(self):
         # We only allow a single window and raise any existing ones

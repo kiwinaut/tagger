@@ -231,6 +231,22 @@ class IconView(Gtk.IconView):
         else:
             Gtk.IconView.do_button_press_event(self, event)
 
+class TabViewBase(Gtk.Box):
+    __gsignals__ = {
+        'file-edit': (GObject.SIGNAL_RUN_FIRST, None, (int,str,)),
+        'tag-edit': (GObject.SIGNAL_RUN_FIRST, None, (int,str,)),
+    }
+    def __init__(self, tabmodel=None):
+        Gtk.Box.__init__(self, orientation=1, spacing=0)
+        if tabmodel:
+            self.set_tabmodel(tabmodel)
+
+    def get_tabmodel(self):
+        return self.tab_model
+
+    def set_tabmodel(self, model):
+        self.tabmodel = model
+
 class FileView(Gtk.Box):
     view = GObject.Property(type=str, default="listview")
     # tag_query = GObject.Property(type=int)
@@ -258,7 +274,7 @@ class FileView(Gtk.Box):
         self.connect('key-press-event', self.on_sstack_key_pressed, search_bar)
 
         viewstore = ViewStore(scale=scale)
-        self.tab_model.connect("notify::scalefactor", self.on_scalefactor_notified, viewstore)
+        self.tab_model.connect("notify::scalefactor", self.on_scalefactor_notified, viewstore, self.tabmodel)
         searchentry.connect('search-changed', self.on_file_filter_changed, viewstore)
         # self.connect("notify::tag_query", self.on_tag_query_notified, viewstore)
 
@@ -294,8 +310,8 @@ class FileView(Gtk.Box):
     #     print(self.tag_query)
     #     model.set_query_tag_id(self.tag_query)
 
-    def on_scalefactor_notified(self, obj, gparam, store):
-        store.set_scale(self.tab_model.scalefactor)
+    def on_scalefactor_notified(self, obj, gparam, store, tabmodel):
+        store.set_scale(tabmodel.scalefactor)
 
     def on_tag_query_notified(self, object, gparamstring, stack):
         stack.set_visible_child_full(self.view, 0)
@@ -330,7 +346,7 @@ class AllFileView(Gtk.Box):
     Tagged File View
     '''
 
-    def __init__(self, scale, view, all_file_code=0,):
+    def __init__(self, tabmodel=None, all_file_code=0,):
         Gtk.Box.__init__(self, orientation=1, spacing=0)
         if all_file_code == 0:
             self.alias = 'All Files'
@@ -339,10 +355,10 @@ class AllFileView(Gtk.Box):
         elif all_file_code == -1:
             self.alias = 'Untagged Files'
 
-        self.tab_model = TabModel()
-        self.tab_model.name = 'stack'
+        # self.tabmodel = TabModel()
+        # self.tabmodel.name = 'stack'
         viewstore = AllViewStore(scale)
-        self.tab_model.connect("notify::scalefactor", self.on_scalefactor_notified, viewstore)
+        self.tabmodel.connect("notify::scalefactor", self.on_scalefactor_notified, viewstore, self.tabmodel)
         #REVEALER
         rev = Gtk.Revealer()
         box = Gtk.Box.new(orientation=0, spacing=5)
@@ -412,8 +428,8 @@ class AllFileView(Gtk.Box):
         sub_stack.set_visible_child_full(view, 0)
         viewstore.set_code(all_file_code)
 
-    def on_scalefactor_notified(self, obj, gparam, store):
-        store.set_scale(self.tab_model.scalefactor)
+    def on_scalefactor_notified(self, obj, gparam, store, tabmodel):
+        store.set_scale(tabmodel.scalefactor)
 
 
     def on_page_changed(self, widget, store):
@@ -432,7 +448,7 @@ class AllFileView(Gtk.Box):
         stack.set_visible_child_full(self.view, 0)
 
     def set_view(self, value):
-        self.view = value
+        # self.tab_model.view = value
         self.stack.set_visible_child_full(value, 0)
 
     def on_key_pressed(self, widget, event, rev):

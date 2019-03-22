@@ -9,7 +9,9 @@ from .tagflowbox import TagFlowBox
 from widgets.editrevealer import EditOverlay
 from decorators import exc_try, check_dialog
 from data_models import TabModel
+from config import CONFIG
 
+IMGPATH = CONFIG['indexer.thumb_location']
 
 class FileEdit(EditOverlay):
     id = GObject.Property(type=int)
@@ -176,7 +178,8 @@ class FileEdit(EditOverlay):
     def set_file_id(self, id):
         file = Query.get_file(id)
         try:
-            self.imgfile = f'/media/soni/1001/persistent/1001/thumbs/{file.id}.jpg'
+            # self.imgfile = f'/media/soni/1001/persistent/1001/thumbs/{file.id}.jpg'
+            self.imgfile = IMGPATH.format(file.id)
         except Exception as e:
             pass
         self.id = file.id

@@ -1,8 +1,8 @@
 from config import CONFIG
-from vdbs.tracker_2_2 import *
+from vdbs.tracker import *
 from os.path import split
 
-db.init(CONFIG['testdatabase.path'])
+db.init(CONFIG['database.path'])
 
 # create_tagaliases()
 import re

@@ -23,23 +23,24 @@ class TabModel(GObject.GObject):
         GObject.GObject.__init__(self)
 
 
-class FileEditModel(GObject.GObject):
-    id = GObject.Property(type=int)
-    filepath = GObject.Property(type=str)
-    filename = GObject.Property(type=str)
-    mtime = GObject.Property(type=str)
-    size = GObject.Property(type=str)
-    thumbpath = GObject.Property(type=str)
-    set = GObject.Property(type=str)
-    note = GObject.Property(type=str)
-    rating = GObject.Property(type=int)
-    imgfile = GObject.Property(type=str)
-    def __init__(self):
-        GObject.GObject.__init__(self)
-        self.t_model = Gtk.ListStore(int, str)
-        self.r_model = Gtk.ListStore(int, str)
 
-fe_model = FileEditModel()
+# class FileEditModel(GObject.GObject):
+#     id = GObject.Property(type=int)
+#     filepath = GObject.Property(type=str)
+#     filename = GObject.Property(type=str)
+#     mtime = GObject.Property(type=str)
+#     size = GObject.Property(type=str)
+#     thumbpath = GObject.Property(type=str)
+#     set = GObject.Property(type=str)
+#     note = GObject.Property(type=str)
+#     rating = GObject.Property(type=int)
+#     imgfile = GObject.Property(type=str)
+#     def __init__(self):
+#         GObject.GObject.__init__(self)
+#         self.t_model = Gtk.ListStore(int, str)
+#         self.r_model = Gtk.ListStore(int, str)
+
+# fe_model = FileEditModel()
 
 class TagTreeStore(Gtk.TreeStore):
     def __init__(self):
@@ -100,36 +101,36 @@ class TagTreeStore(Gtk.TreeStore):
 
 col_store = TagTreeStore()
 
-class FileTagsStore(Gtk.ListStore):
-    def __init__(self):
-        Gtk.ListStore.__init__(self, int, str)
+# class FileTagsStore(Gtk.ListStore):
+#     def __init__(self):
+#         Gtk.ListStore.__init__(self, int, str)
 
-    def add_tag(self, media, file_id, value):
-        alias, tag_id, is_created = Query.add_file_tag(media, file_id, tagname=value)
-        self.append((tag_id, alias,))
-        # emit tag-added  is-created
+#     def add_tag(self, media, file_id, value):
+#         alias, tag_id, is_created = Query.add_file_tag(media, file_id, tagname=value)
+#         self.append((tag_id, alias,))
+#         # emit tag-added  is-created
 
-    def remove_tag(self, iter, media, file_id):
-        r = Query.delete_file_tag(media, file_id, self[iter][0])
-        if r:
-            self.remove(iter)
-        # emit tag-deleted
-
-
-class TagEditModel(GObject.GObject):
-    id = GObject.Property(type=int)
-    name = GObject.Property(type=str)
-    note = GObject.Property(type=str)
-    rating = GObject.Property(type=int)
-    thumb = GObject.Property(type=str)
-    thumbpath = GObject.Property(type=str)
-    def __init__(self):
-        GObject.GObject.__init__(self)
-        self.al_model = Gtk.ListStore(int, str)
-        self.co_model = Gtk.ListStore(int, str)
+#     def remove_tag(self, iter, media, file_id):
+#         r = Query.delete_file_tag(media, file_id, self[iter][0])
+#         if r:
+#             self.remove(iter)
+#         # emit tag-deleted
 
 
-ta_model = TagEditModel()
+# class TagEditModel(GObject.GObject):
+#     id = GObject.Property(type=int)
+#     name = GObject.Property(type=str)
+#     note = GObject.Property(type=str)
+#     rating = GObject.Property(type=int)
+#     thumb = GObject.Property(type=str)
+#     thumbpath = GObject.Property(type=str)
+#     def __init__(self):
+#         GObject.GObject.__init__(self)
+#         self.al_model = Gtk.ListStore(int, str)
+#         self.co_model = Gtk.ListStore(int, str)
+
+
+# ta_model = TagEditModel()
 
 class ColModel(GObject.GObject):
     col = GObject.Property(type=int)
@@ -195,106 +196,106 @@ class QueryType:
     TAGUPDATE = 11
     FILEUPDATE = 12
 
-class MainModel2(GObject.GObject):
-    query_type = GObject.Property(type=int, default=-1)
-    query_str = GObject.Property(type=str, default='')
-    query_int = GObject.Property(type=int)
-    query_fn_filter = GObject.Property(type=str, default="")
-    query_page = GObject.Property(type=int, default=1)
-    query_sort = GObject.Property(type=str, default="mtime")
-    query_order = GObject.Property(type=str, default="desc")
-    query_media = GObject.Property(type=str, default="archives")
-    view = GObject.Property(type=str, default="listview")
-    has_back = GObject.Property(type=bool, default=False)
-    has_forw = GObject.Property(type=bool, default=False)
+# class MainModel2(GObject.GObject):
+#     query_type = GObject.Property(type=int, default=-1)
+#     query_str = GObject.Property(type=str, default='')
+#     query_int = GObject.Property(type=int)
+#     query_fn_filter = GObject.Property(type=str, default="")
+#     query_page = GObject.Property(type=int, default=1)
+#     query_sort = GObject.Property(type=str, default="mtime")
+#     query_order = GObject.Property(type=str, default="desc")
+#     query_media = GObject.Property(type=str, default="archives")
+#     view = GObject.Property(type=str, default="listview")
+#     has_back = GObject.Property(type=bool, default=False)
+#     has_forw = GObject.Property(type=bool, default=False)
 
-    __gsignals__ = {
-        'type-changed': (GObject.SIGNAL_RUN_FIRST, None,()),
-    }   
-    def __init__(self):
-        GObject.GObject.__init__(self)
-        self.v_model = None
-        self.back_stack = deque(maxlen=10)
-        self.forw_stack = deque(maxlen=10)
+#     __gsignals__ = {
+#         'type-changed': (GObject.SIGNAL_RUN_FIRST, None,()),
+#     }   
+#     def __init__(self):
+#         GObject.GObject.__init__(self)
+#         self.v_model = None
+#         self.back_stack = deque(maxlen=10)
+#         self.forw_stack = deque(maxlen=10)
 
-    def set_type(self, type_, int_, str_):
-        old_row = self.get_row()
-        if old_row[0] >= 0:
-            self.back_stack.append(old_row)
+#     def set_type(self, type_, int_, str_):
+#         old_row = self.get_row()
+#         if old_row[0] >= 0:
+#             self.back_stack.append(old_row)
             
-        # print('old:',self.get_row())
-        self.has_back = True
-        self.filter = ""
-        self.query_int = int_
-        self.query_str = str_
-        self.query_type = type_
-        self.emit('type-changed')
+#         # print('old:',self.get_row())
+#         self.has_back = True
+#         self.filter = ""
+#         self.query_int = int_
+#         self.query_str = str_
+#         self.query_type = type_
+#         self.emit('type-changed')
 
-    def type_changed(self):
-        self.emit('type-changed')
+#     def type_changed(self):
+#         self.emit('type-changed')
 
-    def set_filter(self, value):
-        self.query_fn_filter = value
-        self.type_changed()
+#     def set_filter(self, value):
+#         self.query_fn_filter = value
+#         self.type_changed()
 
-    def set_sort_and_order(self, sort, order):
-        self.query_order = order
-        self.query_sort = sort
-        self.type_changed()
+#     def set_sort_and_order(self, sort, order):
+#         self.query_order = order
+#         self.query_sort = sort
+#         self.type_changed()
 
-    def set_page(self, value):
-        self.query_page = value
-        self.type_changed()
+#     def set_page(self, value):
+#         self.query_page = value
+#         self.type_changed()
 
-    def get_row(self):
-        return (
-            self.query_type,
-            self.query_str, 
-            self.query_int, 
-            self.query_fn_filter,
-            self.query_sort,
-            self.query_order,
-            self.query_media,
-            self.query_page
-            )
+#     def get_row(self):
+#         return (
+#             self.query_type,
+#             self.query_str, 
+#             self.query_int, 
+#             self.query_fn_filter,
+#             self.query_sort,
+#             self.query_order,
+#             self.query_media,
+#             self.query_page
+#             )
 
-    def set_row(self, row):
-        with self.freeze_notify():
-            (self.query_type,
-            self.query_str, 
-            self.query_int, 
-            self.query_fn_filter,
-            self.query_sort,
-            self.query_order,
-            self.query_media,
-            self.query_page)=row
+#     def set_row(self, row):
+#         with self.freeze_notify():
+#             (self.query_type,
+#             self.query_str, 
+#             self.query_int, 
+#             self.query_fn_filter,
+#             self.query_sort,
+#             self.query_order,
+#             self.query_media,
+#             self.query_page)=row
 
-    def back(self):
-        try:
+#     def back(self):
+#         try:
 
-            past_row = self.back_stack.pop()#error
-            current_row = self.get_row()
-            self.forw_stack.append(current_row)
-            self.set_row(past_row)
-            self.has_forw = True
-            self.type_changed()
-            # print(self.get_row())
-            # print(self.back_stack, self.forw_stack)
+#             past_row = self.back_stack.pop()#error
+#             current_row = self.get_row()
+#             self.forw_stack.append(current_row)
+#             self.set_row(past_row)
+#             self.has_forw = True
+#             self.type_changed()
+#             # print(self.get_row())
+#             # print(self.back_stack, self.forw_stack)
 
-        except IndexError:
-            self.has_back = False
+#         except IndexError:
+#             self.has_back = False
 
-    def next(self):
-        try:
-            forw_row = self.forw_stack.pop()
-            current_row = self.get_row()
-            self.back_stack.append(current_row)
-            self.set_row(forw_row)
-            self.has_back = True
-            self.type_changed()
-            # print(self.get_row())
-            # print(self.back_stack, self.forw_stack)
-        except IndexError:
-            self.has_forw = False
+#     def next(self):
+#         try:
+#             forw_row = self.forw_stack.pop()
+#             current_row = self.get_row()
+#             self.back_stack.append(current_row)
+#             self.set_row(forw_row)
+#             self.has_back = True
+#             self.type_changed()
+#             # print(self.get_row())
+#             # print(self.back_stack, self.forw_stack)
+#         except IndexError:
+#             self.has_forw = False
 
-main_model = MainModel2()
+# main_model = MainModel2()
