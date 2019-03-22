@@ -34,16 +34,6 @@ class SciencePopOver(Gtk.Popover):
         box.pack_start(scale, False, True, 0)
 
 
-        # radio = Gtk.RadioButton.new_with_label(None, 'Set Like')
-        # radio.connect("toggled", self.on_extra_filter_col_toggled)
-        # radio.set_halign(1)
-        # grid.attach(radio, 3, 3, 1, 1)
-
-        # radio = Gtk.RadioButton.new_from_widget(radio)
-        # radio.connect("toggled", self.on_extra_filter_col_toggled)
-        # radio.set_label("Filename Like")
-        # entry.connect('changed', self.on_extra_changed, radio)
-        # grid.attach(radio, 3, 4, 1, 1)
 
 
         box.show_all()
@@ -53,13 +43,13 @@ class SciencePopOver(Gtk.Popover):
     def on_format_value(self, scale, value):
         return f'{int(value*32)}px'
 
-    def on_extra_changed(self, widget):
-        text = widget.get_text()
-        self.emit('filename-filter-changed', text)
+    # def on_extra_changed(self, widget):
+    #     text = widget.get_text()
+    #     self.emit('filename-filter-changed', text)
 
-    def on_sortby_radio_toggled(self, widget, sort_string):
-        if widget.get_active():
-            self.emit('sort-changed', sort_string)
+    # def on_sortby_radio_toggled(self, widget, sort_string):
+    #     if widget.get_active():
+    #         self.emit('sort-changed', sort_string)
 
     # def on_sortorder_radio_toggled(self, widget, enum):
     #     if widget.get_active():
@@ -71,12 +61,23 @@ class SciencePopOver(Gtk.Popover):
     # def on_isnone_toggled(self, widget, enum):
     #     self.emit('isnone-changed', enum, widget.get_active())
 
-    def on_extra_filter_col_toggled(self, widget, col, entry):
-        if widget.get_active():
-            value = entry.get_text().strip()
-            if value:
-                self.emit('extra-changed', col, value)
+    # def on_extra_filter_col_toggled(self, widget, col, entry):
+    #     if widget.get_active():
+    #         value = entry.get_text().strip()
+    #         if value:
+    #             self.emit('extra-changed', col, value)
 
+        # radio = Gtk.RadioButton.new_with_label(None, 'Set Like')
+        # radio.connect("toggled", self.on_extra_filter_col_toggled)
+        # radio.set_halign(1)
+        # grid.attach(radio, 3, 3, 1, 1)
+
+        # radio = Gtk.RadioButton.new_from_widget(radio)
+        # radio.connect("toggled", self.on_extra_filter_col_toggled)
+        # radio.set_label("Filename Like")
+        # entry.connect('changed', self.on_extra_changed, radio)
+        # grid.attach(radio, 3, 4, 1, 1)
+        
 class IconPopOver(Gtk.Popover):
     def __init__(self, relative):
         Gtk.Popover.__init__(self)

@@ -4,6 +4,7 @@ from data_models import TabModel
 import pathlib
 import threading
 from decorators import wait
+from widgets.widgets import TabViewBase
 
 
 class InstaStore(Gtk.ListStore):
@@ -120,7 +121,7 @@ class InstaView(Gtk.IconView):
     def on_pop_click(self, widget, path):
         widget.close()
 
-class InstaBox(Gtk.Box):
+class InstaBox(TabViewBase):
     # folderpath = GObject.Property(type=str, default="")
 
     # __gsignals__ = {
@@ -128,7 +129,8 @@ class InstaBox(Gtk.Box):
     #     'tag-edit': (GObject.SIGNAL_RUN_FIRST, None, (int, str,)),
     # }
     def __init__(self):
-        Gtk.Box.__init__(self, orientation=1, spacing=0)
+        # Gtk.Box.__init__(self, orientation=1, spacing=0)
+        TabViewBase.__init__(self, orientation=1, spacing=0)
         fbox = Gtk.Box.new(orientation=0, spacing=5)
         fbox.set_property('margin', 5)
         filebut = Gtk.FileChooserButton.new('Open Folder',2)

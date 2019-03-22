@@ -1,10 +1,11 @@
 from gi.repository import Gtk, Gdk, GObject
 from widgets.widgets import TagTreeView, target3, target4
 from data_models import col_store
-from models import Query
+# from models import Query
 from stores import TagStore
-from data_models import TabModel
+# from data_models import TabModel
 from decorators import wait
+from widgets.widgets import TabViewBase
 
 
 clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
@@ -246,21 +247,13 @@ class TagViewTest(Gtk.TreeView):
             menu.popup(None, None, None, None, 0, Gtk.get_current_event_time())
         return None
 
-class AliasesDirView(Gtk.Box):
-
-    __gsignals__ = {
-        'file-list': (GObject.SIGNAL_RUN_FIRST, None, (int, str,)),
-        'tag-edit': (GObject.SIGNAL_RUN_FIRST, None, (int, str,)),
-    }
+class AliasesDirView(TabViewBase):
     def __init__(self):
-        Gtk.Box.__init__(self, orientation=0, spacing=0)
+        TabViewBase.__init__(self, orientation=0, spacing=0)
         self.set_name('dirview')
         fbox = Gtk.Box.new(orientation=1, spacing=0)
-        self.tabmodel = TabModel()
-        self.tabmodel.name = 'search'
 
         tag_store = TagStore()
-        self.tabmodel.connect("notify::scalefactor", self.on_scalefactor_notified, tag_store, self.tabmodel)
 
         #TAG VIEW
         tag_scroll = Gtk.ScrolledWindow()
@@ -305,9 +298,6 @@ class AliasesDirView(Gtk.Box):
         self.pack_end(fbox, False, True, 0)
 
         self.show_all()
-
-    def on_scalefactor_notified(self, obj, gparam, store, tabmodel):
-        store.set_scale(tabmodel.scalefactor)
 
     def on_tag_filter_changed(self, widget, store):
         text = widget.get_text()

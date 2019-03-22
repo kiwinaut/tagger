@@ -1,8 +1,8 @@
-from gi.repository import Gtk, GObject, Gdk
+from gi.repository import Gtk, Gdk
 from print_pretty.pretty_size import psize
 from stores import ViewStore, AllViewStore
-from data_models import TabModel
-# from widgets import MainSignals
+# from data_models import TabModel
+from widgets.widgets import TabViewBase
 from shell_commands import open_file
 from models import Query
 
@@ -231,39 +231,14 @@ class IconView(Gtk.IconView):
         else:
             Gtk.IconView.do_button_press_event(self, event)
 
-class TabViewBase(Gtk.Box):
-    __gsignals__ = {
-        'file-edit': (GObject.SIGNAL_RUN_FIRST, None, (int,str,)),
-        'tag-edit': (GObject.SIGNAL_RUN_FIRST, None, (int,str,)),
-    }
-    def __init__(self, tabmodel=None):
-        Gtk.Box.__init__(self, orientation=1, spacing=0)
-        if tabmodel:
-            self.set_tabmodel(tabmodel)
 
-    def get_tabmodel(self):
-        return self.tab_model
 
-    def set_tabmodel(self, model):
-        self.tabmodel = model
-
-class FileView(Gtk.Box):
-    view = GObject.Property(type=str, default="listview")
-    # tag_query = GObject.Property(type=int)
-
-    __gsignals__ = {
-        'file-edit': (GObject.SIGNAL_RUN_FIRST, None, (int,str,)),
-        'tag-edit': (GObject.SIGNAL_RUN_FIRST, None, (int,str,)),
-    }
-    '''
-    Tagged File View
-    '''
-
+class FileView(TabViewBase):
     def __init__(self, tag_id, alias_name, scale, view):
-        Gtk.Box.__init__(self, orientation=1, spacing=0)
+        TabViewBase.__init__(self, orientation=1, spacing=0)
+
         self.alias = alias_name
-        self.tab_model = TabModel()
-        self.tab_model.name = 'stack'
+
         search_bar = Gtk.SearchBar()
         searchentry = Gtk.SearchEntry()
         search_bar.add(searchentry)
@@ -274,7 +249,8 @@ class FileView(Gtk.Box):
         self.connect('key-press-event', self.on_sstack_key_pressed, search_bar)
 
         viewstore = ViewStore(scale=scale)
-        self.tab_model.connect("notify::scalefactor", self.on_scalefactor_notified, viewstore, self.tabmodel)
+        self.viewstore = viewstore
+        # self.tab_model.connect("notify::scalefactor", self.on_scalefactor_notified, viewstore, self.tabmodel)
         searchentry.connect('search-changed', self.on_file_filter_changed, viewstore)
         # self.connect("notify::tag_query", self.on_tag_query_notified, viewstore)
 
@@ -304,21 +280,22 @@ class FileView(Gtk.Box):
 
         viewstore.set_query_tag_id(tag_id)
 
-        # self.connect('file-update', self.a)
-
-    # def on_tag_query_notified(self, object, gparamstring, model):
-    #     print(self.tag_query)
-    #     model.set_query_tag_id(self.tag_query)
-
-    def on_scalefactor_notified(self, obj, gparam, store, tabmodel):
-        store.set_scale(tabmodel.scalefactor)
-
-    def on_tag_query_notified(self, object, gparamstring, stack):
-        stack.set_visible_child_full(self.view, 0)
+    def get_view(self):
+        return self.view
 
     def set_view(self, value):
         self.view = value
         self.stack.set_visible_child_full(value, 0)
+
+    def get_scale(self):
+        return self.scale
+
+    def set_scale(self, value):
+        self.scale = value
+        self.viewstore.set_scale(value)
+
+    # def on_tag_query_notified(self, object, gparamstring, stack):
+    #     stack.set_visible_child_full(self.view, 0)
 
     def on_sstack_key_pressed(self, widget, event, search_bar):
         search_bar.handle_event(event)
@@ -328,26 +305,9 @@ class FileView(Gtk.Box):
         store.set_query_filter_text(text)
 
 
-class AllFileView(Gtk.Box):
-    view = GObject.Property(type=str, default="listview")
-    # query_fn_filter = GObject.Property(type=str, default="")
-    # query_page = GObject.Property(type=int, default=1)
-    # query_sort = GObject.Property(type=str, default="mtime")
-    # query_order = GObject.Property(type=str, default="desc")
-    # query_media = GObject.Property(type=str, default="archives")
-    # scalefactor = GObject.Property(type=float, default=6.0)
-    # tag_query = GObject.Property(type=int)
-
-    __gsignals__ = {
-        'file-edit': (GObject.SIGNAL_RUN_FIRST, None, (int,str,)),
-        'tag-edit': (GObject.SIGNAL_RUN_FIRST, None, (int,str,)),
-    }
-    '''
-    Tagged File View
-    '''
-
-    def __init__(self, tabmodel=None, all_file_code=0,):
-        Gtk.Box.__init__(self, orientation=1, spacing=0)
+class AllFileView(TabViewBase):
+    def __init__(self, scale, view, all_file_code=0,):
+        TabViewBase.__init__(self, orientation=1, spacing=0)
         if all_file_code == 0:
             self.alias = 'All Files'
         elif all_file_code == 1:
@@ -355,10 +315,9 @@ class AllFileView(Gtk.Box):
         elif all_file_code == -1:
             self.alias = 'Untagged Files'
 
-        # self.tabmodel = TabModel()
-        # self.tabmodel.name = 'stack'
         viewstore = AllViewStore(scale)
-        self.tabmodel.connect("notify::scalefactor", self.on_scalefactor_notified, viewstore, self.tabmodel)
+        self.viewstore = viewstore
+        # self.tabmodel.connect("notify::scalefactor", self.on_scalefactor_notified, viewstore)
         #REVEALER
         rev = Gtk.Revealer()
         box = Gtk.Box.new(orientation=0, spacing=5)
@@ -428,9 +387,19 @@ class AllFileView(Gtk.Box):
         sub_stack.set_visible_child_full(view, 0)
         viewstore.set_code(all_file_code)
 
-    def on_scalefactor_notified(self, obj, gparam, store, tabmodel):
-        store.set_scale(tabmodel.scalefactor)
+    def get_view(self):
+        return self.view
 
+    def set_view(self, value):
+        self.view = value
+        self.stack.set_visible_child_full(value, 0)
+
+    def get_scale(self):
+        return self.scale
+
+    def set_scale(self, value):
+        self.scale = value
+        self.viewstore.set_scale(value)
 
     def on_page_changed(self, widget, store):
         store.set_page(widget.get_value())
@@ -443,13 +412,6 @@ class AllFileView(Gtk.Box):
 
     def on_filter_search_changed(self, widget, store):
         store.set_fn_filter(widget.get_text())
-
-    def on_tag_query_notified(self, object, gparamstring, stack):
-        stack.set_visible_child_full(self.view, 0)
-
-    def set_view(self, value):
-        # self.tab_model.view = value
-        self.stack.set_visible_child_full(value, 0)
 
     def on_key_pressed(self, widget, event, rev):
         rev.set_reveal_child(True)

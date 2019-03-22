@@ -22,6 +22,28 @@ class MainSignals(GObject.GObject):
         GObject.GObject.__init__(self)
 
 
+class TabViewBase(Gtk.Box):
+    view = GObject.Property(type=str, default="gridview")
+    scale = GObject.Property(type=float, default=8.0)
+    __gsignals__ = {
+        'file-edit': (GObject.SIGNAL_RUN_FIRST, None, (int,str,)),
+        'tag-edit': (GObject.SIGNAL_RUN_FIRST, None, (int,str,)),
+        'file-list': (GObject.SIGNAL_RUN_FIRST, None, (int,str,)),
+    }
+    def __init__(self, *args, **kw):
+        Gtk.Box.__init__(self, *args, **kw)
+
+    def get_view(self):
+        raise Exception
+
+    def set_view(self, value):pass
+
+    def get_scale(self):
+        raise Exception
+
+    def set_scale(self, value):pass
+
+
 class ThumbTile(Gtk.Overlay):
     def __init__(self, set, path, pix):
         Gtk.Overlay.__init__(self, name='ThumbTile')
