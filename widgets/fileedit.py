@@ -239,6 +239,10 @@ class FileEdit(EditOverlay):
         Query.delete_file('archives', self.id)
 
     #TAGS CONTAINER
+    # def on_pick_container_child_clicked(self, widget, child):
+    #     Query.add_file_tag_from_suggest('archives', self.id, child.id)
+    #     self.tags_container.add_tagchild(child.id, child.label)
+
     def on_tag_container_child_clicked(self, widget, child):
         self.emit('tag-edit', child.id, child.label)
 
@@ -256,10 +260,22 @@ class FileEdit(EditOverlay):
     @exc_try
     def on_add_tag_button_clicked(self, widget, entry):
         text = entry.get_text()
-        alias, tag_id, is_created = Query.add_file_tag('archives', self.id, tagname=text)
-        if is_created:
-            pass
-        self.tags_container.add_tagchild(tag_id, alias)
+        tag_id, res = Query.add_file_tag_from_text('archives', self.id, text)
+        if res:
+            #ASK
+            popover = Gtk.Popover()
+            popover.set_relative_to(widget)
+            popover.set_position(Gtk.PositionType.TOP)
+            flow = TagFlowBox()
+            flow.connect("child-clicked", self.on_rcmmnds_child_clicked)
+            for q in res:
+                flow.add_sggstchild(q)
+
+            popover.add(flow)
+            popover.show_all()
+            return
+
+        self.tags_container.add_tagchild(tag_id, text)
         entry.set_text("")
 
     #RECOMMENDS

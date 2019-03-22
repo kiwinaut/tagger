@@ -209,7 +209,7 @@ class Query:
         
     def add_file_tag_from_suggest(media, file_id, tag_id):
         Table, j = Query.tables(media)
-        r = j.insert(tag=tag, file=fid).execute()
+        r = j.insert(tag=tag_id, file=file_id).execute()
         if not r:
             raise Exception('Can not link file and tag')
 
@@ -229,15 +229,24 @@ class Query:
             tag = Tags.create(thumb=file_id)
             alias = Aliases.create(alias=text, tag_id=tag)
 
-            Table, j = Query.tables(media)
             r = j.insert(tag=tag, file=file_id).execute()
             if not r:
                 raise Exception('Can not link file and tag')
+            return tag.id, None
                 
         elif found == 1:
             # One Match
+            alias = Aliases.select()\
+            .where(Aliases.alias == text).get()
+            r = j.insert(tag=alias.tag_id, file=file_id).execute()
+            if not r:
+                raise Exception('Can not link file and tag')
+            return alias.tag_id, None
         else:
             # Multi Match ASK
+            return 0, Aliases.select(Aliases.tag_id, Aliases.alias, Tags.thumb)\
+            .join(Tags).where(Aliases.alias == text)\
+            .tuples()
 
 
 
