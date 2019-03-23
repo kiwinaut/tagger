@@ -25,12 +25,13 @@ class IconTagView(Gtk.IconView):
         self.add_attribute(renderer,'pixbuf', 4)
 
         srenderer = Gtk.CellRendererText()
-        srenderer.set_property('width', 118)
+        # srenderer.set_property('width', 118)
         srenderer.set_property('xalign', .5)
 
         self.pack_start(srenderer, False)
         # srenderer.set_property('font','Ubuntu 9')
-        srenderer.set_property('ellipsize', 2)
+        srenderer.set_property('wrap_mode', 0)
+        srenderer.set_property('wrap_width', 120)
         # srenderer.set_property('max-width-chars', 10)
         self.add_attribute(srenderer,'text', 1)
 

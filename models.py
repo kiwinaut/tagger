@@ -122,7 +122,7 @@ class Query:
 
 
     def get_tags(folder_id=None, filter_text=None):
-        sq = Aliases.select(Tags.id, fn.group_concat(Aliases.alias), Tags.note, Tags.thumb, Tags.flag)\
+        sq = Aliases.select(Tags.id, fn.group_concat(Aliases.alias, ', '), Tags.note, Tags.thumb, Tags.flag)\
         .join(Tags)\
         .group_by(Aliases.tag_id)\
         .order_by(Aliases.alias.asc())
