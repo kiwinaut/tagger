@@ -395,10 +395,10 @@ class AllFileView(TabViewBase):
         self.stack.set_visible_child_full(value, 0)
 
     def get_scale(self):
-        return self.scale
+        return self.get_property('scale')
 
     def set_scale(self, value):
-        self.scale = value
+        self.set_property('scale', value)
         self.viewstore.set_scale(value)
 
     def on_page_changed(self, widget, store):

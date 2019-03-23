@@ -254,19 +254,12 @@ class AliasesDirView(TabViewBase):
         fbox = Gtk.Box.new(orientation=1, spacing=0)
 
         tag_store = TagStore()
+        self.tagstore = tag_store
 
         #TAG VIEW
         tag_scroll = Gtk.ScrolledWindow()
-        # tag_scroll.set_property('shadow-type', 1)
-        # tag_store = TagStore()
-        # col_model.connect('col-changed', self.on_model_col_changed)
-        # col_model.connect('folder-changed', self.on_model_col_changed)
         tag_view = IconTagView()
         tag_view.set_model(tag_store)
-        # tag_view.connect('tag-read', self.on_tag_read)
-        # tag_view.connect('row-activated', self.on_tag_read)
-        # tag_view.connect('tag-update', self.on_tag_edit)
-        # tag_view.connect('filenames', self.on_tag_filenames, clipboard)
         tag_scroll.add(tag_view)
         fbox.pack_start(tag_scroll, True, True, 0)
         self.pack_end(fbox, True, True, 0)
@@ -281,14 +274,10 @@ class AliasesDirView(TabViewBase):
         fbox.pack_start(alias_entry, False, True, 0)
         
         col_scroll = Gtk.ScrolledWindow()
-        # col_scroll.set_property('margin-left',3)
-        # col_scroll.set_property('margin-right',3)
-        # col_scroll.set_property('shadow-type', 1)
         tree_view = TagTreeView()
         tree_view.connect('tag-read', self.on_col_read_activated)
         tree_view.connect('row-activated', self.on_col_read_activated, tag_store)
 
-        # col_store = ColStore()
         tree_view.set_model(col_store)
         tree_view.expand_all()
         col_scroll.add(tree_view)
@@ -298,6 +287,13 @@ class AliasesDirView(TabViewBase):
         self.pack_end(fbox, False, True, 0)
 
         self.show_all()
+
+    def get_scale(self):
+        return self.scale
+
+    def set_scale(self, value):
+        self.scale = value
+        self.tagstore.set_scale(value)
 
     def on_tag_filter_changed(self, widget, store):
         text = widget.get_text()

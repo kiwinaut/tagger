@@ -858,7 +858,7 @@ class ViewSwitcher(Gtk.Box):
       'switched': (GObject.SIGNAL_RUN_FIRST, None, ()),
     }
 
-    view = GObject.Property(type=str, default="listview")
+    view = GObject.Property(type=str, default="gridview")
 
     def __init__(self):
         Gtk.Box.__init__(self, orientation = 0 ,spacing=0)

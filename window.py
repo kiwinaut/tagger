@@ -13,9 +13,6 @@ from widgets.tagedit import TagEdit
 from widgets.aliasesdirview import AliasesDirView
 # viewstore = ViewStore()
 
-INIT_VIEW = "gridview"
-INIT_VALUE = 8.0
-
 class Window(Gtk.ApplicationWindow):
     scalefactor = GObject.Property(type=float, default=6.0)
     # __gsignals__ = {
@@ -86,6 +83,7 @@ class Window(Gtk.ApplicationWindow):
         sbox = Gtk.Box.new(orientation=1, spacing=0)
         sbox.set_property('margin',18)
         science_adjustment = Gtk.Adjustment.new(6.0, 1.0, 8.0, 1.0, 10.0, 0)
+        self.scale_adjust = science_adjustment
         thumb_scaler = Gtk.Scale.new(0, science_adjustment)
         thumb_scaler.set_size_request(180, -1)
         thumb_scaler.set_digits(0)
@@ -102,6 +100,7 @@ class Window(Gtk.ApplicationWindow):
         #
         # VIEWSWITCHER
         view_swicher = ViewSwitcher()
+        self.viewsw = view_swicher
         box.pack_start(view_swicher, False, False, 0)
         #
         #
@@ -162,6 +161,7 @@ class Window(Gtk.ApplicationWindow):
         num = notebook.get_current_page()
         child = notebook.get_nth_page(num)
         child.set_scale(widget.get_value())
+        print('set child scale=',child.get_scale())
 
     def on_view_switched(self, widget, notebook):
         num = notebook.get_current_page()
@@ -171,6 +171,7 @@ class Window(Gtk.ApplicationWindow):
     def on_notebook_switch_page(self, notebook, page, page_num, view, adj, scaler):
         try:
             value = page.get_view()
+            print('get view=',value)
             view.set_sensitive(True)
             view.set_property('view', value)
         except:
@@ -178,6 +179,7 @@ class Window(Gtk.ApplicationWindow):
 
         try:
             value = page.get_scale()
+            print('get adj=',value)
             scaler.set_sensitive(True)
             adj.set_property('value', value)
         except:
@@ -207,16 +209,14 @@ class Window(Gtk.ApplicationWindow):
         clipboard.set_text(res, -1)
 
     def on_menu_all_files_activated(self, widget, notebook):
-        # scale, binding = self.bindings['scale']
-        # view, binding = self.bindings['view']
-        # global INIT_VIEW, INIT_VALUE
-        # print(INIT_VIEW, INIT_VALUE)
-        
+        print('allfiles',
+            self.scale_adjust.get_property('value'),
+            self.viewsw.get_property('view'),
+
+            )
         fw = AllFileView(
-            # scale.get_property('value'),
-            # view.get_property('view'),
-            INIT_VALUE,
-            INIT_VIEW,
+            self.scale_adjust.get_property('value'),
+            self.viewsw.get_property('view'),
             0
             )
         fw.connect('file-edit', self.on_file_edit)
@@ -296,9 +296,6 @@ class Window(Gtk.ApplicationWindow):
         self.on_file_list(widget, model[iter][0], model[iter][1])
 
     def on_file_list(self, widget, tag_id, tag_name):
-        scale, binding = self.bindings['scale']
-        view, binding = self.bindings['view']
-        
         fw = FileView(
             tag_id, 
             tag_name, 
