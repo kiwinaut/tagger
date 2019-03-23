@@ -5,6 +5,8 @@ from os.path import split
 db.init(CONFIG['database.path'])
 
 # create_tagaliases()
+create_db()
+
 import re
 pattern = re.compile('\\b[a-zA-Z0-9-]{3,}\\b')
 

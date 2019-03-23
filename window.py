@@ -133,6 +133,7 @@ class Window(Gtk.ApplicationWindow):
         # self.bind_property('scalefactor', adv, 'scalefactor', 0)
         num = notebook.append_static(adv,'Search')
         notebook.set_current_page(num)
+        self.notebook = notebook
 
     # def on_sstack_key_pressed(self, widget, event, science):
     #     science.popup()
@@ -225,14 +226,9 @@ class Window(Gtk.ApplicationWindow):
         notebook.set_current_page(num)
 
     def on_menu_untagged_files_activated(self, widget):
-        scale, binding = self.bindings['scale']
-        view, binding = self.bindings['view']
-        
         fw = AllFileView(
-            # scale.get_property('value'),
-            # view.get_property('view'),
-            INIT_VALUE,
-            INIT_VIEW,
+            self.scale_adjust.get_property('value'),
+            self.viewsw.get_property('view'),
             -1
             )
         fw.connect('file-edit', self.on_file_edit)
@@ -240,14 +236,9 @@ class Window(Gtk.ApplicationWindow):
         self.notebook.set_current_page(num)
 
     def on_menu_onetag_files_activated(self, widget):
-        scale, binding = self.bindings['scale']
-        view, binding = self.bindings['view']
-
         fw = AllFileView(
-            # scale.get_property('value'),
-            # view.get_property('view'),
-            INIT_VALUE,
-            INIT_VIEW,
+            self.scale_adjust.get_property('value'),
+            self.viewsw.get_property('view'),
             1
             )
         fw.connect('file-edit', self.on_file_edit)
@@ -285,10 +276,10 @@ class Window(Gtk.ApplicationWindow):
         model, iter = selection.get_selected()
         col_model.set_folder(model[iter][0])
    
-    def on_tag_read_smart(self, widget, *args):
-        selection = widget.get_selection()
-        model, iter = selection.get_selected()
-        main_model.set_type(QueryType.TAG, model[iter][0], None)
+    # def on_tag_read_smart(self, widget, *args):
+    #     selection = widget.get_selection()
+    #     model, iter = selection.get_selected()
+    #     main_model.set_type(QueryType.TAG, model[iter][0], None)
         
     def on_tag_read(self, widget, *args):
         selection = widget.get_selection()
@@ -299,10 +290,8 @@ class Window(Gtk.ApplicationWindow):
         fw = FileView(
             tag_id, 
             tag_name, 
-            # scale.get_property('value'),
-            # view.get_property('view')
-            INIT_VALUE,
-            INIT_VIEW
+            self.scale_adjust.get_property('value'),
+            self.viewsw.get_property('view'),
             )
         fw.connect('file-edit', self.on_file_edit)
         num = self.notebook.append_buttom(fw,tag_name,'file-list')
