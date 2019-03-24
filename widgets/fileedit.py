@@ -143,10 +143,12 @@ class FileEdit(EditOverlay):
         info_box.pack_start(button, False, True, 0)
 
         #TAGS
+        scroll = Gtk.ScrolledWindow()
         self.tags_container = TagFlowBox()
+        scroll.add(self.tags_container)
         self.tags_container.connect("child-deleted", self.on_tag_container_child_deleted)
         self.tags_container.connect("child-clicked", self.on_tag_container_child_clicked)
-        info_box.pack_start(self.tags_container, False, True, 0)
+        info_box.pack_start(scroll, False, True, 0)
 
         hbox = Gtk.Box.new(orientation=0, spacing=0)
         hbox.get_style_context().add_class("linked")
@@ -167,9 +169,11 @@ class FileEdit(EditOverlay):
         info_box.pack_start(hbox, False, True, 0)
 
         #RECOMMENDS
+        scroll = Gtk.ScrolledWindow()
         self.rcmmnds_container = TagFlowBox()
+        scroll.add(self.rcmmnds_container)
         self.rcmmnds_container.connect("child-clicked", self.on_rcmmnds_child_clicked)
-        info_box.pack_start(self.rcmmnds_container, False, True, 0)
+        info_box.pack_start(scroll, False, True, 0)
 
 
         self.set_file_id(file_id)
