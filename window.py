@@ -14,7 +14,7 @@ from widgets.aliasesdirview import AliasesDirView
 # viewstore = ViewStore()
 
 class Window(Gtk.ApplicationWindow):
-    scalefactor = GObject.Property(type=float, default=6.0)
+    # scalefactor = GObject.Property(type=float, default=6.0)
     # __gsignals__ = {
     #   'scope-changed': (GObject.SIGNAL_RUN_FIRST, None, ()),
     # }
