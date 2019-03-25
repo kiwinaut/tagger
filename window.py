@@ -79,7 +79,7 @@ class Window(Gtk.ApplicationWindow):
 
         #SCIENCE
         science = Gtk.Popover()
-        self.set_position(Gtk.PositionType.BOTTOM)
+        science.set_position(Gtk.PositionType.BOTTOM)
         sbox = Gtk.Box.new(orientation=1, spacing=0)
         sbox.set_property('margin',18)
         science_adjustment = Gtk.Adjustment.new(6.0, 1.0, 8.0, 1.0, 10.0, 0)

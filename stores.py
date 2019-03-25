@@ -4,6 +4,7 @@ from models import Query
 # from decorators import wait
 import threading
 # import multiprocessing
+from gi.repository.Gio import File
 from config import CONFIG
 
 IMGPATH = CONFIG['indexer.thumb_location']

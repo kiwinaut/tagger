@@ -89,6 +89,7 @@ class FileEdit(EditOverlay):
         label = Gtk.Label()
         self.bind_property('id', label, 'label', 0)
         label.set_halign(1)
+        label.set_selectable(True)
         info_box.pack_start(label, False, True, 0)
 
         label = Gtk.Label()

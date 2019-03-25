@@ -31,6 +31,7 @@ class TagFlowBox(Gtk.FlowBox):
 
         link_event = Gtk.EventBox()
         labelw = Gtk.Label(label.title())
+        labelw.set_selectable(True)
         link_event.add(labelw)
         link_event.connect('button-release-event', self.on_link_clicked, child)
         box.pack_start(link_event, True, True, 0)
@@ -71,6 +72,7 @@ class TagFlowBox(Gtk.FlowBox):
 
         link_event = Gtk.EventBox()
         labelw = Gtk.Label(child.label.title())
+        labelw.set_selectable(True)
         link_event.add(labelw)
         link_event.connect('button-release-event', self.on_link_clicked, child)
         box.pack_start(link_event, True, True, 0)

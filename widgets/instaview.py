@@ -104,7 +104,12 @@ class InstaView(Gtk.IconView):
         # if paths:
         #     path = paths[0]
         iter = model.get_iter(path)
-        img = Gtk.Image.new_from_file(model[iter][0])
+        pixbuf_format, width, height = Pixbuf.get_file_info(model[iter][0])
+        if height > 1080 or width > 1900:
+            pixbuf = Pixbuf.new_from_file_at_scale(model[iter][0], 1900, 1080, True)
+        else:
+            pixbuf = Pixbuf.new_from_file(model[iter][0])
+        img = Gtk.Image.new_from_pixbuf(pixbuf)
         # pb = img.get_pixbuf()
         # if pb.get_height() > 1080 
         pop = Gtk.Window.new(1)

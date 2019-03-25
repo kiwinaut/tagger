@@ -228,7 +228,7 @@ class Query:
 
         if found == 0:
             # Zero Tag
-            tag = Tags.create(thumb=file_id)
+            tag = Tags.create(thumb=file_id, name=text)
             alias = Aliases.create(alias=text, tag_id=tag)
 
             r = j.insert(tag=tag, file=file_id).execute()
