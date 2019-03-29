@@ -28,7 +28,8 @@ class ConfigManager(object):
             # 'indexer.video_thumb_time': "00:59",
             # 'indexer.accepted_image_formats': (),
             'mount': '/media/soni/1001',
-            'indexer.thumb_location':'/media/soni/1001/persistent/1001/thumbs/{}.jpg'
+            'indexer.thumb_location':'/media/soni/1001/persistent/1001/thumbs/{}.jpg',
+            'query.page_limit': 150,
         }
         self.config = {}
         self.options = {}

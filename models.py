@@ -9,6 +9,7 @@ db.init(CONFIG['database.path'])
 
 import re
 pattern = re.compile('\\b[a-zA-Z0-9-]{3,}\\b')
+PAGELIMIT=CONFIG['query.page_limit']
 
 class Query:
     def get_file_path_first(tag_id):
@@ -411,7 +412,7 @@ class Query:
         print(len(filter), filter)
         if filter:
             sq = sq.where(Table.filename ** filter)
-        return sq.order_by(order(), Table.mtime.asc()).paginate(page,50).tuples()
+        return sq.order_by(order(), Table.mtime.asc()).paginate(page,PAGELIMIT).tuples()
 
     def get_notag_files(media, page, sort_string, order_string, filter=None):
         Table, j = Query.tables(media)
@@ -433,7 +434,7 @@ class Query:
         order = getattr(sort, order_string)
         if filter:
             sq = sq.where(Table.filename ** filter)
-        return sq.order_by(order(), Table.mtime.asc()).paginate(page,50).tuples()
+        return sq.order_by(order(), Table.mtime.asc()).paginate(page,PAGELIMIT).tuples()
 
 
     def get_tag_column(tag_id, filter=None):
@@ -472,7 +473,7 @@ class Query:
         order = getattr(sort, order_string)
         if filter:
             sq = sq.where(Table.filename ** filter)
-        return sq.order_by(order(), Table.mtime.asc()).paginate(page,50).tuples()
+        return sq.order_by(order(), Table.mtime.asc()).paginate(page,PAGELIMIT).tuples()
 
     def delete_file(media, file_id):
         Table, j = Query.tables(media)
