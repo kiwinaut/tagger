@@ -13,6 +13,7 @@ IMGPATH = CONFIG['indexer.thumb_location']
 theme = Gtk.IconTheme.get_default()
 missing = theme.load_icon('image-missing',64, Gtk.IconLookupFlags.USE_BUILTIN)
 avatar = theme.load_icon('avatar-default-symbolic',64, Gtk.IconLookupFlags.USE_BUILTIN)
+folder = theme.load_icon('folder-open',16, Gtk.IconLookupFlags.USE_BUILTIN)
 
 # avatar = Pixbuf.new_from_file_at_size('/usr/share/icons/Adwaita/256x256/status/avatar-default.png', 32, 32)
 

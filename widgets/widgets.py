@@ -5,6 +5,7 @@ from humanfriendly import format_size
 # from clip import rethumb
 # from data_models import  main_model
 # from humanfriendly import format_size
+# from stores import folder
 
 def size_cell_data_func(tree_column, cell, tree_model, iter, data):
     cell.set_property('text', format_size(tree_model[iter][2]))
@@ -241,6 +242,15 @@ class DetailView(Gtk.TreeView):
 #                 return False
 #         else:
 #             Gtk.TreeView.do_button_press_event(self, event)
+
+def TreeCellDataFunc(tree_column, cell, tree_model, iter, data):
+    if cell.get_property('is-expanded'):
+        cell.set_property('icon-name', 'folder-drag-accept')
+    # elif cell.get_property('is-expander'):
+    #     cell.set_property('icon-name', 'folder')
+    else:
+        cell.set_property('icon-name', 'folder')
+
 class DialogExample(Gtk.Dialog):
     def __init__(self, parent):
         Gtk.Dialog.__init__(self, "Entry Dialog", parent, 0,
@@ -272,10 +282,18 @@ class TagTreeView(Gtk.TreeView):
         # self.set_show_expanders(True)
 
         column = Gtk.TreeViewColumn('name')
+        
+        renderer = Gtk.CellRendererPixbuf()
+        renderer.set_property('icon-name', 'folder-visiting-symbolic')
+        renderer.set_property('xpad', 2)
+        # column.set_cell_data_func(renderer, TreeCellDataFunc, None)
+        column.pack_start(renderer, False)
+
         renderer = Gtk.CellRendererText()
         column.pack_start(renderer, True)
         column.add_attribute(renderer, 'text', 2)
         self.append_column(column)
+
 
         menu = Gtk.Menu()
         delete = Gtk.MenuItem.new_with_label('New')
