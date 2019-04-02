@@ -143,3 +143,21 @@ select id from 'videos'
 group by 'videos'.'sha' having (COUNT(*) >1)
 )
 
+
+-- update from query
+update tags set name=
+ (
+select Aliases.alias  from Aliases 
+where Aliases.tag_id == tags.id
+group by Aliases.tag_id
+)
+where Tags.name == "" or Tags.name is null
+
+-- find duplicates
+select *, count(alias) from aliases
+group by alias having (count(alias) > 1)
+
+-- tags have no alias
+select * from tags
+left join aliases on aliases.tag_id == tags.id
+where aliases.tag_id is Null

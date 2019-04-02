@@ -5,7 +5,7 @@ import pathlib
 import threading
 from decorators import wait
 from widgets.widgets import TabViewBase
-
+from popovers import ThumbPopOver
 
 class InstaStore(Gtk.ListStore):
     def __init__(self):
@@ -64,6 +64,12 @@ class InstaView(Gtk.IconView):
         # # srenderer.set_property('max-width-chars', 10)
         # self.add_attribute(srenderer,'text', 1)
 
+        # img_menu = Gtk.Menu()
+        # # item = Gtk.ImageMenuItem()
+        # # self.img_menu_item = item
+        # # img_menu.append(item)
+        # img_menu.show_all()
+        # img_pop = ThumbPopOver(self)
 
         menu = Gtk.Menu()        
         delete = Gtk.MenuItem.new_with_label('Undo')
@@ -94,9 +100,41 @@ class InstaView(Gtk.IconView):
             f = Gio.File.new_for_path(model[iter][0])
             if f.trash(None):
                 model.remove(iter)
+        # elif event.button == Gdk.BUTTON_PRIMARY:
+        #     self.img_menu_item.set_image()
+        #     img_menu.popup(None, None, None, None, 0, Gtk.get_current_event_time())
+
         elif event.button == Gdk.BUTTON_SECONDARY:
             menu.popup(None, None, None, None, 0, Gtk.get_current_event_time())
         return None
+
+    def on_open_image2(self, widget, path, img_pop):
+        # paths = self.get_selected_items()
+        model = self.get_model()
+        # if paths:
+        #     path = paths[0]
+        iter = model.get_iter(path)
+        pixbuf_format, width, height = Pixbuf.get_file_info(model[iter][0])
+        if height > 1080 or width > 1900:
+            pixbuf = Pixbuf.new_from_file_at_scale(model[iter][0], 1900, 1080, True)
+        else:
+            pixbuf = Pixbuf.new_from_file(model[iter][0])
+        # img = Gtk.Image.new_from_pixbuf(pixbuf)
+        # img.show_all()
+        # pb = img.get_pixbuf()
+        # if pb.get_height() > 1080 
+        # scroll = Gtk.ScrolledWindow()
+        # scroll.set_pre
+        # scroll.add(img)
+        # pop = Gtk.Window.new(1)
+        # pop.add(img)
+        # pop.set_position(3)
+        # pop.show_all()
+        # pop.connect('button-release-event', self.on_pop_click)
+        # self.img_menu_item.set_image(img)
+        img_pop.set_pixbuf(pixbuf)
+        img_pop.popup()
+        # img_menu.popup(None, None, None, None, 0, Gtk.get_current_event_time())
 
     def on_open_image(self, widget, path):
         # paths = self.get_selected_items()

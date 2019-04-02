@@ -4,7 +4,7 @@ from models import Query
 # from decorators import wait
 import threading
 # import multiprocessing
-from gi.repository.Gio import File
+# from gi.repository.Gio import File
 from config import CONFIG
 
 IMGPATH = CONFIG['indexer.thumb_location']
@@ -16,6 +16,8 @@ avatar = theme.load_icon('avatar-default-symbolic',64, Gtk.IconLookupFlags.USE_B
 folder = theme.load_icon('folder-open',16, Gtk.IconLookupFlags.USE_BUILTIN)
 
 # avatar = Pixbuf.new_from_file_at_size('/usr/share/icons/Adwaita/256x256/status/avatar-default.png', 32, 32)
+
+# Query.explain()
 
 class TagStore(Gtk.ListStore):
     def __init__(self):

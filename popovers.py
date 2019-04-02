@@ -177,25 +177,22 @@ class IconPopOver(Gtk.Popover):
 
         self.add(box)
 
+
 class ThumbPopOver(Gtk.Popover):
     def __init__(self, widget):
         Gtk.Popover.__init__(self)
         self.set_relative_to(widget)
         # self.set_pointing_to(rect)
 
-        self.set_position(Gtk.PositionType.LEFT)
+        self.set_position(Gtk.PositionType.RIGHT)
 
         img = Gtk.Image()
         self.add(img)
         img.show_all()
 
-    def set_image(self, pixbuf):
+    def set_pixbuf(self, pixbuf):
         self.get_child().set_from_pixbuf(pixbuf)
 
-search_model = Gtk.ListStore(int, str)
-search_model.append((0,'hhhhhh',))
-search_model.append((2,'hhhh',))
-search_model.append((4,'hhhhh',))
 
 
 
@@ -341,6 +338,8 @@ class RegroupPopOver(UpdatePopOver):
         box.reorder_child(radio_group, 1)
 
         box.show_all()
+
+
 
 
 

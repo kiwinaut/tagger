@@ -7,6 +7,8 @@ tracker.requie_version('2.2')
 
 HOME = os.environ['HOME']
 DIRPATH = os.path.dirname(os.path.realpath(__file__))
+STATIC = '%s/static/{}' % DIRPATH
+# print(DIRPATH)
 
 class ConfigManager(object):
 

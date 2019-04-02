@@ -1,6 +1,8 @@
 from gi.repository import Gtk, Gdk, GObject, GLib
 from models import Query
 from humanfriendly import format_size
+from resources import folder
+
 # from shell_commands import open_file, trash_file
 # from clip import rethumb
 # from data_models import  main_model
@@ -284,8 +286,10 @@ class TagTreeView(Gtk.TreeView):
         column = Gtk.TreeViewColumn('name')
         
         renderer = Gtk.CellRendererPixbuf()
-        renderer.set_property('icon-name', 'folder-visiting-symbolic')
-        renderer.set_property('xpad', 2)
+        # renderer.set_property('icon-name', 'folder-visiting-symbolic')
+        renderer.set_property('pixbuf', folder)
+        renderer.set_property('width', 20)
+        renderer.set_property('xalign', 0)
         # column.set_cell_data_func(renderer, TreeCellDataFunc, None)
         column.pack_start(renderer, False)
 

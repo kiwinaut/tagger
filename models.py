@@ -3,6 +3,9 @@ from vdbs.tracker import *
 from os.path import split
 
 db.init(CONFIG['database.path'])
+# print(db.case_sensitive_like)
+db.pragma('case_sensitive_like', 1)
+# print(db.case_sensitive_like)
 
 # create_tagaliases()
 # create_db()
@@ -11,7 +14,16 @@ import re
 pattern = re.compile('\\b[a-zA-Z0-9-]{3,}\\b')
 PAGELIMIT=CONFIG['query.page_limit']
 
+
+
 class Query:
+    def explain():
+        q = ''' EXPLAIN QUERY PLAN SELECT * from Aliases Where Aliases.alias like 'a%';
+        '''
+        cursor = db.execute_sql(q)
+        for c in cursor:
+            print(c)
+
     def get_file_path_first(tag_id):
         Archives.select(Archives.filepath)\
         .join(ArchiveTags)\
@@ -123,10 +135,11 @@ class Query:
 
 
     def get_tags(folder_id=None, filter_text=None):
-        sq = Aliases.select(Tags.id, fn.group_concat(Aliases.alias, ', '), Tags.note, Tags.thumb, Tags.flag)\
+        # sq = Aliases.select(Tags.id, fn.group_concat(Aliases.alias, ', '), Tags.note, Tags.thumb, Tags.flag)\
+        sq = Aliases.select(Tags.id, Tags.name, Tags.note, Tags.thumb, Tags.flag)\
         .join(Tags)\
         .group_by(Aliases.tag_id)\
-        .order_by(Aliases.alias.asc())
+        .order_by(Tags.name.asc())
         if folder_id:
             sq = sq.where(Tags.parent_id==folder_id)
         if filter_text:
@@ -157,7 +170,10 @@ class Query:
                 exp = s
             s = Aliases.alias == alias
             exp = exp | s
-        sq = Aliases.select(Aliases.tag_id, Aliases.alias, Tags.thumb).join(Tags).where(exp).tuples()
+        if exp:
+            sq = Aliases.select(Aliases.tag_id, Aliases.alias, Tags.thumb).join(Tags).where(exp).tuples()
+        else:
+            return []
         # print(sq.sql())
         return sq
 
